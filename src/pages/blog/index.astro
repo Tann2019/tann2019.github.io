@@ -1,0 +1,169 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+---
+
+<BaseLayout title="Blog — Tanner Steorts">
+  <section class="blog-hero">
+    <div class="blog-label animate-in">Blog</div>
+    <h1 class="animate-in" style="animation-delay: 0.1s">
+      Thoughts &<br /><em>writings</em>
+    </h1>
+  </section>
+
+  {posts.length === 0 ? (
+    <p class="empty animate-in" style="animation-delay: 0.2s">No posts yet. Check back soon.</p>
+  ) : (
+    <div class="post-list">
+      {posts.map((post, i) => (
+        <a href={`/blog/${post.id}`} class="post-item animate-in" style={`animation-delay: ${0.15 + i * 0.08}s`}>
+          <div class="post-date">
+            <span class="post-month">
+              {post.data.pubDate.toLocaleDateString('en-us', { month: 'short' })}
+            </span>
+            <span class="post-day">
+              {post.data.pubDate.toLocaleDateString('en-us', { day: '2-digit' })}
+            </span>
+          </div>
+          <div class="post-content">
+            <h2>{post.data.title}</h2>
+            <p>{post.data.description}</p>
+          </div>
+          <span class="post-arrow">&rarr;</span>
+        </a>
+      ))}
+    </div>
+  )}
+</BaseLayout>
+
+<style>
+  .blog-hero {
+    padding: 6rem 0 4rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 3rem;
+  }
+
+  .blog-label {
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+  }
+
+  h1 em {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  .empty {
+    color: var(--text-dim);
+    font-size: 1rem;
+    padding: 2rem 0;
+  }
+
+  .post-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .post-item {
+    display: grid;
+    grid-template-columns: 4rem 1fr auto;
+    gap: 2rem;
+    align-items: center;
+    padding: 2rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    margin: 0 -1.5rem;
+  }
+
+  .post-item:first-child {
+    border-top: 1px solid var(--border);
+  }
+
+  .post-item:hover {
+    background: var(--bg-card);
+    border-color: transparent;
+  }
+
+  .post-item:hover + .post-item {
+    border-top-color: transparent;
+  }
+
+  .post-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .post-month {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .post-day {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.1;
+  }
+
+  .post-content h2 {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    letter-spacing: -0.01em;
+  }
+
+  .post-content p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .post-arrow {
+    font-size: 1.25rem;
+    color: var(--text-dim);
+    transition: all 0.3s ease;
+  }
+
+  .post-item:hover .post-arrow {
+    color: var(--accent);
+    transform: translateX(4px);
+  }
+
+  @media (max-width: 640px) {
+    .blog-hero {
+      padding: 4rem 0 3rem;
+    }
+
+    .post-item {
+      grid-template-columns: 3.5rem 1fr auto;
+      gap: 1rem;
+      padding: 1.5rem 1rem;
+      margin: 0 -1rem;
+    }
+  }
+</style>

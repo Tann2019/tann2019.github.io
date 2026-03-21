@@ -1,0 +1,180 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="About — Tanner Steorts">
+  <section class="about-hero">
+    <div class="about-label animate-in">About</div>
+    <h1 class="animate-in" style="animation-delay: 0.1s">
+      Building software<br />that <em>matters</em>
+    </h1>
+  </section>
+
+  <div class="about-grid">
+    <div class="about-main animate-in" style="animation-delay: 0.2s">
+      <p class="lead">
+        I'm a dedicated software engineer specializing in creating advanced software
+        solutions tailored to the modern technology industry.
+      </p>
+      <p>
+        My career is driven by a strong focus on innovation and problem-solving,
+        enabling me to tackle complex challenges with creative and effective approaches.
+        I am committed to continuously learning and refining my skills.
+      </p>
+      <p>
+        With a track record of delivering high-quality results, I thrive in dynamic
+        environments where I can contribute to the success of ambitious projects and
+        initiatives. Currently based in Billings, Montana.
+      </p>
+    </div>
+
+    <aside class="about-sidebar animate-in" style="animation-delay: 0.3s">
+      <div class="sidebar-block">
+        <h3>Education</h3>
+        <p class="edu-degree">B.S. Computer Science</p>
+        <p class="edu-school">Rocky Mountain College</p>
+        <p class="edu-year">2019 — 2022</p>
+      </div>
+
+      <div class="sidebar-block">
+        <h3>Currently</h3>
+        <p class="current-role">Support Engineer</p>
+        <p class="current-company">Givebutter</p>
+      </div>
+
+      <div class="sidebar-block">
+        <h3>Contact</h3>
+        <a href="mailto:tanner.steorts@icloud.com">tanner.steorts@icloud.com</a>
+      </div>
+    </aside>
+  </div>
+</BaseLayout>
+
+<style>
+  .about-hero {
+    padding: 6rem 0 4rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4rem;
+  }
+
+  .about-label {
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+  }
+
+  h1 em {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 16rem;
+    gap: 6rem;
+  }
+
+  .about-main .lead {
+    font-size: 1.25rem;
+    color: var(--text);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+  }
+
+  .about-main p {
+    font-size: 1rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+    margin-bottom: 1.25rem;
+  }
+
+  .about-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    padding-top: 0.5rem;
+  }
+
+  .sidebar-block h3 {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+  }
+
+  .edu-degree {
+    font-size: 0.95rem;
+    color: var(--text);
+    font-weight: 500;
+    margin-bottom: 0.15rem;
+  }
+
+  .edu-school {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.15rem;
+  }
+
+  .edu-year {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+
+  .current-role {
+    font-size: 0.95rem;
+    color: var(--text);
+    font-weight: 500;
+    margin-bottom: 0.15rem;
+  }
+
+  .current-company {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .sidebar-block a {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .sidebar-block a:hover {
+    color: var(--accent);
+  }
+
+  @media (max-width: 768px) {
+    .about-hero {
+      padding: 4rem 0 3rem;
+      margin-bottom: 3rem;
+    }
+
+    .about-grid {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+
+    .about-sidebar {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .sidebar-block {
+      min-width: 10rem;
+    }
+  }
+</style>

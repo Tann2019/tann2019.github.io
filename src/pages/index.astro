@@ -1,0 +1,458 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const experience = [
+  {
+    role: 'Support Engineer',
+    company: 'Givebutter',
+    location: 'Remote',
+    period: 'Oct 2025 — Present',
+    bullets: [
+      'Strengthen a global nonprofit CRM and fundraising platform by contributing to feature development, system maintenance, and reliability improvements across the stack.',
+      'Monitor, triage, and escalate platform incidents with a focus on rapid root-cause identification, clear communication, and minimizing customer impact.',
+      'Build internal tools and automation that streamline support workflows, reduce ticket volume, and improve team response times.',
+    ],
+  },
+  {
+    role: 'Programmer',
+    company: 'Computers Unlimited',
+    location: 'Billings, MT',
+    period: 'Jun 2024 — Oct 2025',
+    bullets: [
+      'Contributed to the development and maintenance of an enterprise mobile app alongside an industry-leading ERP solution for over 8,000 devices.',
+      'Communicated with team members through Atlassian products like Jira and Bitbucket, to create tasks and pull requests.',
+    ],
+  },
+  {
+    role: 'Software Engineer',
+    company: 'Software Design Associates',
+    location: 'Billings, MT',
+    period: 'Jan 2022 — Jun 2024',
+    bullets: [
+      'Heavily contributed to the development of the Fence Cloud software suite. Helped build robust and scalable solutions that empower 600+ clients.',
+      'Created a scalable middleware for customers to integrate with Zapier, introducing authentication and REST standards to the infrastructure.',
+      'Played an innovative role in launching Fence Cloud, in-house cloud-based software using Microsoft Azure.',
+    ],
+  },
+];
+
+const skills = [
+  'Azure DevOps',
+  'PHP / Laravel',
+  'MySQL',
+  'Redis',
+  'React',
+  'WebSockets',
+  'Agile',
+  'REST APIs',
+];
+---
+
+<BaseLayout title="Tanner Steorts — Software Engineer">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-label animate-in">Software Engineer</div>
+    <h1 class="hero-title animate-in" style="animation-delay: 0.1s">
+      Tanner<br />Steorts
+    </h1>
+    <p class="hero-description animate-in" style="animation-delay: 0.2s">
+      I specialize in creating advanced software solutions tailored to the modern
+      technology industry. Driven by innovation and problem-solving, I tackle complex
+      challenges with creative and effective approaches.
+    </p>
+    <div class="hero-meta animate-in" style="animation-delay: 0.3s">
+      <span>Billings, MT</span>
+      <span class="meta-dot"></span>
+      <a href="mailto:tanner.steorts@icloud.com">tanner.steorts@icloud.com</a>
+    </div>
+  </section>
+
+  <!-- Experience -->
+  <section class="section">
+    <div class="section-header animate-in">
+      <span class="section-number">01</span>
+      <h2>Experience</h2>
+    </div>
+    <div class="timeline">
+      {experience.map((job, i) => (
+        <div class="timeline-item animate-in" style={`animation-delay: ${0.1 * (i + 1)}s`}>
+          <div class="timeline-marker"></div>
+          <div class="timeline-meta">
+            <span class="timeline-period">{job.period}</span>
+            <span class="timeline-location">{job.location}</span>
+          </div>
+          <div class="timeline-content">
+            <h3>{job.role}</h3>
+            <span class="timeline-company">{job.company}</span>
+            <ul>
+              {job.bullets.map((bullet) => (
+                <li>{bullet}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Project -->
+  <section class="section">
+    <div class="section-header animate-in">
+      <span class="section-number">02</span>
+      <h2>Featured Project</h2>
+    </div>
+    <div class="project-card animate-in" style="animation-delay: 0.15s">
+      <div class="project-top">
+        <span class="project-tag">Personal Project</span>
+        <span class="project-tech">Laravel &middot; React &middot; WebSockets</span>
+      </div>
+      <h3 class="project-title">Gridiron Duels</h3>
+      <p class="project-subtitle">Real-Time Fantasy Football Draft Platform</p>
+      <div class="project-details">
+        <div class="project-detail">
+          <span class="detail-label">Architecture</span>
+          <p>Service-oriented backend with dedicated engines for draft orchestration, CPU AI with configurable difficulty, scoring logic, and event-driven post-game hooks.</p>
+        </div>
+        <div class="project-detail">
+          <span class="detail-label">Scale</span>
+          <p>Supports concurrent game sessions across multiple modes — 1v1, leagues up to 16 players, CPU opponents, and weekly challenges across all 18 NFL weeks.</p>
+        </div>
+        <div class="project-detail">
+          <span class="detail-label">Real-Time</span>
+          <p>WebSocket infrastructure for live draft turns, spectating, presence-aware global chat, and leaderboard updates with channel authorization and rate limiting.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Skills -->
+  <section class="section">
+    <div class="section-header animate-in">
+      <span class="section-number">03</span>
+      <h2>Toolkit</h2>
+    </div>
+    <div class="skills-grid animate-in" style="animation-delay: 0.15s">
+      {skills.map((skill) => (
+        <span class="skill-tag">{skill}</span>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Hero */
+  .hero {
+    padding: 6rem 0 5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 5rem;
+  }
+
+  .hero-label {
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem, 10vw, 7rem);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    margin-bottom: 2rem;
+  }
+
+  .hero-description {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    max-width: 36rem;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+  }
+
+  .meta-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--text-dim);
+  }
+
+  .hero-meta a {
+    color: var(--text-dim);
+  }
+
+  .hero-meta a:hover {
+    color: var(--accent);
+  }
+
+  /* Sections */
+  .section {
+    margin-bottom: 5rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1.25rem;
+    margin-bottom: 3rem;
+  }
+
+  .section-number {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  .section-header h2 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* Timeline */
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .timeline-item {
+    display: grid;
+    grid-template-columns: 12px 11rem 1fr;
+    gap: 0 2rem;
+    padding: 2rem 0;
+    border-top: 1px solid var(--border);
+    position: relative;
+  }
+
+  .timeline-marker {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-top: 0.45rem;
+    position: relative;
+  }
+
+  .timeline-marker::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 3px;
+    width: 1px;
+    height: calc(100% + 2rem);
+    background: var(--border);
+  }
+
+  .timeline-item:last-child .timeline-marker::after {
+    display: none;
+  }
+
+  .timeline-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .timeline-period {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    font-weight: 400;
+  }
+
+  .timeline-location {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+
+  .timeline-content h3 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .timeline-company {
+    display: inline-block;
+    font-size: 0.9rem;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    font-weight: 400;
+  }
+
+  .timeline-content ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .timeline-content li {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    padding-left: 1rem;
+    position: relative;
+    line-height: 1.6;
+  }
+
+  .timeline-content li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.65rem;
+    width: 4px;
+    height: 1px;
+    background: var(--text-dim);
+  }
+
+  /* Project Card */
+  .project-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2.5rem;
+    transition: border-color 0.3s ease;
+  }
+
+  .project-card:hover {
+    border-color: var(--border-hover);
+  }
+
+  .project-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .project-tag {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(200, 149, 108, 0.08);
+    padding: 0.35rem 0.85rem;
+    border-radius: 100px;
+    font-weight: 500;
+  }
+
+  .project-tech {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+
+  .project-title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.35rem;
+  }
+
+  .project-subtitle {
+    font-size: 1rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+  }
+
+  .project-details {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .detail-label {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+  }
+
+  .project-detail p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* Skills */
+  .skills-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .skill-tag {
+    font-size: 0.85rem;
+    color: var(--text);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 0.6rem 1.25rem;
+    border-radius: 100px;
+    font-weight: 400;
+    transition: all 0.3s ease;
+  }
+
+  .skill-tag:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero {
+      padding: 4rem 0 3rem;
+      margin-bottom: 3rem;
+    }
+
+    .timeline-item {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+      padding-left: 1.5rem;
+    }
+
+    .timeline-marker {
+      position: absolute;
+      left: 0;
+      top: 2.35rem;
+    }
+
+    .timeline-marker::after {
+      display: none;
+    }
+
+    .project-card {
+      padding: 1.5rem;
+    }
+
+    .project-top {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .project-details {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+</style>
