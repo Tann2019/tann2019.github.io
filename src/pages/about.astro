@@ -13,8 +13,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <div class="about-grid">
     <div class="about-main animate-in" style="animation-delay: 0.2s">
       <p class="lead">
-        I'm a dedicated software engineer specializing in creating advanced software
-        solutions tailored to the modern technology industry.
+        Full-stack developer specializing in Laravel + React applications with
+        real-time capabilities. I build products that are fast, polished, and fun to use.
       </p>
       <p>
         My career is driven by a strong focus on innovation and problem-solving,
@@ -26,6 +26,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         environments where I can contribute to the success of ambitious projects and
         initiatives. Currently based in Billings, Montana.
       </p>
+
+      <div class="goals">
+        <h3>2026 Goals</h3>
+        <ul>
+          <li>Ship Gridiron Duels to the App Store and Play Store</li>
+          <li>Contribute to open-source Laravel packages</li>
+          <li>Write technical posts about real-time app architecture and game design with Laravel</li>
+        </ul>
+      </div>
     </div>
 
     <aside class="about-sidebar animate-in" style="animation-delay: 0.3s">
@@ -43,8 +52,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </div>
 
       <div class="sidebar-block">
-        <h3>Contact</h3>
-        <a href="mailto:tanner.steorts@icloud.com">tanner.steorts@icloud.com</a>
+        <h3>Links</h3>
+        <div class="sidebar-links">
+          <a href="https://github.com/Tann2019" target="_blank" rel="noopener">GitHub</a>
+          <a href="mailto:tanner.steorts@icloud.com">Email</a>
+        </div>
       </div>
     </aside>
   </div>
@@ -152,6 +164,51 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   .sidebar-block a:hover {
     color: var(--accent);
+  }
+
+  .sidebar-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .goals {
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .goals h3 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .goals ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .goals li {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    padding-left: 1.25rem;
+    position: relative;
+    line-height: 1.6;
+  }
+
+  .goals li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.65rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    border: 1px solid var(--accent);
   }
 
   @media (max-width: 768px) {
