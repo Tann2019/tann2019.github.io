@@ -11,20 +11,29 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { Content } = await render(post);
+const { Content, remarkPluginFrontmatter } = await render(post);
+
+// Calculate read time (~225 words per minute)
+const body = post.body ?? '';
+const wordCount = body.split(/\s+/).filter(Boolean).length;
+const readTime = Math.max(1, Math.ceil(wordCount / 225));
 ---
 
 <BaseLayout title={`${post.data.title} — Tanner Steorts`} description={post.data.description}>
   <article>
     <header class="post-header">
       <a href="/blog" class="back-link animate-in">&larr; Back to blog</a>
-      <time class="animate-in" style="animation-delay: 0.05s" datetime={post.data.pubDate.toISOString()}>
-        {post.data.pubDate.toLocaleDateString('en-us', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        })}
-      </time>
+      <div class="post-meta animate-in" style="animation-delay: 0.05s">
+        <time datetime={post.data.pubDate.toISOString()}>
+          {post.data.pubDate.toLocaleDateString('en-us', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
+        </time>
+        <span class="meta-sep">&middot;</span>
+        <span class="read-time">{readTime} min read</span>
+      </div>
       <h1 class="animate-in" style="animation-delay: 0.1s">{post.data.title}</h1>
       {post.data.tags && (
         <div class="tags animate-in" style="animation-delay: 0.15s">
@@ -61,14 +70,31 @@ const { Content } = await render(post);
     color: var(--accent);
   }
 
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+  }
+
   time {
-    display: block;
     font-size: 0.8rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--accent);
-    margin-bottom: 1rem;
     font-weight: 500;
+  }
+
+  .meta-sep {
+    color: var(--text-dim);
+    font-size: 0.7rem;
+  }
+
+  .read-time {
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+    font-weight: 400;
   }
 
   h1 {
