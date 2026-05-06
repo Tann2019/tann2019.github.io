@@ -42,6 +42,114 @@ const skills = [
   { category: 'Mobile', items: ['Expo', 'React Native', 'NativeWind', 'Zustand'] },
   { category: 'Tooling', items: ['Vite', 'Azure DevOps', 'GitHub Actions', 'PHPStan', 'Laravel Pint'] },
 ];
+
+const moreProjects = [
+  {
+    name: 'HourCrew',
+    subtitle: 'Photo-a-Day with Friends',
+    stack: 'Expo · Next.js · PostgreSQL · S3 · Turborepo',
+    desc: 'Mobile + backend monorepo for taking a photo every hour with your crew. Shared TypeScript package handles types, Zod schemas, and hour-window math across both apps.',
+    tag: 'Private',
+  },
+  {
+    name: 'Mort',
+    subtitle: 'Personal AI Assistant',
+    stack: 'Telegram · Groq · Claude · Raspberry Pi',
+    desc: 'Local-first AI assistant over Telegram. Acts as an autonomous dev agent that spawns Claude Code to write full PRs across repos, plus chat, reminders, notes, and proactive check-ins.',
+    tag: 'Private',
+  },
+  {
+    name: 'Montarev',
+    subtitle: 'Notion ↔ Discord Integration',
+    stack: 'Node.js · Notion API · discord.js · PostgreSQL',
+    desc: 'Bidirectional sync — Notion task webhooks create Discord embeds and threads, and a /update slash command appends structured update blocks back to the Notion page.',
+    tag: 'Private',
+  },
+  {
+    name: 'DnD Mothership',
+    subtitle: 'Tabletop Companion System',
+    stack: 'ESP32 · LVGL · Node.js · WebSockets',
+    desc: 'Each player carries a 3.5" ESP32 touchscreen showing stats, HP, and spell slots; a Node.js mothership on the DM’s laptop pushes live updates from a web dashboard.',
+    tag: 'Private',
+  },
+  {
+    name: 'StreamCode.Live',
+    subtitle: 'Developer Streaming Platform',
+    stack: 'Laravel · Blade',
+    desc: 'Live-streaming platform for developers — auth, stream creation/editing, watch pages, and live chat messaging.',
+    tag: 'Private',
+  },
+  {
+    name: 'HyGambling',
+    subtitle: 'Hytale Casino Plugin',
+    stack: 'Java · Hytale Server Core',
+    desc: 'Server-side casino plugin — loot boxes, 3-reel slots with up to 100x multipliers, full roulette wheel, per-player UUID-persisted balance, casino NPCs, and admin controls.',
+    tag: 'Private',
+  },
+  {
+    name: 'Tech News Gram',
+    subtitle: 'Automated Short-Form Video Generator',
+    stack: 'Python · ElevenLabs · Whisper · FFmpeg',
+    desc: 'Pulls tech news, generates voiceover with ElevenLabs, transcribes with Whisper for SRT subtitles, composites the video with FFmpeg, and uploads to TikTok automatically.',
+    href: 'https://github.com/Tann2019/tech-news-gram',
+    tag: 'Public',
+  },
+  {
+    name: 'Gundam TCG Deck Builder',
+    subtitle: 'Card Search & Deck Builder',
+    stack: 'Laravel 11 · Livewire · Tailwind · MongoDB',
+    desc: 'Prototype web app for Gundam Trading Card Game enthusiasts to search cards and build decks. Dark space-themed UI.',
+    href: 'https://github.com/Tann2019/Gundam',
+    tag: 'Public',
+  },
+  {
+    name: 'Zed Blade Support',
+    subtitle: 'Editor Extension',
+    stack: 'Scheme · tree-sitter-blade',
+    desc: 'Adds Laravel Blade syntax highlighting to the Zed editor.',
+    href: 'https://github.com/Tann2019/zed-blade-support',
+    tag: 'Public',
+  },
+  {
+    name: 'MT Programmers Bot',
+    subtitle: 'Community Discord Bot',
+    stack: 'discord.js · @sern/handler · Puppeteer',
+    desc: 'Discord bot for the Montana Programmers community, with headless-browser scraping support.',
+    href: 'https://github.com/Tann2019/MTProgrammersDiscordBot',
+    tag: 'Public',
+  },
+  {
+    name: 'NBA Scraper',
+    subtitle: 'Stats Web App',
+    stack: 'Flask · BeautifulSoup',
+    desc: 'Flask web app that scrapes team stats from basketball-reference.com and renders them as an HTML table.',
+    href: 'https://github.com/Tann2019/NBA-Scraper',
+    tag: 'Public',
+  },
+  {
+    name: 'RPi Dashboard',
+    subtitle: 'Pi-Hosted Dashboard',
+    stack: 'Next.js',
+    desc: 'Next.js dashboard application running on a Raspberry Pi.',
+    tag: 'Private',
+  },
+  {
+    name: 'Godot — Hello',
+    subtitle: 'First Godot Project',
+    stack: 'Godot · HTML5 Export',
+    desc: 'A small particle/text demo exported to the web via the Godot HTML5 export.',
+    href: 'https://tann2019.github.io/Godot--Hello/',
+    tag: 'Public',
+  },
+  {
+    name: 'Advent of Code',
+    subtitle: 'Puzzle Solutions',
+    stack: 'PHP',
+    desc: 'Personal solutions to Advent of Code puzzles, written in PHP.',
+    href: 'https://github.com/Tann2019/advent-of-code',
+    tag: 'Public',
+  },
+];
 ---
 
 <BaseLayout title="Tanner Steorts — Software Engineer">
@@ -125,18 +233,41 @@ const skills = [
       </a>
 
       <div class="projects-secondary">
-        <div class="project-card project-card--small animate-in" style="animation-delay: 0.25s">
+        <a href="https://github.com/Tann2019/twitch-codes" target="_blank" rel="noopener" class="project-card project-card--small animate-in" style="animation-delay: 0.25s">
           <span class="project-tag">VS Code Extension</span>
           <h3 class="project-title-sm">Twitch Codes</h3>
-          <p class="project-desc">A VS Code extension that bridges Twitch chat with your editor. Viewers can trigger highlights, code changes, and other actions directly from chat.</p>
-        </div>
+          <p class="project-desc">A VS Code extension that bridges Twitch chat with your editor. Viewers highlight lines, suggest and vote on code changes, and scroll the editor — all via chat commands.</p>
+        </a>
 
-        <div class="project-card project-card--small animate-in" style="animation-delay: 0.3s">
+        <a href="https://github.com/Tann2019/tann2019.github.io" target="_blank" rel="noopener" class="project-card project-card--small animate-in" style="animation-delay: 0.3s">
           <span class="project-tag">This Site</span>
           <h3 class="project-title-sm">Personal Website</h3>
           <p class="project-desc">Portfolio and blog built with Astro. Static, fast, and deployed to GitHub Pages.</p>
-        </div>
+        </a>
       </div>
+    </div>
+
+    <div class="more-header animate-in">
+      <span class="more-label">More</span>
+      <span class="more-rule"></span>
+    </div>
+
+    <div class="more-grid">
+      {moreProjects.map((proj, i) => {
+        const Tag = proj.href ? 'a' : 'div';
+        const props = proj.href ? { href: proj.href, target: '_blank', rel: 'noopener' } : {};
+        return (
+          <Tag class="more-card animate-in" style={`animation-delay: ${0.05 * (i + 1)}s`} {...props}>
+            <div class="more-card-top">
+              <h3 class="more-card-title">{proj.name}</h3>
+              <span class={`more-card-tag more-card-tag--${proj.tag.toLowerCase()}`}>{proj.tag}</span>
+            </div>
+            <p class="more-card-subtitle">{proj.subtitle}</p>
+            <p class="more-card-desc">{proj.desc}</p>
+            <span class="more-card-stack">{proj.stack}</span>
+          </Tag>
+        );
+      })}
     </div>
   </section>
 
@@ -467,6 +598,108 @@ const skills = [
     line-height: 1.6;
   }
 
+  /* More projects */
+  .more-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 4rem 0 1.75rem;
+  }
+
+  .more-label {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  .more-rule {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .more-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .more-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: var(--text);
+    transition: border-color 0.3s ease, transform 0.3s ease;
+  }
+
+  a.more-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+    color: var(--text);
+  }
+
+  .more-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .more-card-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .more-card-tag {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: 100px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .more-card-tag--public {
+    color: var(--accent);
+    background: rgba(200, 149, 108, 0.08);
+  }
+
+  .more-card-tag--private {
+    color: var(--text-dim);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+  }
+
+  .more-card-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  .more-card-desc {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+    margin: 0.25rem 0 0.5rem;
+  }
+
+  .more-card-stack {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    letter-spacing: 0.02em;
+    margin-top: auto;
+  }
+
   /* Skills */
   .skills-categories {
     display: flex;
@@ -555,6 +788,10 @@ const skills = [
     }
 
     .projects-secondary {
+      grid-template-columns: 1fr;
+    }
+
+    .more-grid {
       grid-template-columns: 1fr;
     }
 
