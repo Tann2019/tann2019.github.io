@@ -1,0 +1,1572 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const meta = [
+  { label: 'Year', value: '2026' },
+  { label: 'Role', value: 'Solo build' },
+  { label: 'Platform', value: 'Discord Activity · Steam' },
+  { label: 'Status', value: 'Live' },
+];
+
+const headline = [
+  { value: '6,131',   label: 'Servers have opened it', note: 'first month after launch' },
+  { value: '241,502', label: 'Members reached',        note: 'summed at last connect' },
+  { value: '4,322',   label: 'Servers finished a dub', note: '71% of everyone who opened it' },
+  { value: '100+',    label: 'Paying subscriptions',   note: 'across two tiers' },
+];
+
+// Funnel, read top to bottom. Percentages are of the row above.
+const funnel = [
+  { step: 'Installed',        count: 6080, pct: null,  note: 'Discord’s own count' },
+  { step: 'Opened it',        count: 6131, pct: null,  note: 'a server appeared in a hello' },
+  { step: '…with the bot in', count: 5027, pct: '82%', note: 'the bot was already in the server' },
+  { step: '…recorded',        count: 4480, pct: '89%', note: 'a take produced at least one track' },
+  { step: '…finished a dub',  count: 4322, pct: '96%', note: 'a render landed' },
+];
+const funnelMax = Math.max(...funnel.map((f) => f.count));
+
+const reel = [
+  { n: '01', title: 'Pick a scene',  img: '/work/disdubs/pick.png',     alt: 'The scene picker, showing cover art for the public catalogue',       line: 'The public shelf, plus whatever the server has uploaded itself.' },
+  { n: '02', title: 'Hand out parts', img: '/work/disdubs/cast.png',    alt: 'The casting screen, assigning characters to people in the room',     line: 'Every character goes to somebody, or to nobody and stays original.' },
+  { n: '03', title: 'Slate',          img: '/work/disdubs/slate.png',   alt: 'A clapperboard countdown over the scene, showing take 01',           line: 'A clapper, a count of three, and the take number everyone is on.' },
+  { n: '04', title: 'Roll',           img: '/work/disdubs/rolling.png', alt: 'The take running, with the script scrolling over the clip',          line: 'The clip plays, the script scrolls, each line lights up in turn.' },
+  { n: '05', title: 'Fix a line',     img: '/work/disdubs/booth.png',   alt: 'The booth, showing one line’s waveform against the original',        line: 'One flubbed line costs one line. Redo it against the original.' },
+  { n: '06', title: 'Premiere',       img: '/work/disdubs/premiere.png',alt: 'The screening view, playing the finished dub back to the room',      line: 'Mix down, then watch it back together before anyone leaves.' },
+];
+
+const stack = [
+  { pos: 'Runtime',   item: 'Node 20 · TypeScript · npm workspaces' },
+  { pos: 'Client',    item: 'Discord Embedded App SDK · Vite · no framework' },
+  { pos: 'Voice',     item: 'discord.js 14 · @discordjs/voice receiver' },
+  { pos: 'Audio',     item: 'Timeline-aligned PCM writer · ffmpeg adelay + amix' },
+  { pos: 'Transport', item: 'One WebSocket, one process, shared memory' },
+  { pos: 'Desktop',   item: 'Electron shell for Steam, with on-device voice separation' },
+  { pos: 'Billing',   item: 'Discord SKUs and entitlements' },
+  { pos: 'Infra',     item: 'Single box behind Caddy · marketing site on Cloudflare' },
+];
+
+const ops = [
+  { every: '2 hours',  what: 'Raw takes deleted',     why: 'A published promise, with a job that keeps it' },
+  { every: '6 hours',  what: 'Finished dubs deleted', why: 'Download it, or lose it. The export button is right there' },
+  { every: '180 days', what: 'Unused uploads swept',  why: 'A pack nobody has picked in half a year frees its slot' },
+  { every: 'Monday',   what: 'Programme changeover',  why: 'The weekly rotation of the public shelf, at 00:00 UTC' },
+  { every: 'On SIGTERM', what: 'Rooms snapshot to disk', why: 'A redeploy mid-session puts the settled state back' },
+];
+---
+
+<BaseLayout
+  title="DisDubs — Case Study · Tanner Steorts"
+  description="Case study for DisDubs: a group dubbing game running as a Discord Activity, recorded by a bot because the platform will not give the app a microphone."
+>
+  <article class="study">
+
+    <div class="rule-strip animate-in">
+      <a href="/" class="back">← Index</a>
+      <span class="rule-meta">
+        <em>Case Study</em>
+        <span class="dot"></span>
+        № 02
+        <span class="dot"></span>
+        DisDubs
+      </span>
+    </div>
+
+    <!-- ============================ HERO ============================ -->
+    <header class="hero">
+      <div class="hero-main">
+        <span class="rec animate-in" aria-label="Live">
+          <span class="rec-dot" aria-hidden="true"></span>Recording
+        </span>
+
+        <h1 class="hero-title animate-in" style="animation-delay: 0.05s">DisDubs</h1>
+
+        <p class="hero-tagline animate-in" style="animation-delay: 0.12s">
+          A group dubbing game that runs inside Discord. Pick a scene, hand out
+          the parts, and the whole voice channel performs it together while the
+          script scrolls. Built on a platform that won't give it a microphone.
+        </p>
+
+        <a class="hero-cta animate-in" style="animation-delay: 0.3s" href="https://disdubs.com/" target="_blank" rel="noopener">
+          disdubs.com
+        </a>
+      </div>
+
+      <!-- The slate: the app draws one of these before every take. -->
+      <div class="slate animate-in" style="animation-delay: 0.2s" aria-hidden="true">
+        <div class="slate-clapper"></div>
+        <dl class="slate-fields">
+          <div><dt>Scene</dt><dd>Dub the scene together</dd></div>
+          <div><dt>Prod</dt><dd>DisDubs</dd></div>
+          <div><dt>Dir</dt><dd>Tanner Steorts</dd></div>
+        </dl>
+        <div class="slate-take"><span>Take</span><strong>01</strong></div>
+      </div>
+    </header>
+
+    <dl class="hero-meta">
+      {meta.map((m) => (
+        <div class="meta-cell">
+          <dt>{m.label}</dt>
+          <dd>{m.value}</dd>
+        </div>
+      ))}
+    </dl>
+
+    <div class="sprocket" role="presentation"></div>
+
+    <!-- ============================ LEDE ============================ -->
+    <section class="lede">
+      <p class="lede-line">
+        The obvious design is that the Activity records your microphone.
+        It can't. Everything interesting about this project came out of
+        working around that.
+      </p>
+      <p>
+        A Discord Activity is a web app in a sandboxed iframe, and that iframe
+        has no microphone permission.
+        <code class="inline">getUserMedia</code> is rejected outright. WebRTC and
+        WebTransport are unsupported too. The Social SDK doesn't rescue it
+        either, since it ships inside a game you distribute yourself and its
+        voice support stops at mute and volume.
+      </p>
+      <p>
+        So the recording happens somewhere else. A bot sits in the voice channel
+        and reads the audio Discord is already sending it.
+      </p>
+    </section>
+
+    <!-- ======================= HEADLINE NUMBERS ====================== -->
+    <section class="numbers">
+      <h2 class="numbers-head">Where it stands, one month after launch</h2>
+      <ol class="figures">
+        {headline.map((h) => (
+          <li class="figure-cell">
+            <span class="figure-value">{h.value}</span>
+            <span class="figure-label">{h.label}</span>
+            <span class="figure-note">{h.note}</span>
+          </li>
+        ))}
+      </ol>
+      <p class="numbers-foot">
+        Sixteen rooms are live as this was written, one of them encoding.
+        The box is 60% empty, with 235.8 GB free of 393.2 GB.
+      </p>
+    </section>
+
+    <div class="sprocket" role="presentation"></div>
+
+    <!-- ============================ REEL ============================= -->
+    <section class="reel-section">
+      <header class="sec-head">
+        <h2>How a dub gets made</h2>
+        <p class="sec-sub">
+          Six screens, in the order a room moves through them. Some are captured
+          in the Steam build, which is the same app under a different name.
+        </p>
+      </header>
+
+      <div class="strip" tabindex="0" role="group" aria-label="Six screens of DisDubs, in order">
+        <div class="strip-perf" aria-hidden="true"></div>
+        <ol class="strip-frames">
+          {reel.map((r) => (
+            <li class="frame">
+              <div class="frame-window">
+                <img src={r.img} alt={r.alt} loading="lazy" decoding="async" width="1920" height="1080" />
+              </div>
+              <div class="frame-caption">
+                <span class="frame-n">{r.n}</span>
+                <h3>{r.title}</h3>
+                <p>{r.line}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+        <div class="strip-perf" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <div class="sprocket" role="presentation"></div>
+
+    <!-- ====================== THE BOT IS THE TAPE ==================== -->
+    <section class="sec">
+      <header class="sec-head">
+        <h2>The bot is the tape deck</h2>
+      </header>
+
+      <p>
+        A bot in a voice channel can use the <code class="inline">@discordjs/voice</code>
+        receiver, which hands out a separate Opus stream per speaker. It's the
+        same mechanism Craig has used for multi-track recording for years. One
+        process runs the HTTP server, the websocket and the bot together, so the
+        room state machine and the recorder share memory instead of a queue.
+      </p>
+
+      <pre class="wire" aria-label="How the pieces fit together"><code>Discord client
+  ├── Activity iframe ─── the game: casting, playback, prompter, review
+  │        │ websocket    (the UI, and nothing else)
+  └── voice channel
+           │
+           └── bot ─────── per-speaker Opus → timeline-aligned PCM tracks
+                                 │
+                          server: slice per line → ffmpeg mixdown → mp4</code></pre>
+
+      <p>The workaround turned out better than the thing it replaced.</p>
+
+      <ul class="points">
+        <li>
+          <strong>Isolated tracks.</strong> One person laughing doesn't ruin
+          somebody else's line, and a retake touches one actor's audio.
+        </li>
+        <li>
+          <strong>No setup.</strong> Nobody grants a permission or picks a
+          device. If the channel can hear you, you're recorded.
+        </li>
+        <li>
+          <strong>It works on phones.</strong> Desktop, mobile and the web
+          client all record identically, because none of them are doing the
+          recording.
+        </li>
+      </ul>
+
+      <p class="caveat">
+        The honest trade-off: voice receive is not a documented Discord API. It
+        works, and has for years, but it is not something Discord promises to keep.
+      </p>
+
+      <figure class="fig">
+        <div class="fig-frame">
+          <img src="/work/disdubs/booth.png" alt="The booth screen inside Discord, showing one line’s waveform, a record button, and a red BOT LISTENING badge" loading="lazy" decoding="async" width="1570" height="1047" />
+        </div>
+        <figcaption>
+          The badge in the corner reads <strong>bot listening</strong>. It is the
+          hardest thing about this app to explain in words, and the only screenshot
+          that shows it.
+        </figcaption>
+      </figure>
+    </section>
+
+    <div class="sprocket" role="presentation"></div>
+
+    <!-- ========================= ALIGNMENT =========================== -->
+    <section class="sec">
+      <header class="sec-head">
+        <h2>Putting speech back where it was spoken</h2>
+      </header>
+
+      <p>
+        Discord only sends voice packets while somebody is talking. Record that
+        naively and three lines spoken a minute apart come back stuck together,
+        with every pause gone. Each performer pauses differently, so the three
+        tracks stop describing the same minute.
+      </p>
+
+      <!-- The centrepiece: what the aligned writer actually does. -->
+      <div class="diagram">
+        <svg viewBox="0 0 720 362" role="img" aria-labelledby="dgm-t dgm-d" class="dgm">
+          <title id="dgm-t">Naive versus timeline-aligned recording</title>
+          <desc id="dgm-d">
+            Recorded naively, each performer's speech is packed against the start of
+            their file, so the three tracks disagree about when anything happened.
+            Aligned, silence is padded back in, so the same byte offset is the same
+            instant in the take for all three.
+          </desc>
+
+          <!-- ---------- Panel A: as the packets arrive ---------- -->
+          <text x="0" y="15" class="dgm-title">As the packets arrive</text>
+          <text x="0" y="35" class="dgm-sub">every pause gone, three tracks that disagree</text>
+
+          <g>
+            <text x="0" y="67" class="dgm-name">Tanner</text>
+            <rect x="92" y="52" width="608" height="20" rx="1" class="dgm-track" />
+            <rect x="92"  y="52" width="60" height="20" rx="1" class="dgm-b1" />
+            <rect x="154" y="52" width="60" height="20" rx="1" class="dgm-b1" />
+            <rect x="216" y="52" width="60" height="20" rx="1" class="dgm-b1" />
+
+            <text x="0" y="99" class="dgm-name">Priya</text>
+            <rect x="92" y="84" width="608" height="20" rx="1" class="dgm-track" />
+            <rect x="92"  y="84" width="74" height="20" rx="1" class="dgm-b2" />
+            <rect x="168" y="84" width="48" height="20" rx="1" class="dgm-b2" />
+
+            <text x="0" y="131" class="dgm-name">Marcus</text>
+            <rect x="92" y="116" width="608" height="20" rx="1" class="dgm-track" />
+            <rect x="92"  y="116" width="60" height="20" rx="1" class="dgm-b3" />
+            <rect x="154" y="116" width="48" height="20" rx="1" class="dgm-b3" />
+          </g>
+
+          <!-- ---------- Panel B: aligned ---------- -->
+          <text x="0" y="195" class="dgm-title">Written through AlignedPcmWriter</text>
+          <text x="0" y="215" class="dgm-sub">silence padded back, so the tape means something</text>
+
+          <g>
+            <text x="0" y="247" class="dgm-name">Tanner</text>
+            <rect x="92" y="232" width="608" height="20" rx="1" class="dgm-track" />
+            <rect x="116" y="232" width="60" height="20" rx="1" class="dgm-b1" />
+            <rect x="372" y="232" width="60" height="20" rx="1" class="dgm-b1" />
+            <rect x="566" y="232" width="60" height="20" rx="1" class="dgm-b1" />
+
+            <text x="0" y="279" class="dgm-name">Priya</text>
+            <rect x="92" y="264" width="608" height="20" rx="1" class="dgm-track" />
+            <rect x="214" y="264" width="74" height="20" rx="1" class="dgm-b2" />
+            <rect x="469" y="264" width="48" height="20" rx="1" class="dgm-b2" />
+
+            <text x="0" y="311" class="dgm-name">Marcus</text>
+            <rect x="92" y="296" width="608" height="20" rx="1" class="dgm-track" />
+            <rect x="299" y="296" width="60" height="20" rx="1" class="dgm-b3" />
+            <rect x="627" y="296" width="48" height="20" rx="1" class="dgm-b3" />
+          </g>
+
+          <!-- The offset marker, cutting all three aligned lanes -->
+          <line x1="400" y1="224" x2="400" y2="326" class="dgm-cut" />
+          <circle cx="400" cy="224" r="3" class="dgm-cutdot" />
+          <text x="400" y="349" class="dgm-cutlabel" text-anchor="middle">byte offset N: the same instant in all three files</text>
+        </svg>
+      </div>
+
+      <p>
+        <code class="inline">AlignedPcmWriter</code> timestamps every decoded chunk
+        as it arrives and pads silence to put it back where it was said. Byte
+        offset N then means the same instant for every performer, so cutting one
+        line out of one track is just a read at a known offset.
+      </p>
+
+      <p>
+        Gaps under about 60 milliseconds are treated as network wobble and written
+        straight through, so a dropped packet doesn't splice silence into the
+        middle of a sentence. Everything downstream is simple because of that one
+        property, which is why it has more tests behind it than anything else in
+        the codebase.
+      </p>
+
+      <figure class="fig">
+        <div class="fig-frame">
+          <img src="/work/disdubs/sheet.png" alt="The take sheet, showing a performer’s waveform beneath the original, a drift slider, and a button reading apply to every take of mine" loading="lazy" decoding="async" width="1920" height="1080" />
+        </div>
+        <figcaption>
+          Because takes are isolated, a late entry is just a drag on the waveform.
+          If somebody was late on <em>everything</em>, which is what a bad
+          connection looks like, one nudge fixes all of their takes at once.
+        </figcaption>
+      </figure>
+    </section>
+
+    <div class="sprocket" role="presentation"></div>
+
+    <!-- ========================== PLAYHEAD =========================== -->
+    <section class="sec">
+      <header class="sec-head">
+        <h2>Recording without a shared playhead</h2>
+      </header>
+
+      <p>
+        When everyone performs at once, they're all at the same point of the clip
+        at the same moment, so one offset converts between tape position and clip
+        time. The other mode has no such thing. One person rehearses the opening
+        while another redoes the last line, each over their own continuous strip
+        of tape.
+      </p>
+
+      <p>
+        <code class="inline">PlayheadLog</code> closes that gap. Clients report
+        their position on every play, pause and seek, plus a periodic tick, and
+        the server keeps a list of runs per performer: from this instant they were
+        <em>here</em> in the clip, moving forward in real time. Finding a line
+        means searching back through those runs, newest first, which is why
+        redoing a line replaces the earlier attempt without anything having to
+        decide that it should.
+      </p>
+
+      <p>
+        A run that only covers part of a line gets refused rather than trimmed.
+        Half a line mixes down as a clipped word and sounds like a bug. No line at
+        all shows up as missing, and the take sheet can tell you about that.
+      </p>
+    </section>
+
+    <div class="sprocket" role="presentation"></div>
+
+    <!-- ============================ POOL ============================= -->
+    <section class="sec">
+      <header class="sec-head">
+        <h2>One bot has one voice</h2>
+      </header>
+
+      <p>
+        A bot account has exactly one voice state per server. That's not a library
+        limit. A bot is a user, and a user is in one voice channel per server. So a
+        server records one channel at a time, and a second room has to be turned
+        away. Getting that refusal right turned a silent mid-take theft of the
+        recorder into a message naming the channel already in use.
+      </p>
+
+      <p>
+        Running two rooms at once means running two bot accounts, and the tempting
+        move is to turn <code class="inline">bot</code> into a pool and fix every
+        call site. Counting them first said otherwise.
+      </p>
+
+      <div class="split">
+        <div class="split-cell">
+          <span class="split-n">46</span>
+          <h3>Directory calls</h3>
+          <p>
+            The server's name, whether the bot is in it, whether it's ready. Any
+            bot in the server answers these the same way. Re-pointing seventeen log
+            lines at a specific account is churn that can only add bugs.
+          </p>
+        </div>
+        <div class="split-cell split-cell--live">
+          <span class="split-n">7</span>
+          <h3>Voice calls</h3>
+          <p>
+            Join, leave, snapshot, deafen. Only these care which account answers,
+            so only these moved. The original bot stays exactly as it was and keeps
+            being the directory.
+          </p>
+        </div>
+      </div>
+
+      <p class="caveat">
+        The trap that costs a day: <code class="inline">@discordjs/voice</code> keys
+        its connection registry by group and server, and the default group is the
+        string <code class="inline">default</code>. Two accounts joining the same
+        server write the same key, and the second silently overwrites the first.
+        Every call passes the bot's own user id as the group instead. Without it
+        nothing crashes. The wrong bot just walks out of the room mid-take.
+      </p>
+    </section>
+
+    <div class="sprocket" role="presentation"></div>
+
+    <!-- =========================== THE BOX =========================== -->
+    <section class="sec">
+      <header class="sec-head">
+        <h2>What the box does between takes</h2>
+      </header>
+
+      <p>
+        Rooms live in memory, and the settled part of one snapshots to disk, so a
+        redeploy mid-session puts people back where they were instead of dropping
+        the take. ffmpeg runs in a fixed number of lanes, because the thing that
+        falls over under load is encoding, not the websocket.
+      </p>
+
+      <div class="ledger">
+        {ops.map((o) => (
+          <div class="ledger-row">
+            <span class="ledger-when">{o.every}</span>
+            <span class="ledger-what">{o.what}</span>
+            <span class="ledger-why">{o.why}</span>
+          </div>
+        ))}
+      </div>
+
+      <p>
+        The retention rules are the ones worth being careful about, because they're
+        printed on a privacy page people read before trusting the app with their
+        voice. Raw takes are gone in two hours and finished dubs in six. Saying so
+        is easy. The part that matters is the job that does it and the disk graph
+        that shows it has been.
+      </p>
+    </section>
+
+    <div class="sprocket" role="presentation"></div>
+
+    <!-- =========================== FUNNEL ============================ -->
+    <section class="sec">
+      <header class="sec-head">
+        <h2>Where people fall out</h2>
+        <p class="sec-sub">
+          Every row below the first is measured by the app itself, not estimated.
+        </p>
+      </header>
+
+      <ol class="funnel">
+        {funnel.map((f) => (
+          <li class="funnel-row">
+            <div class="funnel-label">
+              <span class="funnel-step">{f.step}</span>
+              <span class="funnel-note">{f.note}</span>
+            </div>
+            <div class="funnel-bar">
+              <span class="funnel-fill" style={`width: ${(f.count / funnelMax) * 100}%`}></span>
+            </div>
+            <span class="funnel-count">{f.count.toLocaleString('en-US')}</span>
+            <span class="funnel-pct">{f.pct ?? '—'}</span>
+          </li>
+        ))}
+      </ol>
+
+      <p class="caveat">
+        More servers have opened it than Discord says have installed it, which
+        looks like a bug and isn't one. Discord's number is approximate and the
+        app's is exact, so the two disagree at the edges. Member reach is labelled
+        <em>at last connect</em> for the same reason. It's a sum taken when each
+        server last handshaked, and it drifts until the next restart. A number that
+        can't be live shouldn't be dressed up as live.
+      </p>
+
+      <p>
+        Read from the second row, not the first. An install nobody ever opened
+        isn't a person lost at the bot step, and counting it as one makes the
+        invite look worse than it is while hiding how bad it is among people who
+        actually tried. Read that way, the one real drop is the third row. Nearly
+        a fifth of servers that open DisDubs don't have the bot in them yet, and
+        nothing can be recorded until they do. That makes the invite, not the
+        recording, the piece most worth working on.
+      </p>
+    </section>
+
+    <div class="sprocket" role="presentation"></div>
+
+    <!-- ========================== BUSINESS =========================== -->
+    <section class="sec">
+      <header class="sec-head">
+        <h2>Selling compute, not the catalogue</h2>
+      </header>
+
+      <p>
+        One rule got written down before there was any money, so that a later idea
+        would have to argue with it. <strong>Sell hosting and compute, never access
+        to the catalogue.</strong> The packs are other people's work and the clips
+        are third-party footage. A subscription pitched as "pay to unlock the
+        scenes" turns a free fan tool into a commercial access gate, which is the
+        worst possible framing if a rights-holder ever looks.
+      </p>
+
+      <p>
+        So the catalogue is free, permanently. There's a second reason for that
+        which has nothing to do with licensing. A server that just installed lands
+        in the scene picker, and if it lands on four scenes and a wall of padlocks,
+        the app has spent its only first impression asking for money.
+      </p>
+
+      <p>
+        The two paid tiers sell upload slots, longer scenes, a deeper place in the
+        encoding queue, thirty-day storage instead of six hours, and a second
+        recorder bot so two rooms can run at once. Uploads stay private to the
+        server they came from. Making one public means asking, a person looking at
+        it, and it either getting published or declined. Whoever made a pack keeps
+        their credit on the scene.
+      </p>
+
+      <div class="tiers">
+        <span class="tier-count">100+</span>
+        <span class="tier-name">
+          Servers paying for one of the two tiers a month after launch.
+          None of them for access to a single scene.
+        </span>
+      </div>
+    </section>
+
+    <div class="sprocket" role="presentation"></div>
+
+    <!-- ========================== PLATFORMS ========================== -->
+    <section class="sec">
+      <header class="sec-head">
+        <h2>One codebase, three ways in</h2>
+      </header>
+
+      <p>
+        The same server and client run in three places. Inside Discord it's an
+        Activity and the bot records. On Steam it's an Electron shell called
+        <strong>Dubbed</strong>, which records locally and ships a scene editor that
+        pulls dialogue off a clip using a voice-separation model running on the
+        player's own machine. In a plain browser tab, which is the development path,
+        the client records itself with <code class="inline">MediaRecorder</code> and
+        the rest of the pipeline is identical. That's why most of the work never
+        needs a Discord application at all.
+      </p>
+
+      <p>
+        One module says what's actually true per platform, and every check reads
+        from it. The alternative is a scatter of platform comparisons that each
+        drift on their own schedule, and a feature that works on a dev machine and
+        silently fails inside Discord.
+      </p>
+
+      <ul class="stack-list">
+        {stack.map((s) => (
+          <li class="stack-row">
+            <span class="stack-pos">{s.pos}</span>
+            <span class="stack-item">{s.item}</span>
+          </li>
+        ))}
+      </ul>
+
+      <p class="caveat">
+        The product is called DisDubs because Discord won't allow "discord" in a
+        bot's name. The repository, the workspaces and the code are all still
+        DiscordDubs. Renaming them would have churned every import in the project
+        for a rule that only applies to a public listing.
+      </p>
+    </section>
+
+    <!-- ========================== CLOSING ============================ -->
+    <section class="closing">
+      <div class="closing-rule"></div>
+      <p class="closing-line">
+        DisDubs is live at
+        <a href="https://disdubs.com/" target="_blank" rel="noopener">disdubs.com</a>,
+        and free to add to a server.
+      </p>
+      <div class="closing-end">— Fin —</div>
+    </section>
+
+    <nav class="study-nav">
+      <a href="/work/gridiron-duels/" class="nav-prev">
+        <span class="nav-eyebrow">Previous</span>
+        <span class="nav-title">Gridiron Duels</span>
+      </a>
+      <a href="/" class="nav-next">
+        <span class="nav-eyebrow">Back to</span>
+        <span class="nav-title">All work →</span>
+      </a>
+    </nav>
+  </article>
+</BaseLayout>
+
+<style>
+  /* ------------------------------------------------------------------ *
+   * DisDubs case study.
+   * Inherits the site's tokens; adds three of the product's own colours.
+   * Red only ever means recording. Amber only ever means a take number.
+   * ------------------------------------------------------------------ */
+  .study {
+    --rec: #e5484d;
+    --take: #e8b04b;
+    --alt: #4ec9b0;
+    --perf: rgba(255, 255, 255, 0.11);
+    --col: min(44rem, 100%);
+    padding-bottom: 4rem;
+  }
+
+  /* ---------- Pretitle rule strip ------------------------------------- */
+  .rule-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2.5rem 0 1rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 3.5rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .back { color: var(--text-muted); letter-spacing: 0.06em; }
+  .back:hover { color: var(--accent); }
+
+  .rule-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .rule-meta em {
+    font-family: var(--font-display);
+    font-style: italic;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.95rem;
+    color: var(--accent);
+    font-weight: 400;
+  }
+
+  .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-dim); }
+
+  /* ---------- The perforation rail ------------------------------------ *
+   * The app draws this under its own header. Here it separates acts.     */
+  .sprocket {
+    height: 15px;
+    margin: 4.5rem 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background-image: repeating-linear-gradient(
+      90deg,
+      var(--perf) 0 13px,
+      transparent 13px 27px
+    );
+    background-position: center;
+    background-size: auto 7px;
+    background-repeat: repeat-x;
+  }
+
+  /* ---------- Hero ----------------------------------------------------- */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    padding: 0.5rem 0 3rem;
+  }
+
+  @media (min-width: 900px) {
+    .hero {
+      grid-template-columns: 1.35fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+  }
+
+  .rec {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--rec);
+    margin-bottom: 1.6rem;
+  }
+
+  .rec-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--rec);
+    animation: recPulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes recPulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.28; }
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(3.4rem, 11vw, 7rem);
+    line-height: 0.9;
+    letter-spacing: -0.045em;
+    color: var(--text);
+    margin-bottom: 1.6rem;
+  }
+
+  .hero-tagline {
+    font-size: 1.08rem;
+    line-height: 1.75;
+    color: var(--text-muted);
+    max-width: 30rem;
+    border-left: 1px solid var(--border);
+    padding-left: 1.4rem;
+  }
+
+  .hero-cta {
+    display: inline-block;
+    margin-top: 2.2rem;
+    font-size: 0.95rem;
+    color: var(--accent);
+    border-bottom: 1px solid rgba(200, 149, 108, 0.3);
+    padding-bottom: 0.25rem;
+    transition: border-color 0.25s ease, color 0.25s ease;
+  }
+
+  .hero-cta:hover {
+    color: var(--accent-glow);
+    border-bottom-color: var(--accent-glow);
+  }
+
+  /* ---------- The slate ------------------------------------------------ */
+  .slate {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.9);
+    max-width: 26rem;
+    width: 100%;
+    justify-self: end;
+  }
+
+  .slate-clapper {
+    height: 30px;
+    background-image: repeating-linear-gradient(
+      66deg,
+      #e8e6e3 0 22px,
+      #14100d 22px 44px
+    );
+  }
+
+  .slate-fields {
+    padding: 1.35rem 1.4rem 0.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  .slate-fields > div {
+    display: grid;
+    grid-template-columns: 3.4rem 1fr;
+    gap: 0.9rem;
+    align-items: baseline;
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .slate-fields dt {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--take);
+    opacity: 0.75;
+  }
+
+  .slate-fields dd {
+    font-size: 0.9rem;
+    color: var(--text);
+    letter-spacing: 0.05em;
+  }
+
+  .slate-take {
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-end;
+    gap: 0.9rem;
+    padding: 0.6rem 1.4rem 1.5rem;
+  }
+
+  .slate-take span {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--take);
+    opacity: 0.75;
+  }
+
+  .slate-take strong {
+    font-family: var(--font-display);
+    font-size: 2.6rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--take);
+    font-feature-settings: "tnum" 1;
+  }
+
+  /* ---------- Hero meta ------------------------------------------------ */
+  .hero-meta {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .meta-cell {
+    padding: 1.25rem 1.25rem 1.25rem 0;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .meta-cell:last-child { border-right: 0; padding-right: 0; }
+  .meta-cell:not(:first-child) { padding-left: 1.25rem; }
+
+  .meta-cell dt {
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .meta-cell dd {
+    font-family: var(--font-display);
+    font-size: 1.02rem;
+    color: var(--text);
+  }
+
+  /* ---------- Shared prose --------------------------------------------- */
+  .sec, .lede {
+    max-width: var(--col);
+    margin: 0 auto;
+  }
+
+  .sec p, .lede p {
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .sec strong, .lede strong { color: var(--text); font-weight: 500; }
+  .sec em, .lede em { color: var(--text); font-style: italic; }
+
+  .sec-head { margin-bottom: 2rem; }
+
+  .sec-head h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.7rem, 3.4vw, 2.3rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: var(--text);
+  }
+
+  .sec-sub {
+    margin-top: 0.7rem;
+    font-size: 0.95rem !important;
+    color: var(--text-dim) !important;
+    margin-bottom: 0 !important;
+  }
+
+  .lede-line {
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 2.9vw, 1.85rem) !important;
+    line-height: 1.45 !important;
+    color: var(--text) !important;
+    letter-spacing: -0.012em;
+    margin-bottom: 2rem !important;
+  }
+
+  .inline {
+    font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, monospace;
+    font-size: 0.85em;
+    color: var(--accent);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.1em 0.4em;
+  }
+
+  .caveat {
+    font-size: 0.92rem !important;
+    line-height: 1.7 !important;
+    color: var(--text-dim) !important;
+    border-left: 1px solid var(--rec);
+    padding: 0.3rem 0 0.3rem 1.2rem;
+    margin: 2rem 0 !important;
+  }
+
+  .caveat em, .caveat strong { color: var(--text-muted); }
+
+  .points {
+    list-style: none;
+    margin: 0 0 2rem;
+    padding: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .points li {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--text-muted);
+  }
+
+  .points strong { color: var(--text); font-weight: 500; }
+
+  /* ---------- Headline numbers ----------------------------------------- */
+  .numbers { max-width: 100%; }
+
+  .numbers-head {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--accent);
+    margin-bottom: 2rem;
+  }
+
+  .figures {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .figure-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 2.2rem 1.5rem 2.2rem 0;
+    border-right: 1px solid var(--border);
+  }
+
+  .figure-cell:last-child { border-right: 0; }
+  .figure-cell:not(:first-child) { padding-left: 1.5rem; }
+
+  .figure-value {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(2.4rem, 4.6vw, 3.5rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--text);
+    font-feature-settings: "tnum" 1;
+  }
+
+  .figure-label {
+    font-size: 0.85rem;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  .figure-note {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .numbers-foot {
+    margin-top: 1.5rem;
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  /* ---------- The filmstrip -------------------------------------------- */
+  .reel-section { max-width: 100%; }
+  .reel-section .sec-head { max-width: var(--col); }
+
+  .strip {
+    margin-top: 2.5rem;
+    background: #07070a;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+
+  .strip:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .strip-perf {
+    height: 16px;
+    background-image: repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.14) 0 14px,
+      transparent 14px 34px
+    );
+    background-size: auto 7px;
+    background-position: center;
+    background-repeat: repeat-x;
+  }
+
+  .strip-frames {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: var(--text-dim) transparent;
+  }
+
+  .frame {
+    flex: 0 0 clamp(15rem, 62vw, 19rem);
+    scroll-snap-align: start;
+    padding: 0.85rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .frame:last-child { border-right: 0; }
+
+  .frame-window {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 2px;
+    background: #000;
+  }
+
+  .frame-window img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top left;
+    display: block;
+  }
+
+  .frame-caption { padding: 0.9rem 0.2rem 0.3rem; }
+
+  .frame-n {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--take);
+    letter-spacing: 0.06em;
+  }
+
+  .frame-caption h3 {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0.2rem 0 0.45rem;
+    letter-spacing: -0.01em;
+  }
+
+  .frame-caption p {
+    font-size: 0.83rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  /* ---------- Wire diagram (plain text) -------------------------------- */
+  .wire {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.4rem 1.2rem;
+    margin: 0 0 1.8rem;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, monospace;
+    font-size: 0.76rem;
+    line-height: 1.85;
+    color: var(--text-muted);
+  }
+
+  .wire code { white-space: pre; }
+
+  /* ---------- Figures --------------------------------------------------- */
+  .fig { margin: 2.8rem 0 1rem; }
+
+  .fig-frame {
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    overflow: hidden;
+    background: #07070a;
+  }
+
+  .fig-frame img { width: 100%; height: auto; display: block; }
+
+  .fig figcaption {
+    margin-top: 0.9rem;
+    font-size: 0.87rem;
+    line-height: 1.65;
+    color: var(--text-dim);
+  }
+
+  .fig figcaption strong {
+    color: var(--rec);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.82em;
+  }
+
+  .fig figcaption em { color: var(--text-muted); font-style: italic; }
+
+  /* ---------- The alignment diagram ------------------------------------ */
+  /* Breaks out of the prose column — the lanes need the width to be read. */
+  .diagram {
+    width: min(58rem, calc(100vw - 5rem));
+    margin: 0.5rem 0 2.4rem 50%;
+    transform: translateX(-50%);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2rem 1.9rem 1.5rem;
+  }
+
+  .dgm {
+    display: block;
+    width: 100%;
+    height: auto;
+    font-family: var(--font-body);
+  }
+
+  .diagram::-webkit-scrollbar,
+  .strip-frames::-webkit-scrollbar { height: 6px; }
+
+  .diagram::-webkit-scrollbar-track,
+  .strip-frames::-webkit-scrollbar-track { background: transparent; }
+
+  .diagram::-webkit-scrollbar-thumb,
+  .strip-frames::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: 3px;
+  }
+
+  .diagram { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.16) transparent; }
+
+  .dgm-title {
+    fill: var(--text);
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.005em;
+  }
+
+  .dgm-sub {
+    fill: var(--text-dim);
+    font-size: 12.5px;
+  }
+
+  .dgm-name {
+    fill: var(--text-muted);
+    font-size: 12.5px;
+    letter-spacing: 0.02em;
+  }
+
+  .dgm-track { fill: rgba(255, 255, 255, 0.04); }
+  .dgm-b1 { fill: var(--rec); }
+  .dgm-b2 { fill: var(--alt); }
+  .dgm-b3 { fill: var(--take); }
+
+  .dgm-cut {
+    stroke: var(--text);
+    stroke-width: 1.2;
+    stroke-dasharray: 4 4;
+    opacity: 0.8;
+  }
+
+  .dgm-cutdot { fill: var(--text); opacity: 0.8; }
+
+  .dgm-cutlabel {
+    fill: var(--text-muted);
+    font-size: 12.5px;
+    letter-spacing: 0.02em;
+  }
+
+  /* ---------- Split (directory vs voice) -------------------------------- */
+  .split {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 2rem 0 2.2rem;
+  }
+
+  @media (min-width: 640px) {
+    .split { grid-template-columns: 1fr 1fr; }
+  }
+
+  .split-cell {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--text-dim);
+    border-radius: 4px;
+    padding: 1.5rem 1.4rem;
+  }
+
+  .split-cell--live { border-top-color: var(--rec); }
+
+  .split-n {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 2.6rem;
+    line-height: 1;
+    color: var(--text-dim);
+    letter-spacing: -0.04em;
+    font-feature-settings: "tnum" 1;
+  }
+
+  .split-cell--live .split-n { color: var(--rec); }
+
+  .split-cell h3 {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0.5rem 0 0.6rem;
+  }
+
+  .split-cell p {
+    font-size: 0.87rem !important;
+    line-height: 1.65 !important;
+    color: var(--text-muted) !important;
+    margin: 0 !important;
+  }
+
+  /* ---------- Ops ledger ------------------------------------------------ */
+  .ledger {
+    margin: 2rem 0 2.2rem;
+    border-top: 2px solid var(--text);
+    border-bottom: 1px solid var(--border);
+    font-feature-settings: "tnum" 1;
+  }
+
+  .ledger-row {
+    display: grid;
+    grid-template-columns: 7.5rem 1fr;
+    gap: 0.3rem 1.25rem;
+    padding: 0.95rem 0;
+    border-bottom: 1px dashed var(--border);
+    align-items: baseline;
+  }
+
+  @media (min-width: 720px) {
+    .ledger-row { grid-template-columns: 7.5rem 12rem 1fr; }
+  }
+
+  .ledger-row:last-child { border-bottom: 0; }
+
+  .ledger-when {
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--accent);
+    font-size: 0.95rem;
+  }
+
+  .ledger-what { color: var(--text); font-size: 0.92rem; }
+
+  .ledger-why {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    line-height: 1.55;
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 720px) {
+    .ledger-why { grid-column: auto; }
+  }
+
+  /* ---------- Funnel ---------------------------------------------------- */
+  .funnel {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2.2rem;
+    border-top: 1px solid var(--border);
+    font-feature-settings: "tnum" 1;
+  }
+
+  .funnel-row {
+    display: grid;
+    grid-template-columns: 1fr 4.5rem 3rem;
+    grid-template-areas:
+      'label count pct'
+      'bar   bar   bar';
+    gap: 0.55rem 0.9rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: baseline;
+  }
+
+  @media (min-width: 720px) {
+    .funnel-row {
+      grid-template-columns: 13rem 1fr 4.5rem 3rem;
+      grid-template-areas: 'label bar count pct';
+      align-items: center;
+    }
+  }
+
+  .funnel-label { grid-area: label; display: flex; flex-direction: column; gap: 0.15rem; }
+
+  .funnel-step { font-size: 0.95rem; color: var(--text); }
+
+  .funnel-note { font-size: 0.76rem; color: var(--text-dim); line-height: 1.45; }
+
+  .funnel-bar {
+    grid-area: bar;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.045);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+
+  .funnel-fill {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    opacity: 0.75;
+  }
+
+  .funnel-count {
+    grid-area: count;
+    text-align: right;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    color: var(--text);
+  }
+
+  .funnel-pct {
+    grid-area: pct;
+    text-align: right;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+  }
+
+  /* ---------- Tiers ----------------------------------------------------- */
+  .tiers {
+    display: flex;
+    align-items: center;
+    gap: 1.6rem;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-top: 2.5rem;
+    padding: 1.9rem 0;
+  }
+
+  .tier-count {
+    flex: none;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(2.6rem, 6vw, 3.6rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--take);
+    font-feature-settings: "tnum" 1;
+  }
+
+  .tier-name {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    border-left: 1px solid var(--border);
+    padding-left: 1.6rem;
+  }
+
+  /* ---------- Stack list ------------------------------------------------ */
+  .stack-list {
+    list-style: none;
+    margin: 2.2rem 0;
+    padding: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .stack-row {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    gap: 1.25rem;
+    padding: 0.95rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: baseline;
+  }
+
+  .stack-pos {
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .stack-item { font-size: 0.97rem; color: var(--text); font-weight: 300; }
+
+  /* ---------- Closing --------------------------------------------------- */
+  .closing {
+    max-width: var(--col);
+    margin: 5rem auto 0;
+    text-align: center;
+    padding: 3.5rem 0 2rem;
+  }
+
+  .closing-rule {
+    width: 4rem;
+    height: 1px;
+    background: var(--accent);
+    margin: 0 auto 2rem;
+  }
+
+  .closing-line {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.2rem;
+    line-height: 1.65;
+    color: var(--text);
+    margin-bottom: 2.5rem;
+  }
+
+  .closing-line a {
+    color: var(--accent);
+    border-bottom: 1px solid rgba(200, 149, 108, 0.35);
+  }
+
+  .closing-line a:hover { border-bottom-color: var(--accent); }
+
+  .closing-end {
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--text-dim);
+    letter-spacing: 0.5em;
+    font-size: 0.85rem;
+    text-indent: 0.5em;
+  }
+
+  /* ---------- Pagination ------------------------------------------------ */
+  .study-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 4rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .study-nav a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    color: var(--text);
+    padding: 1rem 0;
+  }
+
+  .nav-next { text-align: right; }
+
+  .nav-eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .nav-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    color: var(--text);
+    transition: color 0.2s ease;
+  }
+
+  .study-nav a:hover .nav-title { color: var(--accent); }
+
+  /* ---------- Responsive ------------------------------------------------ */
+  @media (max-width: 768px) {
+    .rule-strip {
+      font-size: 0.7rem;
+      padding: 1.5rem 0 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .sprocket { margin: 3rem 0; }
+
+    .slate { justify-self: stretch; max-width: 100%; }
+
+    .hero-meta { grid-template-columns: 1fr 1fr; }
+
+    .meta-cell:nth-child(1),
+    .meta-cell:nth-child(2) { border-bottom: 1px solid var(--border); }
+    .meta-cell:nth-child(2),
+    .meta-cell:nth-child(4) { border-right: 0; }
+    .meta-cell { padding: 1rem 0; }
+    .meta-cell:nth-child(odd) { padding-right: 1rem; }
+    .meta-cell:nth-child(even) { padding-left: 1rem; border-left: 1px solid var(--border); }
+
+    .figures { grid-template-columns: 1fr 1fr; }
+    .figure-cell { padding: 1.5rem 1rem 1.5rem 0; }
+    .figure-cell:nth-child(2) { border-right: 0; }
+    .figure-cell:nth-child(1),
+    .figure-cell:nth-child(2) { border-bottom: 1px solid var(--border); }
+    .figure-cell:nth-child(3) { padding-left: 0; }
+    .figure-cell:nth-child(odd) { padding-left: 0; }
+    .figure-cell:nth-child(even) { padding-left: 1rem; }
+
+    .tiers { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    .tier-name { border-left: 0; padding-left: 0; }
+
+    .stack-row { grid-template-columns: 1fr; gap: 0.25rem; }
+
+    .diagram {
+      width: 100%;
+      margin-left: 0;
+      transform: none;
+      padding: 1.3rem 1.1rem;
+      overflow-x: auto;
+    }
+
+    .dgm { min-width: 27rem; }
+
+    .study-nav { grid-template-columns: 1fr; }
+    .nav-next { text-align: left; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rec-dot { animation: none; }
+    .strip-frames { scroll-snap-type: none; }
+  }
+</style>

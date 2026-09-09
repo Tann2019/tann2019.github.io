@@ -1,0 +1,1183 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const meta = [
+  { label: 'Year', value: '2025—2026' },
+  { label: 'Role', value: 'Designer & Engineer' },
+  { label: 'Team', value: 'Solo build' },
+  { label: 'Status', value: 'Live' },
+];
+
+const stack = [
+  { pos: 'Backend',   item: 'Laravel 12 · PHP 8.3 · Octane / RoadRunner' },
+  { pos: 'Frontend',  item: 'React 19 · Inertia.js · Tailwind CSS' },
+  { pos: 'Mobile',    item: 'Expo SDK 54 · React Native' },
+  { pos: 'Real-time', item: 'Laravel Reverb (Pusher protocol)' },
+  { pos: 'Database',  item: 'PostgreSQL' },
+  { pos: 'Payments',  item: 'Stripe (checkout + virtual currency)' },
+  { pos: 'Infra',     item: 'Laravel Cloud · scheduler · queue workers' },
+];
+
+const stats = [
+  { value: '18', label: 'NFL weeks per game' },
+  { value: '16', label: 'Players per league' },
+  { value: '09', label: 'Scheduled tasks' },
+  { value: '50', label: 'Battle pass tiers' },
+];
+
+const services = [
+  { name: 'CoinService',         desc: 'Atomic balance transactions, wager escrow with house rake, and Stripe-powered coin purchases. Every line item logged for auditability.' },
+  { name: 'BattlePassService',   desc: '50-tier seasonal progression with free and premium tracks. XP funnels in from wins, drafts, and missions; resets each season with new content.' },
+  { name: 'CosmeticShopService', desc: 'Daily rotating shop selling name colors, titles, profile borders, and banners. Cosmetic only — no pay-to-win.' },
+  { name: 'MissionService',      desc: 'Daily and weekly objectives that feed XP into the battle pass and coins into the wallet. Resets via the scheduler.' },
+  { name: 'RankedService',       desc: 'Elo-based MMR across 9 tiers from Iron to Hall of Fame. Matchmaking widens the skill window every 5 seconds until a match is found.' },
+];
+
+const schedule = [
+  { freq: 'Weekly',      task: 'Sleeper API sync',       purpose: 'Pull latest NFL player and schedule data' },
+  { freq: 'Daily',       task: 'Mission reset',          purpose: 'Roll new daily objectives' },
+  { freq: 'Daily',       task: 'Shop rotation',          purpose: 'Refresh cosmetic shop inventory' },
+  { freq: 'Daily',       task: 'Battle pass check',      purpose: 'Process tier rewards and season transitions' },
+  { freq: 'Every 5s',    task: 'Matchmaking queue',      purpose: 'Match ranked players, expanding window' },
+  { freq: 'Every 30s',   task: 'Timer safety net',       purpose: 'Auto-pick for disconnected players' },
+  { freq: 'Every 30m',   task: 'Stale game cleanup',     purpose: 'Close abandoned games and refund wagers' },
+  { freq: 'Wednesdays',  task: 'Weekly challenge',       purpose: 'Generate new challenge with a random team pool' },
+  { freq: 'Week-end',    task: 'Leaderboard snapshot',   purpose: 'Lock results and distribute payouts' },
+];
+---
+
+<BaseLayout
+  title="Gridiron Duels — Case Study · Tanner Steorts"
+  description="Case study for Gridiron Duels: a real-time fantasy football draft platform built end-to-end across web, mobile, and a service-oriented Laravel backend."
+>
+  <article class="study">
+
+    <!-- Pretitle bar -->
+    <div class="rule-strip animate-in">
+      <a href="/" class="back">← Index</a>
+      <span class="rule-meta">
+        <em>Case Study</em>
+        <span class="dot"></span>
+        № 01
+        <span class="dot"></span>
+        Gridiron Duels
+      </span>
+    </div>
+
+    <!-- Hero -->
+    <header class="hero">
+      <div class="hero-mark animate-in" aria-hidden="true">G/D</div>
+
+      <div class="hero-title-block">
+        <h1 class="hero-title animate-in" style="animation-delay: 0.05s">
+          <span class="word-1">Gridiron</span>
+          <span class="word-2"><em>Duels</em></span>
+        </h1>
+        <p class="hero-tagline animate-in" style="animation-delay: 0.15s">
+          A real-time fantasy football draft platform — built end-to-end
+          across web, mobile, and a service-oriented backend that runs the league.
+        </p>
+      </div>
+
+      <dl class="hero-meta">
+        {meta.map((m, i) => (
+          <div class="meta-cell animate-in" style={`animation-delay: ${0.2 + i * 0.05}s`}>
+            <dt>{m.label}</dt>
+            <dd>{m.value}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <a class="hero-cta animate-in" style="animation-delay: 0.45s" href="https://gridiron-duels.com/" target="_blank" rel="noopener">
+        gridiron-duels.com <span class="cta-arrow">→</span>
+      </a>
+    </header>
+
+    <!-- Lede -->
+    <section class="section lede animate-in">
+      <p class="dropcap">
+        Fantasy football lives or dies on the draft. The instant someone's connection
+        drops, a turn timer skips, or a CPU pick feels robotic, the whole illusion
+        collapses. Gridiron Duels is built around the idea that the draft <em>is</em>
+        the product — and everything else, scoring, leaderboards, cosmetics, the meta,
+        is scaffolding that holds the moment together.
+      </p>
+    </section>
+
+    <!-- FIG 01 -->
+    <figure class="figure figure--full" data-figure="01">
+      <div class="figure-frame">
+        <span class="figure-placeholder">
+          <span class="ph-label">FIG. 01</span>
+          <span class="ph-sub">Drop the live draft room screenshot here</span>
+        </span>
+        <!-- Replace placeholder with: <img src="/work/gridiron/draft-room.png" alt="The live draft room mid-pick" /> -->
+      </div>
+      <figcaption><span class="cap-num">FIG. 01</span> &nbsp; The live draft room. Same state, every device.</figcaption>
+    </figure>
+
+    <!-- I. Stack -->
+    <section class="chapter">
+      <div class="chapter-mark" aria-hidden="true">I</div>
+      <div class="chapter-body">
+        <header class="chapter-head">
+          <span class="chapter-eyebrow">Chapter I</span>
+          <h2>The roster behind the roster</h2>
+        </header>
+
+        <p>
+          Two stacks under one roof. Public-facing pages — homepage, leaderboard,
+          marketing — are server-rendered Blade for fast first paint and clean SEO.
+          The interactive surfaces — draft room, shop, achievements — are React /
+          Inertia, sharing auth state through middleware so users glide between
+          server-rendered and SPA pages without ever feeling the seam.
+        </p>
+
+        <ul class="stack-list">
+          {stack.map((s, i) => (
+            <li class="stack-row">
+              <span class="stack-num">{String(i + 1).padStart(2, '0')}</span>
+              <span class="stack-pos">{s.pos}</span>
+              <span class="stack-item">{s.item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- II. Real-time engine -->
+    <section class="chapter">
+      <div class="chapter-mark" aria-hidden="true">II</div>
+      <div class="chapter-body">
+        <header class="chapter-head">
+          <span class="chapter-eyebrow">Chapter II</span>
+          <h2>The engine that orchestrates the draft</h2>
+        </header>
+
+        <p>
+          <code class="inline">DraftEngine</code> is a single service class that
+          owns the full game lifecycle: create, join, ready-up, pick, score,
+          complete. Every state transition broadcasts an event —
+          <code class="inline">PlayerDrafted</code>,
+          <code class="inline">TurnUpdated</code>,
+          <code class="inline">GameCompleted</code> — through Laravel Reverb. Web
+          clients listen via Laravel Echo, mobile clients via
+          <code class="inline">pusher-js</code>. Same channels, identical events,
+          one source of truth.
+        </p>
+
+        <aside class="sidenote">
+          <span class="sidenote-num">A</span>
+          Turn timers run client-side for snappy UX, with a 30-second backend
+          sweep that auto-picks for any player whose timer expired while
+          disconnected. Two layers, one consistent state.
+        </aside>
+
+        <p>
+          A player can start a draft on their laptop and a friend can join from
+          their phone mid-pick. Same lobby, same turn order, same animations.
+          That parity is enforced everywhere downstream — there is no <em>mobile
+          version</em> of the draft, only the draft as accessed from a phone.
+        </p>
+      </div>
+    </section>
+
+    <!-- Stat band -->
+    <section class="stat-band">
+      <div class="stat-band-rule"></div>
+      <ol class="stats">
+        {stats.map((s) => (
+          <li class="stat">
+            <span class="stat-num">{s.value}</span>
+            <span class="stat-label">{s.label}</span>
+          </li>
+        ))}
+      </ol>
+      <div class="stat-band-rule"></div>
+    </section>
+
+    <!-- III. Game mode polymorphism -->
+    <section class="chapter">
+      <div class="chapter-mark" aria-hidden="true">III</div>
+      <div class="chapter-body">
+        <header class="chapter-head">
+          <span class="chapter-eyebrow">Chapter III</span>
+          <h2>Modes by composition, not by branch</h2>
+        </header>
+
+        <p>
+          Games are assembled from two pieces. <strong>GameFormat</strong> defines
+          structure — 1v1, 2v2 teams, League up to sixteen — and decides player
+          count, draft order, and scoring rules. <strong>Modifiers</strong> stack on
+          top: CPU fill, Crazy Mode randomized scoring, Time Machine using past
+          NFL seasons. Add a new modifier and the core draft logic doesn't move.
+        </p>
+
+        <div class="formula">
+          <span class="formula-token">Format</span>
+          <span class="formula-op">×</span>
+          <span class="formula-token">Modifier set</span>
+          <span class="formula-op">=</span>
+          <span class="formula-token formula-result">Game</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- IV. Service-oriented economy -->
+    <section class="chapter">
+      <div class="chapter-mark" aria-hidden="true">IV</div>
+      <div class="chapter-body">
+        <header class="chapter-head">
+          <span class="chapter-eyebrow">Chapter IV</span>
+          <h2>An economy split into focused services</h2>
+        </header>
+
+        <p>
+          Five services, five domains, one shared coin. Every service owns its
+          slice and nothing else, which keeps the failure modes small and the
+          tests narrow.
+        </p>
+
+        <ol class="services">
+          {services.map((s, i) => (
+            <li class="service-card">
+              <span class="service-num">{String(i + 1).padStart(2, '0')}</span>
+              <h3>{s.name}</h3>
+              <p>{s.desc}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <!-- FIG 02 placeholder -->
+    <figure class="figure figure--wide" data-figure="02">
+      <div class="figure-frame figure-frame--tall">
+        <span class="figure-placeholder">
+          <span class="ph-label">FIG. 02</span>
+          <span class="ph-sub">Battle pass / shop screen</span>
+        </span>
+      </div>
+      <figcaption><span class="cap-num">FIG. 02</span> &nbsp; Battle pass progression and the daily cosmetic shop.</figcaption>
+    </figure>
+
+    <!-- V. Schedule -->
+    <section class="chapter">
+      <div class="chapter-mark" aria-hidden="true">V</div>
+      <div class="chapter-body">
+        <header class="chapter-head">
+          <span class="chapter-eyebrow">Chapter V</span>
+          <h2>The schedule that runs the league</h2>
+        </header>
+
+        <p>
+          Nine scheduled tasks keep Gridiron Duels alive between human inputs.
+          They roll missions, rotate the shop, sweep abandoned games, generate
+          weekly challenges, and snapshot leaderboards on time, every time.
+        </p>
+
+        <div class="listing">
+          <div class="listing-header">
+            <span>Frequency</span>
+            <span>Task</span>
+            <span>Purpose</span>
+          </div>
+          {schedule.map((row) => (
+            <div class="listing-row">
+              <span class="listing-freq">{row.freq}</span>
+              <span class="listing-task">{row.task}</span>
+              <span class="listing-purpose">{row.purpose}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- VI. Mobile parity -->
+    <section class="chapter chapter--final">
+      <div class="chapter-mark" aria-hidden="true">VI</div>
+      <div class="chapter-body chapter-body--split">
+        <div>
+          <header class="chapter-head">
+            <span class="chapter-eyebrow">Chapter VI</span>
+            <h2>One game, every device</h2>
+          </header>
+
+          <p>
+            The Expo app talks to a dedicated <code class="inline">api/v1</code>
+            route group — sixteen controllers that mirror the web experience.
+            Auth uses Laravel Sanctum tokens stored in
+            <code class="inline">expo-secure-store</code>; broadcasting auth has
+            its own endpoint, so mobile clients connect to the same Reverb
+            channels as web users and receive identical events.
+          </p>
+          <p>
+            There is no second backend, no parallel implementation, no &ldquo;mobile
+            mode.&rdquo; The phone is just another window into the same draft.
+          </p>
+        </div>
+
+        <figure class="figure figure--phone" data-figure="03">
+          <div class="figure-frame figure-frame--phone">
+            <span class="figure-placeholder">
+              <span class="ph-label">FIG. 03</span>
+              <span class="ph-sub">Mobile draft GIF</span>
+            </span>
+          </div>
+          <figcaption><span class="cap-num">FIG. 03</span> &nbsp; Expo on iOS, mid-draft.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- Closing -->
+    <section class="closing">
+      <div class="closing-rule"></div>
+      <p class="closing-line">
+        Gridiron Duels is live at
+        <a href="https://gridiron-duels.com/" target="_blank" rel="noopener">gridiron-duels.com</a>.
+        For the architectural deep-dive, read the companion essay
+        <a href="/blog/gridiron-duels-architecture/">in the blog</a>.
+      </p>
+      <div class="closing-end">— Fin —</div>
+    </section>
+
+    <!-- Pagination -->
+    <nav class="study-nav">
+      <a href="/" class="nav-prev">
+        <span class="nav-eyebrow">Index</span>
+        <span class="nav-title">All work</span>
+      </a>
+      <a href="/blog/gridiron-duels-architecture/" class="nav-next">
+        <span class="nav-eyebrow">Read next</span>
+        <span class="nav-title">Architecture deep-dive →</span>
+      </a>
+    </nav>
+  </article>
+</BaseLayout>
+
+<style>
+  /* ---------- Container override -------------------------------------- */
+  /* The case study breaks out of the standard 42rem column for figures
+     and stat bands — we use a CSS grid for column rhythm. */
+
+  .study {
+    --col-main: min(42rem, 100%);
+    --col-side: 14rem;
+    --gap: 2.5rem;
+    padding-bottom: 4rem;
+  }
+
+  /* ---------- Pretitle rule strip ------------------------------------- */
+  .rule-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2.5rem 0 1rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .back {
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+  }
+  .back:hover { color: var(--accent); }
+
+  .rule-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .rule-meta em {
+    font-family: var(--font-display);
+    font-style: italic;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.95rem;
+    color: var(--accent);
+    font-weight: 400;
+  }
+
+  .dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--text-dim);
+  }
+
+  /* ---------- Hero ----------------------------------------------------- */
+  .hero {
+    position: relative;
+    padding: 1rem 0 5rem;
+    margin-bottom: 5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-mark {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: clamp(8rem, 22vw, 17rem);
+    line-height: 0.85;
+    color: rgba(200, 149, 108, 0.06);
+    letter-spacing: -0.05em;
+    position: absolute;
+    top: -0.2em;
+    right: -0.05em;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+  }
+
+  .hero-title-block {
+    position: relative;
+    z-index: 1;
+    max-width: 48rem;
+    margin-bottom: 3rem;
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1em;
+  }
+
+  .word-1 {
+    font-size: clamp(3rem, 9vw, 6.5rem);
+    color: var(--text);
+  }
+
+  .word-2 {
+    font-size: clamp(3.2rem, 9.5vw, 7rem);
+    padding-left: 1.5em;
+  }
+
+  .word-2 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  .hero-tagline {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    max-width: 32rem;
+    padding-left: 1.5em;
+    border-left: 1px solid var(--border);
+    margin-left: 0.1em;
+  }
+
+  .hero-meta {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .meta-cell {
+    padding: 1.25rem 1.25rem 1.25rem 0;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .meta-cell:last-child { border-right: 0; padding-right: 0; }
+  .meta-cell:not(:first-child) { padding-left: 1.25rem; }
+
+  .meta-cell dt {
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .meta-cell dd {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    color: var(--text);
+    font-weight: 400;
+    font-feature-settings: "tnum" 1;
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 2.5rem;
+    font-size: 0.95rem;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+    border-bottom: 1px solid rgba(200, 149, 108, 0.3);
+    padding-bottom: 0.25rem;
+    transition: border-color 0.25s ease, gap 0.25s ease;
+  }
+
+  .hero-cta:hover {
+    color: var(--accent-glow);
+    border-bottom-color: var(--accent-glow);
+    gap: 0.9rem;
+  }
+
+  .cta-arrow {
+    transition: transform 0.25s ease;
+  }
+  .hero-cta:hover .cta-arrow { transform: translateX(2px); }
+
+  /* ---------- Generic prose section ----------------------------------- */
+  .section {
+    max-width: var(--col-main);
+    margin: 0 auto 4rem;
+  }
+
+  .section p {
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: var(--text-muted);
+    margin-bottom: 1.4rem;
+  }
+
+  /* ---------- Lede / drop cap ----------------------------------------- */
+  .lede p {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.2rem, 2.4vw, 1.55rem);
+    line-height: 1.55;
+    color: var(--text);
+    letter-spacing: -0.005em;
+  }
+
+  .lede em {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  .dropcap::first-letter {
+    font-family: var(--font-display);
+    font-weight: 900;
+    float: left;
+    font-size: 4.4em;
+    line-height: 0.85;
+    padding: 0.05em 0.12em 0 0;
+    margin-right: 0.05em;
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  /* ---------- Figures -------------------------------------------------- */
+  .figure {
+    margin: 0 auto 5rem;
+  }
+
+  .figure--full { max-width: 100%; }
+  .figure--wide { max-width: 100%; }
+
+  .figure-frame {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    background-image:
+      linear-gradient(135deg, rgba(200, 149, 108, 0.04) 0%, transparent 50%),
+      repeating-linear-gradient(45deg,
+        rgba(255, 255, 255, 0.015) 0,
+        rgba(255, 255, 255, 0.015) 1px,
+        transparent 1px,
+        transparent 14px);
+  }
+
+  .figure-frame--tall { aspect-ratio: 4 / 3; }
+  .figure-frame--phone { aspect-ratio: 9 / 16; max-width: 16rem; }
+
+  .figure-frame img,
+  .figure-frame video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .figure-frame:has(img),
+  .figure-frame:has(video) {
+    background-image: none;
+  }
+
+  .figure-frame:has(img) .figure-placeholder,
+  .figure-frame:has(video) .figure-placeholder {
+    display: none;
+  }
+
+  .figure-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: var(--text-dim);
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .ph-label {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.4rem;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+  }
+
+  .ph-sub {
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  figcaption {
+    margin-top: 0.9rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .cap-num {
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+  }
+
+  /* ---------- Chapters ------------------------------------------------- */
+  .chapter {
+    position: relative;
+    margin: 0 0 6rem;
+    display: grid;
+    grid-template-columns: 1fr min(46rem, 100%) 1fr;
+  }
+
+  .chapter > * { grid-column: 2; }
+
+  .chapter-mark {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    align-self: start;
+    text-align: center;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(11rem, 28vw, 22rem);
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+    color: rgba(200, 149, 108, 0.045);
+    margin-top: -0.3em;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+  }
+
+  .chapter-body {
+    grid-column: 2;
+    grid-row: 1;
+    position: relative;
+    z-index: 1;
+    padding-top: 3rem;
+  }
+
+  .chapter-head {
+    margin-bottom: 2rem;
+  }
+
+  .chapter-eyebrow {
+    display: inline-block;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+  }
+
+  .chapter-head h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 3.5vw, 2.4rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: var(--text);
+  }
+
+  .chapter-body p {
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: var(--text-muted);
+    margin-bottom: 1.4rem;
+  }
+
+  .chapter-body strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .chapter-body em {
+    color: var(--text);
+    font-style: italic;
+  }
+
+  .inline {
+    font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, monospace;
+    font-size: 0.85em;
+    color: var(--accent);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.1em 0.4em;
+  }
+
+  /* Sidenote — floats into right gutter on wide screens */
+  .sidenote {
+    font-size: 0.85rem;
+    line-height: 1.65;
+    color: var(--text-muted);
+    font-style: italic;
+    border-left: 1px solid var(--accent);
+    padding: 0.4rem 0 0.4rem 1rem;
+    margin: 1.6rem 0 1.6rem -1rem;
+    max-width: 28rem;
+  }
+
+  @media (min-width: 1080px) {
+    .sidenote {
+      float: right;
+      width: 13rem;
+      max-width: 13rem;
+      margin: 0.5rem -15rem 1rem 1.5rem;
+      border-left: 0;
+      border-top: 1px solid var(--accent);
+      padding: 0.7rem 0 0;
+    }
+  }
+
+  .sidenote-num {
+    display: block;
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--accent);
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.02em;
+  }
+
+  /* ---------- Stack list (roster card) -------------------------------- */
+  .stack-list {
+    list-style: none;
+    margin: 2rem 0 0;
+    padding: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .stack-row {
+    display: grid;
+    grid-template-columns: 2.5rem 8rem 1fr;
+    gap: 1.5rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: baseline;
+  }
+
+  .stack-num {
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--accent);
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+    font-feature-settings: "tnum" 1;
+  }
+
+  .stack-pos {
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .stack-item {
+    font-size: 1rem;
+    color: var(--text);
+    font-weight: 300;
+  }
+
+  /* ---------- Stat band ------------------------------------------------ */
+  .stat-band {
+    margin: 4rem 0 6rem;
+  }
+
+  .stat-band-rule {
+    height: 1px;
+    background: var(--border);
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    list-style: none;
+    padding: 3rem 0;
+    margin: 0;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.85rem;
+    border-right: 1px solid var(--border);
+    padding: 0 1rem;
+  }
+
+  .stat:last-child { border-right: 0; }
+
+  .stat-num {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(3.5rem, 7vw, 5.5rem);
+    line-height: 1;
+    color: var(--text);
+    letter-spacing: -0.04em;
+    font-feature-settings: "tnum" 1;
+  }
+
+  .stat-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 500;
+    max-width: 10rem;
+    line-height: 1.4;
+  }
+
+  /* ---------- Formula band -------------------------------------------- */
+  .formula {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.85rem;
+    padding: 2.5rem 1rem;
+    margin: 2rem 0 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: var(--font-display);
+  }
+
+  .formula-token {
+    font-style: italic;
+    font-size: 1.35rem;
+    color: var(--text);
+    padding: 0.3rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .formula-result {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 700;
+  }
+
+  .formula-op {
+    color: var(--text-dim);
+    font-size: 1.5rem;
+    font-weight: 300;
+  }
+
+  /* ---------- Services ------------------------------------------------- */
+  .services {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    counter-reset: svc;
+  }
+
+  .service-card {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.6rem 1.5rem 1.6rem;
+    transition: border-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .service-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+  }
+
+  .service-num {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.5rem;
+    font-family: var(--font-display);
+    font-style: italic;
+    color: rgba(200, 149, 108, 0.35);
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+  }
+
+  .service-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 0.6rem;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .service-card p {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* ---------- TV-listing schedule table ------------------------------- */
+  .listing {
+    margin: 2rem 0 0;
+    border-top: 2px solid var(--text);
+    border-bottom: 1px solid var(--border);
+    font-feature-settings: "tnum" 1;
+  }
+
+  .listing-header {
+    display: grid;
+    grid-template-columns: 8rem 11rem 1fr;
+    gap: 1.25rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .listing-row {
+    display: grid;
+    grid-template-columns: 8rem 11rem 1fr;
+    gap: 1.25rem;
+    padding: 0.95rem 0;
+    border-bottom: 1px dashed var(--border);
+    align-items: baseline;
+    font-size: 0.92rem;
+  }
+
+  .listing-row:last-child { border-bottom: 0; }
+
+  .listing-freq {
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--accent);
+    font-size: 0.95rem;
+  }
+
+  .listing-task {
+    color: var(--text);
+    font-weight: 400;
+  }
+
+  .listing-purpose {
+    color: var(--text-muted);
+    line-height: 1.55;
+  }
+
+  /* ---------- Final chapter split ------------------------------------- */
+  .chapter--final .chapter-body--split {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  @media (min-width: 860px) {
+    .chapter--final .chapter-body--split {
+      grid-template-columns: 1.5fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+  }
+
+  .figure--phone {
+    margin: 0;
+  }
+
+  /* ---------- Closing -------------------------------------------------- */
+  .closing {
+    max-width: var(--col-main);
+    margin: 4rem auto 0;
+    text-align: center;
+    padding: 3.5rem 0 2rem;
+  }
+
+  .closing-rule {
+    width: 4rem;
+    height: 1px;
+    background: var(--accent);
+    margin: 0 auto 2rem;
+  }
+
+  .closing-line {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.2rem;
+    line-height: 1.65;
+    color: var(--text);
+    margin-bottom: 2.5rem;
+  }
+
+  .closing-line a {
+    color: var(--accent);
+    font-style: italic;
+    border-bottom: 1px solid rgba(200, 149, 108, 0.35);
+  }
+
+  .closing-line a:hover { border-bottom-color: var(--accent); }
+
+  .closing-end {
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--text-dim);
+    letter-spacing: 0.5em;
+    font-size: 0.85rem;
+    text-indent: 0.5em;
+  }
+
+  /* ---------- Pagination ---------------------------------------------- */
+  .study-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .study-nav a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    color: var(--text);
+    padding: 1rem 0;
+  }
+
+  .nav-next { text-align: right; }
+
+  .nav-eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .nav-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    color: var(--text);
+    transition: color 0.2s ease;
+  }
+
+  .study-nav a:hover .nav-title { color: var(--accent); }
+
+  /* ---------- Responsive --------------------------------------------- */
+  @media (max-width: 768px) {
+    .rule-strip {
+      font-size: 0.7rem;
+      padding: 1.5rem 0 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .hero {
+      padding: 0.5rem 0 3rem;
+      margin-bottom: 3rem;
+    }
+
+    .word-2 { padding-left: 0.6em; }
+    .hero-tagline { padding-left: 0.6em; }
+
+    .hero-meta {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .meta-cell:nth-child(1),
+    .meta-cell:nth-child(2) {
+      border-bottom: 1px solid var(--border);
+    }
+    .meta-cell:nth-child(2),
+    .meta-cell:nth-child(4) {
+      border-right: 0;
+    }
+    .meta-cell { padding: 1rem 0; }
+    .meta-cell:nth-child(odd) { padding-right: 1rem; }
+    .meta-cell:nth-child(even) { padding-left: 1rem; border-left: 1px solid var(--border); }
+
+    .chapter-mark {
+      font-size: clamp(7rem, 32vw, 14rem);
+    }
+
+    .stats {
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem 0;
+      padding: 2rem 0;
+    }
+
+    .stat:nth-child(2) { border-right: 0; }
+
+    .services {
+      grid-template-columns: 1fr;
+    }
+
+    .listing-header,
+    .listing-row {
+      grid-template-columns: 1fr;
+      gap: 0.2rem;
+      padding: 0.75rem 0;
+    }
+
+    .listing-header { display: none; }
+
+    .listing-freq {
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+    }
+
+    .study-nav {
+      grid-template-columns: 1fr;
+    }
+    .nav-next { text-align: left; }
+  }
+</style>

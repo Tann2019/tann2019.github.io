@@ -208,7 +208,37 @@ const moreProjects = [
     </div>
 
     <div class="projects-grid">
-      <a href="https://gridiron-duels.com/" target="_blank" rel="noopener" class="project-card project-card--featured animate-in" style="animation-delay: 0.15s">
+      <a href="/work/disdubs/" class="project-card project-card--featured project-card--live animate-in" style="animation-delay: 0.15s">
+        <div class="project-top">
+          <span class="project-tag project-tag--live"><span class="live-dot" aria-hidden="true"></span>Latest</span>
+          <span class="project-tech">Discord Activity &middot; TypeScript &middot; discord.js &middot; ffmpeg &middot; Electron</span>
+        </div>
+        <h3 class="project-title">DisDubs</h3>
+        <p class="project-subtitle">Group Dubbing, Inside Discord</p>
+        <div class="project-details">
+          <div class="project-detail">
+            <span class="detail-label">The constraint</span>
+            <p>A Discord Activity cannot reach a microphone, so a bot in the voice channel does the recording instead. Every performer lands on their own isolated track.</p>
+          </div>
+          <div class="project-detail">
+            <span class="detail-label">Audio pipeline</span>
+            <p>Per-speaker Opus streams written back onto a shared timeline, sliced by line, then mixed down to an mp4 with ffmpeg. Retake one line without touching the rest.</p>
+          </div>
+          <div class="project-detail">
+            <span class="detail-label">Reach</span>
+            <p>Picked up 6,131 servers in its first month, reaching 241,502 members. 4,322 of those servers went on to finish a dub.</p>
+          </div>
+        </div>
+        <ul class="project-stats">
+          <li><strong>6,131</strong><span>servers</span></li>
+          <li><strong>241,502</strong><span>members reached</span></li>
+          <li><strong>4,322</strong><span>finished a dub</span></li>
+          <li><strong>100+</strong><span>paying servers</span></li>
+        </ul>
+        <span class="project-link">Read the case study &rarr;</span>
+      </a>
+
+      <a href="/work/gridiron-duels/" class="project-card project-card--featured animate-in" style="animation-delay: 0.2s">
         <div class="project-top">
           <span class="project-tag">Featured</span>
           <span class="project-tech">Laravel &middot; React &middot; Expo &middot; WebSockets &middot; Stripe</span>
@@ -229,7 +259,7 @@ const moreProjects = [
             <p>WebSocket infrastructure for live draft turns, spectating, presence-aware global chat, leaderboard updates, battle pass, cosmetics system, and Stripe-powered coin shop.</p>
           </div>
         </div>
-        <span class="project-link">gridiron-duels.com &rarr;</span>
+        <span class="project-link">Read the case study &rarr;</span>
       </a>
 
       <div class="projects-secondary">
@@ -569,6 +599,67 @@ const moreProjects = [
     color: var(--accent-glow);
   }
 
+  /* Live project — red pill and a stat rail, so the newest work reads first */
+  .project-tag--live {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #e5484d;
+    background: rgba(229, 72, 77, 0.09);
+  }
+
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #e5484d;
+    animation: livePulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes livePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.25; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .live-dot { animation: none; }
+  }
+
+  .project-stats {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .project-stats li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .project-stats strong {
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    line-height: 1;
+    font-feature-settings: "tnum" 1;
+  }
+
+  .project-stats span {
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .project-card--live .project-link { margin-top: 1.75rem; }
+
   .projects-secondary {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -789,6 +880,11 @@ const moreProjects = [
 
     .projects-secondary {
       grid-template-columns: 1fr;
+    }
+
+    .project-stats {
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem 1rem;
     }
 
     .more-grid {
