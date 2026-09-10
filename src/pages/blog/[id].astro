@@ -19,7 +19,29 @@ const wordCount = body.split(/\s+/).filter(Boolean).length;
 const readTime = Math.max(1, Math.ceil(wordCount / 225));
 ---
 
-<BaseLayout title={`${post.data.title} — Tanner Steorts`} description={post.data.description}>
+<BaseLayout
+  title={`${post.data.title} — Tanner Steorts`}
+  description={post.data.description}
+  type="article"
+  publishedTime={post.data.pubDate.toISOString()}
+  modifiedTime={(post.data.updatedDate ?? post.data.pubDate).toISOString()}
+  keywords={post.data.tags ?? []}
+  schema={{
+    '@type': 'BlogPosting',
+    '@id': `https://tannersteorts.com/blog/${post.id}/#post`,
+    headline: post.data.title,
+    description: post.data.description,
+    datePublished: post.data.pubDate.toISOString(),
+    dateModified: (post.data.updatedDate ?? post.data.pubDate).toISOString(),
+    wordCount,
+    keywords: (post.data.tags ?? []).join(', '),
+    inLanguage: 'en-US',
+    author: { '@id': 'https://tannersteorts.com/#person' },
+    publisher: { '@id': 'https://tannersteorts.com/#person' },
+    isPartOf: { '@id': 'https://tannersteorts.com/#website' },
+    mainEntityOfPage: `https://tannersteorts.com/blog/${post.id}/`,
+  }}
+>
   <article>
     <header class="post-header">
       <a href="/blog" class="back-link animate-in">&larr; Back to blog</a>

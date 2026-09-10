@@ -52,11 +52,84 @@ const ops = [
   { every: 'Monday',   what: 'Programme changeover',  why: 'The weekly rotation of the public shelf, at 00:00 UTC' },
   { every: 'On SIGTERM', what: 'Rooms snapshot to disk', why: 'A redeploy mid-session puts the settled state back' },
 ];
+
+// ------------------------------ SEO ------------------------------
+const published = '2026-09-09T00:00:00-06:00';
+const modified = '2026-09-10T00:00:00-06:00';
+
+const pageURL = 'https://tannersteorts.com/work/disdubs/';
+const ogImage = 'https://tannersteorts.com/og/disdubs.png';
+
+const schema = [
+  {
+    '@type': 'TechArticle',
+    '@id': `${pageURL}#article`,
+    headline: 'DisDubs — Building a Group Dubbing Game as a Discord Activity',
+    name: 'DisDubs case study',
+    description:
+      'A Discord Activity cannot open a microphone, so DisDubs records the voice channel with a bot and stitches every performer back onto the original timeline.',
+    articleSection: 'Case Study',
+    inLanguage: 'en-US',
+    datePublished: published,
+    dateModified: modified,
+    image: ogImage,
+    author: { '@id': 'https://tannersteorts.com/#person' },
+    publisher: { '@id': 'https://tannersteorts.com/#person' },
+    isPartOf: { '@id': 'https://tannersteorts.com/#website' },
+    mainEntityOfPage: pageURL,
+    about: { '@id': 'https://disdubs.com/#app' },
+    keywords:
+      'Discord Activity, Discord Embedded App SDK, discord.js, voice receiver, real-time audio, ffmpeg, TypeScript, Electron, Steam',
+  },
+  {
+    '@type': 'SoftwareApplication',
+    '@id': 'https://disdubs.com/#app',
+    name: 'DisDubs',
+    url: 'https://disdubs.com/',
+    applicationCategory: 'GameApplication',
+    operatingSystem: 'Discord (web, desktop, mobile), Windows via Steam',
+    description:
+      'A group dubbing game that runs inside a Discord voice channel. Pick a scene, hand out the parts, and the room performs it together while the script scrolls.',
+    author: { '@id': 'https://tannersteorts.com/#person' },
+    screenshot: [
+      'https://tannersteorts.com/work/disdubs/pick.png',
+      'https://tannersteorts.com/work/disdubs/cast.png',
+      'https://tannersteorts.com/work/disdubs/premiere.png',
+    ],
+  },
+  {
+    '@type': 'BreadcrumbList',
+    '@id': `${pageURL}#breadcrumb`,
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://tannersteorts.com/' },
+      { '@type': 'ListItem', position: 2, name: 'Work', item: 'https://tannersteorts.com/#projects' },
+      { '@type': 'ListItem', position: 3, name: 'DisDubs', item: pageURL },
+    ],
+  },
+];
 ---
 
 <BaseLayout
-  title="DisDubs — Case Study · Tanner Steorts"
-  description="Case study for DisDubs: a group dubbing game running as a Discord Activity, recorded by a bot because the platform will not give the app a microphone."
+  title="DisDubs — Building a Group Dubbing Game as a Discord Activity"
+  description="How DisDubs reached 6,131 Discord servers: a group dubbing game where a bot records the voice channel, because a Discord Activity iframe is denied a microphone."
+  image="/og/disdubs.png"
+  imageAlt="DisDubs case study — a group dubbing game inside Discord. 6,131 servers opened it, 241,502 members reached, 71% finished a dub."
+  type="article"
+  publishedTime={published}
+  modifiedTime={modified}
+  keywords={[
+    'Discord Activity',
+    'Discord Embedded App SDK',
+    'discord.js voice receiver',
+    'real-time audio pipeline',
+    'ffmpeg audio mixing',
+    'TypeScript',
+    'Electron',
+    'Steam',
+    'engineering case study',
+    'Tanner Steorts',
+  ]}
+  schema={schema}
 >
   <article class="study">
 

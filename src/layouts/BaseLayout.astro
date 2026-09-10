@@ -2,10 +2,74 @@
 interface Props {
   title: string;
   description?: string;
+  /** Path or absolute URL of the social share card. Falls back to the site card. */
+  image?: string;
+  imageAlt?: string;
+  /** 'website' for index-style pages, 'article' for case studies and posts. */
+  type?: 'website' | 'article';
+  publishedTime?: string;
+  modifiedTime?: string;
+  keywords?: string[];
+  /** Extra JSON-LD graph nodes contributed by the page. */
+  schema?: Record<string, unknown> | Record<string, unknown>[];
+  noindex?: boolean;
 }
 
-const { title, description = 'Tanner Steorts — Software Engineer based in Billings, MT' } = Astro.props;
+const SITE_NAME = 'Tanner Steorts';
+const DEFAULT_DESCRIPTION =
+  'Tanner Steorts — software engineer in Billings, Montana. Case studies on real-time systems, audio pipelines, and products built end to end.';
+
+const {
+  title,
+  description = DEFAULT_DESCRIPTION,
+  image = '/og/default.png',
+  imageAlt = 'Tanner Steorts — software engineer. Real-time systems, audio pipelines, product built end to end.',
+  type = 'website',
+  publishedTime,
+  modifiedTime,
+  keywords = [],
+  schema,
+  noindex = false,
+} = Astro.props;
+
 const currentPath = Astro.url.pathname;
+// Pages build to directory format, so the served URL keeps its trailing slash.
+// The canonical has to name the URL that actually returns 200, not a redirect.
+const canonicalPath = currentPath.endsWith('/') ? currentPath : `${currentPath}/`;
+const canonical = new URL(canonicalPath, Astro.site ?? Astro.url).href;
+const imageURL = new URL(image, Astro.site ?? Astro.url).href;
+
+const person = {
+  '@type': 'Person',
+  '@id': 'https://tannersteorts.com/#person',
+  name: 'Tanner Steorts',
+  url: 'https://tannersteorts.com/',
+  jobTitle: 'Software Engineer',
+  email: 'mailto:tanner.steorts@icloud.com',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Billings',
+    addressRegion: 'MT',
+    addressCountry: 'US',
+  },
+  sameAs: ['https://github.com/Tann2019'],
+};
+
+const website = {
+  '@type': 'WebSite',
+  '@id': 'https://tannersteorts.com/#website',
+  url: 'https://tannersteorts.com/',
+  name: SITE_NAME,
+  description: DEFAULT_DESCRIPTION,
+  publisher: { '@id': 'https://tannersteorts.com/#person' },
+  inLanguage: 'en-US',
+};
+
+const pageSchema = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [person, website, ...pageSchema],
+};
 ---
 
 <!doctype html>
@@ -13,12 +77,50 @@ const currentPath = Astro.url.pathname;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
     <meta name="description" content={description} />
+    <meta name="author" content="Tanner Steorts" />
+    {keywords.length > 0 && <meta name="keywords" content={keywords.join(', ')} />}
+    <link rel="canonical" href={canonical} />
+    <meta
+      name="robots"
+      content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'}
+    />
+
+    <!-- Open Graph: what LinkedIn, Facebook, Slack and Discord read. -->
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content="Tanner Steorts" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={imageURL} />
+    <meta property="og:image:secure_url" content={imageURL} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta property="og:locale" content="en_US" />
+    {type === 'article' && <meta property="article:author" content="Tanner Steorts" />}
+    {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+    {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageURL} />
+    <meta name="twitter:image:alt" content={imageAlt} />
+
+    <meta name="theme-color" content="#0a0a0a" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+    <link rel="alternate" type="application/rss+xml" title="Tanner Steorts — Blog" href="/rss.xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
-    <title>{title}</title>
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
   </head>
   <body>
     <div class="grain"></div>
