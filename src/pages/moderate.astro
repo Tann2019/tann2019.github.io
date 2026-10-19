@@ -1,0 +1,358 @@
+---
+// Hide or delete sticky notes. Unlinked and noindex; every action needs the worker's ADMIN_TOKEN.
+import Seo from '../components/Seo.astro';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <Seo title="Moderate notes" noindex />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400..800&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <main class="mod">
+      <h1>Sticky notes</h1>
+
+      <div class="mod-token">
+        <label for="mod-token">Admin token</label>
+        <input id="mod-token" type="password" autocomplete="off" spellcheck="false" />
+        <label class="mod-check"><input id="mod-remember" type="checkbox" /> Remember on this device</label>
+      </div>
+
+      <p id="mod-status" class="mod-status" role="status" aria-live="polite"></p>
+      <ul id="mod-list" class="mod-list"></ul>
+      <button id="mod-more" class="mod-more" type="button" hidden>Load more</button>
+    </main>
+
+    <script>
+      import { API_BASE, ApiError, api } from '../redesign/apps/api';
+
+      interface Note {
+        id: number;
+        created_at: string;
+        name: string;
+        place: string;
+        message: string;
+        paper: string;
+        image: string | null;
+      }
+
+      const TOKEN_KEY = 'bigsky-mod-token';
+      const PAGE = 48;
+      const PAPERS = ['butter', 'mint', 'sky', 'blush'];
+      /** A delete needs a second click within this long. */
+      const ARM_MS = 4000;
+
+      const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+      const tokenEl = $<HTMLInputElement>('mod-token');
+      const rememberEl = $<HTMLInputElement>('mod-remember');
+      const statusEl = $<HTMLParagraphElement>('mod-status');
+      const list = $<HTMLUListElement>('mod-list');
+      const more = $<HTMLButtonElement>('mod-more');
+      const dateFmt = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+      let oldest: number | null = null;
+
+      const say = (text: string) => (statusEl.textContent = text);
+
+      try {
+        const saved = localStorage.getItem(TOKEN_KEY);
+        if (saved) {
+          tokenEl.value = saved;
+          rememberEl.checked = true;
+        }
+      } catch {
+        // Blocked storage: the token just isn't remembered.
+      }
+
+      function storeToken() {
+        try {
+          if (rememberEl.checked && tokenEl.value.trim()) localStorage.setItem(TOKEN_KEY, tokenEl.value.trim());
+          else localStorage.removeItem(TOKEN_KEY);
+        } catch {
+          // Same as above.
+        }
+      }
+      tokenEl.addEventListener('change', storeToken);
+      rememberEl.addEventListener('change', storeToken);
+
+      function render(n: Note): HTMLLIElement {
+        const li = document.createElement('li');
+        li.className = 'mod-note';
+        li.dataset.paper = PAPERS.includes(n.paper) ? n.paper : PAPERS[0];
+
+        if (typeof n.image === 'string' && n.image.startsWith('data:image/png;base64,')) {
+          const img = document.createElement('img');
+          img.src = n.image;
+          img.alt = 'Drawing';
+          img.width = 240;
+          img.height = 180;
+          li.append(img);
+        }
+
+        const body = document.createElement('div');
+        body.className = 'mod-body';
+        const who = document.createElement('p');
+        who.className = 'mod-who';
+        const name = document.createElement('strong');
+        name.textContent = n.name || 'Anonymous';
+        who.append(name);
+        if (n.place) who.append(`, ${n.place}`);
+        const meta = document.createElement('p');
+        meta.className = 'mod-meta';
+        meta.textContent = `#${n.id}, ${dateFmt.format(new Date(n.created_at))}`;
+        body.append(who);
+        if (n.message) {
+          const msg = document.createElement('p');
+          msg.className = 'mod-msg';
+          msg.textContent = n.message;
+          body.append(msg);
+        }
+        body.append(meta);
+
+        const actions = document.createElement('div');
+        actions.className = 'mod-actions';
+        const hide = document.createElement('button');
+        hide.type = 'button';
+        hide.textContent = 'Hide';
+        hide.addEventListener('click', () => act(n.id, 'hide', li, hide));
+        const del = document.createElement('button');
+        del.type = 'button';
+        del.className = 'mod-delete';
+        del.textContent = 'Delete';
+        del.addEventListener('click', () => act(n.id, 'delete', li, del));
+        actions.append(hide, del);
+
+        li.append(body, actions);
+        return li;
+      }
+
+      async function load() {
+        if (!API_BASE) return say('No API configured. Set PUBLIC_BIGSKY_API.');
+        more.disabled = true;
+        say('Loading…');
+        try {
+          const q = oldest === null ? `?limit=${PAGE}` : `?before=${oldest}&limit=${PAGE}`;
+          const { notes, more: hasMore } = await api<{ notes: Note[]; more: boolean }>(`/notes${q}`);
+          notes.forEach((n) => list.append(render(n)));
+          if (notes.length) oldest = notes[notes.length - 1].id;
+          more.hidden = !hasMore;
+          const count = list.children.length;
+          say(count ? `${count} note${count === 1 ? '' : 's'} on the wall.` : 'The wall is empty.');
+        } catch (err) {
+          say(err instanceof ApiError ? err.message : 'Couldn’t load notes.');
+        } finally {
+          more.disabled = false;
+        }
+      }
+
+      async function act(id: number, kind: 'hide' | 'delete', li: HTMLLIElement, btn: HTMLButtonElement) {
+        const token = tokenEl.value.trim();
+        if (!token) {
+          say('Paste the admin token first.');
+          tokenEl.focus();
+          return;
+        }
+        if (kind === 'delete' && !btn.dataset.armed) {
+          btn.dataset.armed = '1';
+          btn.textContent = 'Confirm delete';
+          window.setTimeout(() => {
+            delete btn.dataset.armed;
+            btn.textContent = 'Delete';
+          }, ARM_MS);
+          return;
+        }
+
+        const buttons = li.querySelectorAll('button');
+        buttons.forEach((b) => (b.disabled = true));
+        try {
+          await api(`/notes/${id}${kind === 'hide' ? '/hide' : ''}`, {
+            method: kind === 'hide' ? 'POST' : 'DELETE',
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          // Keep keyboard focus in the list rather than dropping it on the body.
+          const next = (li.nextElementSibling ?? li.previousElementSibling)?.querySelector('button');
+          li.remove();
+          (next ?? tokenEl).focus();
+          say(kind === 'hide' ? `Hid note #${id}.` : `Deleted note #${id}.`);
+        } catch (err) {
+          buttons.forEach((b) => (b.disabled = false));
+          if (err instanceof ApiError && err.status === 401) say('Wrong token.');
+          else if (err instanceof ApiError && err.status === 404) {
+            li.remove();
+            say(`Note #${id} is already gone.`);
+          } else say(err instanceof ApiError ? err.message : 'That didn’t work.');
+        }
+      }
+
+      more.addEventListener('click', load);
+      load();
+    </script>
+
+    <!-- Global: the notes are built in script, so scoped selectors would miss them. -->
+    <style is:global>
+      :root {
+        --bg: #f3f5f8;
+        --fg: #16202c;
+        --muted: #5a6675;
+        --line: #d5dbe3;
+        --accent: #1f5fb6;
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #10161f;
+          --fg: #e6ebf2;
+          --muted: #9aa6b5;
+          --line: #2a3442;
+          --accent: #7fb0f5;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font: 16px/1.5 'Overpass', system-ui, sans-serif;
+      }
+      .mod {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 40px 16px 64px;
+      }
+      h1 {
+        margin: 0 0 24px;
+        font-size: 32px;
+        line-height: 1.2;
+      }
+      .mod-token {
+        display: grid;
+        gap: 8px;
+      }
+      .mod-token label:first-child {
+        font-weight: 700;
+      }
+      input[type='password'] {
+        width: 100%;
+        height: 44px;
+        padding: 0 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+      }
+      .mod-check {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--muted);
+      }
+      .mod-status {
+        min-height: 1.5em;
+        margin: 24px 0 12px;
+        color: var(--muted);
+      }
+      .mod-list {
+        display: grid;
+        gap: 12px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .mod-note {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 16px;
+        align-items: start;
+        padding: 14px;
+        border-radius: 10px;
+        background: var(--paper);
+        color: #1d1a14;
+      }
+      .mod-note[data-paper='butter'] { --paper: #f7e8a4; }
+      .mod-note[data-paper='mint'] { --paper: #d4ead2; }
+      .mod-note[data-paper='sky'] { --paper: #d3e3f4; }
+      .mod-note[data-paper='blush'] { --paper: #f6d6cf; }
+      .mod-note img {
+        width: 120px;
+        height: 90px;
+        border-radius: 6px;
+        background: rgb(255 255 255 / 0.5);
+      }
+      .mod-note:not(:has(img)) {
+        grid-template-columns: 1fr auto;
+      }
+      .mod-body p {
+        margin: 0;
+      }
+      .mod-msg {
+        margin-top: 4px !important;
+        overflow-wrap: anywhere;
+      }
+      .mod-meta {
+        margin-top: 6px !important;
+        color: #5b5444;
+        font-size: 14px;
+      }
+      .mod-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      button {
+        min-height: 36px;
+        padding: 0 14px;
+        border: 1px solid rgb(0 0 0 / 0.25);
+        border-radius: 8px;
+        background: rgb(255 255 255 / 0.7);
+        color: #1d1a14;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      button:hover:not(:disabled) {
+        background: #fff;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      .mod-delete {
+        border-color: #b42318;
+        color: #b42318;
+      }
+      .mod-delete[data-armed],
+      .mod-delete[data-armed]:hover {
+        background: #b42318;
+        color: #fff;
+      }
+      button:focus-visible,
+      input:focus-visible {
+        outline: 3px solid var(--accent);
+        outline-offset: 2px;
+      }
+      .mod-more {
+        margin-top: 16px;
+        border-color: var(--line);
+        background: transparent;
+        color: var(--fg);
+      }
+      @media (max-width: 520px) {
+        .mod-note,
+        .mod-note:not(:has(img)) {
+          grid-template-columns: 1fr;
+        }
+        .mod-actions {
+          flex-direction: row;
+        }
+      }
+    </style>
+  </body>
+</html>
