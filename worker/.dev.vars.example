@@ -1,0 +1,5 @@
+# Copy to .dev.vars for `wrangler dev`. Never commit .dev.vars.
+ADMIN_TOKEN=change-me
+IP_SALT=change-me-too
+# Optional: extra blocked words, comma separated. A trailing * matches word starts.
+BLOCKLIST=

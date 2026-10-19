@@ -1,0 +1,391 @@
+---
+// Synth window body: a control strip over an XY pad. Sound and drawing live in synth.ts.
+const waves = [
+  { id: 'sine', label: 'Sine', d: 'M2 7C4.5 .5 7.5 .5 10 7s5.5 6.5 8 0' },
+  { id: 'triangle', label: 'Triangle', d: 'M2 7l4-5 8 10 4-5' },
+  { id: 'sawtooth', label: 'Saw', d: 'M2 12L10 2v10l8-10v10' },
+  { id: 'square', label: 'Square', d: 'M2 11V3h8v8h8V3' },
+];
+const ranges = [
+  { id: 'glide', label: 'Glide', value: 30 },
+  { id: 'echo', label: 'Echo', value: 30 },
+  { id: 'volume', label: 'Volume', value: 25 },
+];
+---
+
+<div class="synth">
+  <div class="synth-ctl">
+    <div class="synth-seg" role="radiogroup" aria-label="Wave">
+      {waves.map((w) => (
+        <Fragment>
+          <input type="radio" name="synth-wave" id={`synth-wave-${w.id}`} value={w.id} checked={w.id === 'sawtooth'} />
+          <label for={`synth-wave-${w.id}`} title={w.label}>
+            <svg viewBox="0 0 20 14" aria-hidden="true"><path d={w.d}></path></svg>
+            <span class="synth-sr">{w.label}</span>
+          </label>
+        </Fragment>
+      ))}
+    </div>
+
+    <label class="synth-sr" for="synth-scale">Scale</label>
+    <select class="synth-select" id="synth-scale" data-synth="scale">
+      <option value="major">Major pentatonic</option>
+      <option value="minor" selected>Minor pentatonic</option>
+      <option value="dorian">Dorian</option>
+    </select>
+
+    <div class="synth-field" role="group" aria-labelledby="synth-oct-label">
+      <span class="synth-label" id="synth-oct-label">Octave</span>
+      <div class="synth-step">
+        <button type="button" data-synth="oct-down" aria-label="Octave down">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 8h8"></path></svg>
+        </button>
+        <output data-synth="octave" aria-live="polite">3</output>
+        <button type="button" data-synth="oct-up" aria-label="Octave up">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 8h8M8 4v8"></path></svg>
+        </button>
+      </div>
+    </div>
+
+    {ranges.map((r) => (
+      <div class="synth-field">
+        <label class="synth-label" for={`synth-${r.id}`}>{r.label}</label>
+        <input type="range" id={`synth-${r.id}`} data-synth={r.id} min="0" max="100" step="1" value={r.value} />
+      </div>
+    ))}
+
+    <button class="btn synth-hold" type="button" data-synth="hold" aria-pressed="false">Hold</button>
+  </div>
+
+  <div
+    class="synth-pad"
+    tabindex="0"
+    role="application"
+    aria-label="Play pad"
+    aria-describedby="synth-hint synth-keys"
+    data-autofocus
+  >
+    <canvas class="synth-canvas" aria-hidden="true"></canvas>
+    <p class="synth-hint" id="synth-hint">
+      <span class="hint-mouse">Drag to play. A–L keys work too. Shift holds.</span>
+      <span class="hint-touch">Drag to play. Up to four fingers.</span>
+    </p>
+    <p class="synth-sr" id="synth-keys">Up and down arrows change brightness. Left and right change octave. Escape stops every note.</p>
+  </div>
+</div>
+
+<style is:global>
+  .synth {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 14px 14px;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .synth .synth-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* ------------------------------------------------------------ controls */
+
+  .synth-ctl {
+    flex: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+  }
+
+  .synth-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .synth-label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  .synth-seg {
+    position: relative;
+    display: flex;
+    gap: 2px;
+    padding: 2px;
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 1px rgb(var(--fg-rgb) / 0.2);
+  }
+
+  .synth-seg input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .synth-seg label {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 26px;
+    border-radius: 6px;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .synth-seg label:hover {
+    color: var(--fg);
+    background: rgb(var(--fg-rgb) / 0.08);
+  }
+
+  .synth-seg input:checked + label {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  .synth-seg input:focus-visible + label {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .synth-seg svg,
+  .synth-step svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .synth-seg svg {
+    width: 20px;
+    height: 14px;
+  }
+
+  .synth-select {
+    height: 30px;
+    padding: 0 6px 0 10px;
+    border: 1px solid rgb(var(--fg-rgb) / 0.2);
+    border-radius: 7px;
+    background: transparent;
+    color: var(--fg);
+    font: inherit;
+    font-size: 13.5px;
+    cursor: pointer;
+  }
+
+  .synth-select:hover {
+    border-color: rgb(var(--fg-rgb) / 0.45);
+  }
+
+  .synth-select option {
+    background: var(--bg);
+    color: var(--fg);
+  }
+
+  .synth-step {
+    display: flex;
+    align-items: center;
+    height: 30px;
+    border-radius: 7px;
+    box-shadow: inset 0 0 0 1px rgb(var(--fg-rgb) / 0.2);
+  }
+
+  .synth-step button {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 7px;
+    background: none;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .synth-step button:hover {
+    color: var(--fg);
+    background: rgb(var(--fg-rgb) / 0.08);
+  }
+
+  .synth-step button[aria-disabled='true'] {
+    opacity: 0.35;
+    background: none;
+    cursor: default;
+  }
+
+  .synth-step svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .synth-step output {
+    min-width: 2ch;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .synth input[type='range'] {
+    --fill: 0%;
+    width: 72px;
+    height: 24px;
+    margin: 0;
+    background: transparent;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+  }
+
+  .synth input[type='range']::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(to right, var(--accent) var(--fill), rgb(var(--fg-rgb) / 0.2) var(--fill));
+  }
+
+  .synth input[type='range']::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+    background: rgb(var(--fg-rgb) / 0.2);
+  }
+
+  .synth input[type='range']::-moz-range-progress {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+
+  .synth input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    margin-top: -5px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--fg);
+  }
+
+  .synth input[type='range']::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--fg);
+  }
+
+  .synth .synth-hold {
+    height: 30px;
+    padding: 0 14px;
+    font-size: 13.5px;
+  }
+
+  /* ----------------------------------------------------------------- pad */
+
+  .synth-pad {
+    position: relative;
+    flex: 1;
+    min-height: 120px;
+    border-radius: 8px;
+    background: rgb(var(--fg-rgb) / 0.04);
+    box-shadow: inset 0 0 0 1px rgb(var(--fg-rgb) / 0.1);
+    overflow: hidden;
+    cursor: crosshair;
+    touch-action: none;
+    -webkit-touch-callout: none;
+  }
+
+  .synth-pad:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .synth-canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .synth-hint {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 28px 16px;
+    color: var(--muted);
+    font-size: 14px;
+    text-align: center;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .synth.has-played .synth-hint {
+    opacity: 0;
+  }
+
+  /* Bigger targets for fingers. 16px selects also stop iOS from zooming in on focus. */
+  @media (pointer: coarse) {
+    .synth-seg label {
+      width: 38px;
+      height: 32px;
+    }
+
+    .synth-select,
+    .synth-step,
+    .synth .synth-hold {
+      height: 36px;
+    }
+
+    .synth-select {
+      font-size: 16px;
+    }
+
+    .synth-step button {
+      width: 36px;
+    }
+
+    .synth input[type='range'] {
+      width: 88px;
+      height: 32px;
+    }
+
+    .synth input[type='range']::-webkit-slider-thumb {
+      width: 20px;
+      height: 20px;
+      margin-top: -8px;
+    }
+
+    .synth input[type='range']::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .synth {
+      padding: 10px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .synth-hint {
+      transition: none;
+    }
+  }
+</style>

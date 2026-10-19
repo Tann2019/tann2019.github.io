@@ -9,7 +9,8 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/mdx": "^4.2.0",
     "astro": "^5.7.0",
-    "@astrojs/mdx": "^4.2.0"
+    "dynamic-sky": "2.1.0"
   }
 }

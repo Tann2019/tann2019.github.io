@@ -1,0 +1,37 @@
+---
+interface Props {
+  app: string;
+  title: string;
+  /** Accessible name when the visible title is terse (e.g. the terminal's prompt). */
+  label?: string;
+}
+const { app, title, label = title } = Astro.props;
+---
+
+<section class="win" data-app={app} aria-label={label} tabindex="-1" hidden>
+  <header class="win-bar">
+    <span class="win-title">{title}</span>
+    <div class="win-ctl">
+      <button type="button" data-win="min" aria-label={`Minimize ${label}`}>
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 11.5h8"></path></svg>
+      </button>
+      <button type="button" data-win="max" aria-label={`Maximize ${label}`}>
+        <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="4" width="8" height="8" rx="1.5"></rect></svg>
+      </button>
+      <button type="button" data-win="close" aria-label={`Close ${label}`}>
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"></path></svg>
+      </button>
+    </div>
+  </header>
+  <div class="win-body">
+    <slot />
+  </div>
+  <div class="rz rz-n" data-rz="n" aria-hidden="true"></div>
+  <div class="rz rz-s" data-rz="s" aria-hidden="true"></div>
+  <div class="rz rz-e" data-rz="e" aria-hidden="true"></div>
+  <div class="rz rz-w" data-rz="w" aria-hidden="true"></div>
+  <div class="rz rz-ne" data-rz="ne" aria-hidden="true"></div>
+  <div class="rz rz-nw" data-rz="nw" aria-hidden="true"></div>
+  <div class="rz rz-se" data-rz="se" aria-hidden="true"></div>
+  <div class="rz rz-sw" data-rz="sw" aria-hidden="true"></div>
+</section>
