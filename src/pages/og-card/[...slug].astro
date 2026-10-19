@@ -1,0 +1,217 @@
+---
+// Social share cards, rendered from the homepage's own scene (sky, land, clouds) at a set time of day,
+// with site UI on top. Dev only: production builds get no paths and the client code loads straight from Vite,
+// so nothing here ships.
+// scripts/generate-og.mjs screenshots each card into public/og/. Under `npm run dev`, /og-card/ lists them.
+import { getCollection } from 'astro:content';
+import Win from '../../redesign/Win.astro';
+import FileIcon from '../../redesign/FileIcon.astro';
+import Wallpaper from '../../redesign/Wallpaper.astro';
+
+interface Scene {
+  /** Minutes past midnight, Billings time, on the reference day in og.ts. */
+  minutes: number;
+  /** Cloud cover, 0-100, the way Open-Meteo reports it. */
+  cloud: number;
+}
+
+interface Stat {
+  value: string;
+  label: string;
+}
+
+type Card = { slug: string; scene: Scene } & (
+  | { kind: 'home' }
+  | { kind: 'project'; app: string; icon: string; title: string; lede: string; stats: Stat[] }
+  | { kind: 'post'; title: string; subtitle?: string; date: string }
+);
+
+export async function getStaticPaths() {
+  if (!import.meta.env.DEV) return [];
+
+  const at = (h: number, m = 0) => h * 60 + m;
+  // Posts get a time of day from their id, so a card never changes unless the post does.
+  const postScenes: Scene[] = [
+    { minutes: at(9, 40), cloud: 25 },
+    { minutes: at(15, 0), cloud: 40 },
+    { minutes: at(18, 50), cloud: 15 },
+    { minutes: at(22), cloud: 0 },
+  ];
+  const hash = (s: string) => {
+    let h = 2166136261;
+    for (const c of s) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+    return h >>> 0;
+  };
+  const postDate = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+  const posts = (await getCollection('blog')).sort((a, b) => a.id.localeCompare(b.id));
+
+  const cards: Card[] = [
+    { slug: 'default', kind: 'home', scene: { minutes: at(18, 2), cloud: 55 } },
+    {
+      slug: 'disdubs',
+      kind: 'project',
+      scene: { minutes: at(18, 50), cloud: 20 },
+      app: 'disdubs',
+      icon: 'slate',
+      title: 'DisDubs',
+      lede: 'A group dubbing game inside Discord',
+      stats: [
+        { value: '6,000+', label: 'servers' },
+        { value: '240,000+', label: 'members reached' },
+        { value: '70%', label: 'finished a dub' },
+      ],
+    },
+    {
+      slug: 'gridiron-duels',
+      kind: 'project',
+      scene: { minutes: at(14, 30), cloud: 35 },
+      app: 'gridiron',
+      icon: 'football',
+      title: 'Gridiron Duels',
+      lede: 'Real-time fantasy football drafts',
+      // From the stats block on /work/gridiron-duels/.
+      stats: [
+        { value: '3,400+', label: 'players' },
+        { value: '1,041,000+', label: 'picks made' },
+      ],
+    },
+    ...posts.map((post): Card => {
+      // "Name — Subtitle" titles break at the dash instead of printing it. National Park draws a capital I
+      // like an l, so "GridIron" would read "Gridlron".
+      const [title, subtitle] = post.data.title.replace(/\bGridIron\b/g, 'Gridiron').split(/\s+[—–-]\s+(.*)/s);
+      return {
+        slug: `blog/${post.id}`,
+        kind: 'post',
+        scene: postScenes[hash(post.id) % postScenes.length],
+        title,
+        subtitle,
+        date: postDate.format(post.data.pubDate),
+      };
+    }),
+  ];
+
+  return [{ params: { slug: undefined }, props: { cards } }, ...cards.map((card) => ({ params: { slug: card.slug }, props: { card, cards } }))];
+}
+
+const { card, cards } = Astro.props as { card?: Card; cards: Card[] };
+
+/** Window titles, as APPS in src/redesign/wm.ts names them. */
+const TITLES: Record<string, string> = { disdubs: 'DisDubs', gridiron: 'Gridiron Duels', writing: 'Writing' };
+
+/** Where og.ts pans the sun (or the moon, once dusk is over): the open sky right of the window or panel. */
+const FOCUS_X = 1080;
+---
+
+<!doctype html>
+<html lang="en" data-minutes={card?.scene.minutes} data-cloud={card?.scene.cloud} data-focus={card && FOCUS_X}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1200" />
+    <meta name="robots" content="noindex" />
+    <title>{card ? `Share card ${card.slug}` : 'Share cards'}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=National+Park:wght@400..800&family=Overpass:ital,wght@0,300..800;1,400&family=Overpass+Mono:wght@400..700&display=swap"
+      rel="stylesheet"
+    />
+    {/* Served straight from Vite in dev, so the card's styles and script never join the production build. */}
+    {card && <link rel="stylesheet" href="/src/redesign/styles.css" />}
+    {card && <link rel="stylesheet" href="/src/redesign/og.css" />}
+  </head>
+  <body class={card && `og og-${card.kind}`}>
+    {
+      !card && (
+        <>
+          <h1>Share cards</h1>
+          <p>Run <code>npm run og</code> to write these to public/og/.</p>
+          <ul>
+            {cards.map((c) => (
+              <li>
+                <a href={`/og-card/${c.slug}/`} data-card={c.slug}>{c.slug}</a>
+              </li>
+            ))}
+          </ul>
+        </>
+      )
+    }
+
+    {card && <Wallpaper />}
+
+    {
+      card && (
+        <header class="bar">
+          <div class="bar-left">
+            <span class="bar-icon bar-launch">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="16.5" cy="7.5" r="3" /><path d="M2 19l3.6-7h12.8l3.6 7z" /></svg>
+            </span>
+            <nav class="bar-ws">
+              {[1, 2, 3, 4].map((n) => (
+                <button type="button" aria-current={n === 1 ? 'true' : undefined}>{n}</button>
+              ))}
+            </nav>
+          </div>
+          <div class="taskbar">
+            {card.kind !== 'home' && (
+              <button class="task" type="button" aria-pressed="true">
+                <FileIcon name={card.kind === 'project' ? card.icon : 'notebook'} />
+                <span>{TITLES[card.kind === 'project' ? card.app : 'writing']}</span>
+              </button>
+            )}
+          </div>
+          <div class="bar-right">
+            <span class="bar-clock" data-og="clock"></span>
+          </div>
+        </header>
+      )
+    }
+
+    {
+      card?.kind === 'home' && (
+        <div class="conky">
+          <h1 class="conky-name"><span>Tanner</span> <span>Steorts</span></h1>
+          <p class="conky-intro">Software engineer in Billings, Montana</p>
+        </div>
+      )
+    }
+
+    {
+      card?.kind === 'project' && (
+        <Win app={card.app} title={TITLES[card.app]}>
+          <div class="og-doc">
+            <div class="og-head">
+              <FileIcon name={card.icon} />
+              <h1 class="og-title" data-fit data-max-lines="1">{card.title}</h1>
+            </div>
+            <p class="og-lede">{card.lede}</p>
+            <ul class="stats">
+              {card.stats.map((s) => (
+                <li>
+                  <strong>{s.value}</strong>
+                  <span>{s.label}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Win>
+      )
+    }
+
+    {
+      card?.kind === 'post' && (
+        <Win app="writing" title={TITLES.writing}>
+          <div class="og-doc">
+            <FileIcon name="notebook" />
+            <h1 class="og-title" data-fit data-max-lines="3" data-min-size="44">
+              {card.title}
+              {card.subtitle && <span class="og-sub">{card.subtitle}</span>}
+            </h1>
+            <p class="og-date">{card.date}</p>
+          </div>
+        </Win>
+      )
+    }
+
+    {card && <script is:inline type="module" src="/src/redesign/og.ts" />}
+  </body>
+</html>

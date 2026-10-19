@@ -1,133 +1,162 @@
 /**
  * Builds the Open Graph / social share cards under public/og/.
- * Run with: node scripts/generate-og.mjs
+ * Run with: npm run og              (or: npm run og -- disdubs blog/hello-world)
  *
- * These are read at roughly half size in a LinkedIn feed, so nothing here is
- * smaller than 20px and the copy is one line. Detail loses to legibility.
+ * Each card is a dev-only page under /og-card/ (src/pages/og-card/) that paints the homepage's own sky,
+ * land and clouds at a fixed moment. This starts the Astro dev server on 127.0.0.1:4399, opens every card
+ * in headless Chrome (or Edge) with a throwaway profile, and writes a 1200×630 PNG per card. Set
+ * CHROME_PATH to use another Chromium-based browser.
+ *
+ * Cards are read at roughly half size in a feed, so nothing on them is smaller than 22px.
  */
+process.env.ASTRO_TELEMETRY_DISABLED = '1';
+process.env.ASTRO_DISABLE_UPDATE_CHECK = 'true';
+
+import { dev } from 'astro';
+import puppeteer from 'puppeteer-core';
 import sharp from 'sharp';
-import { mkdir } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { existsSync } from 'node:fs';
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = join(root, 'public', 'og');
+// Card hashes. Seo.astro versions card URLs with them, and blog pages read it to find a post's card.
+const manifestPath = join(root, 'src', 'redesign', 'og-cards.json');
 
 const W = 1200;
 const H = 630;
+const HOST = '127.0.0.1';
+const PORT = 4399;
+/** The only places a card may load from besides the dev server. */
+const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
+/**
+ * Stands in for Vite's dev client, whose only job on a card would be opening a reload socket. dynamic-sky's
+ * prebundled code imports injectQuery for a lazy import that sky.ts never triggers.
+ */
+const VITE_CLIENT_STUB = 'export const injectQuery = (url) => url;';
 
-const CREAM = '#e8e4df';
-const MUTED = '#b3aba4';
-const DIM = '#7d766f';
-const ACCENT = '#c8956c';
-const BG = '#0a0a0a';
-
-const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-/** The film perforations that edge the case study pages. */
-function sprocket(y) {
-  let out = '';
-  for (let x = 0; x < W + 27; x += 27) {
-    out += `<rect x="${x}" y="${y}" width="13" height="7" rx="1.5" fill="${CREAM}" opacity="0.09"/>`;
+function findBrowser() {
+  if (process.env.CHROME_PATH) {
+    if (!existsSync(process.env.CHROME_PATH)) throw new Error(`CHROME_PATH does not exist: ${process.env.CHROME_PATH}`);
+    return process.env.CHROME_PATH;
   }
-  return out;
+  const candidates = [
+    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable',
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+    '/usr/bin/microsoft-edge',
+  ];
+  const found = candidates.find((p) => existsSync(p));
+  if (!found) throw new Error('No Chrome or Edge found. Set CHROME_PATH to a Chromium-based browser.');
+  return found;
 }
 
-/** The clapperboard the app draws before every take. Stripes plus a take number. */
-function slate({ x, y, w, h, take }) {
-  const bar = 46;
-  let stripes = '';
-  for (let sx = -170; sx < w + 170; sx += 54) {
-    stripes += `<rect x="${sx}" y="-24" width="27" height="${bar + 48}" fill="#e8e6e3"/>`;
+let server;
+let browser;
+let profile;
+
+try {
+  server = await dev({
+    root,
+    logLevel: 'warn',
+    server: { host: HOST, port: PORT },
+    devToolbar: { enabled: false },
+    // No hot reload: an edit mid-run must not reload a card between paint and screenshot.
+    vite: { server: { hmr: false, strictPort: true } },
+  });
+  const origin = `http://${HOST}:${server.address.port}`;
+
+  // The index page lists every card, so posts are picked up without touching this script.
+  const res = await fetch(`${origin}/og-card/`);
+  if (!res.ok) throw new Error(`${origin}/og-card/ returned ${res.status}. Check the dev server output above.`);
+  const index = await res.text();
+  const all = [...index.matchAll(/data-card="([^"]+)"/g)].map((m) => m[1]);
+  if (!all.length) throw new Error(`No cards listed at ${origin}/og-card/`);
+  const unknown = process.argv.slice(2).filter((s) => !all.includes(s));
+  if (unknown.length) throw new Error(`No such card: ${unknown.join(', ')}. Cards: ${all.join(', ')}`);
+  const slugs = process.argv.length > 2 ? process.argv.slice(2) : all;
+
+  // A fresh profile in the temp dir: never the everyday browser profile, nothing carried between runs.
+  profile = await mkdtemp(join(tmpdir(), 'og-chrome-'));
+  browser = await puppeteer.launch({
+    executablePath: findBrowser(),
+    headless: true,
+    userDataDir: profile,
+    args: ['--force-color-profile=srgb', '--disable-gpu', '--hide-scrollbars'],
+  });
+
+  const page = await browser.newPage();
+  await page.setViewport({ width: W, height: H, deviceScaleFactor: 2 });
+  // Clouds drift unless motion is reduced; frozen, every run paints the same frame.
+  await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
+
+  // A card loads the dev server and Google Fonts, nothing else, and opens no sockets.
+  const blocked = [];
+  await page.setRequestInterception(true);
+  page.on('request', (req) => {
+    const url = new URL(req.url());
+    const local = url.hostname === HOST && url.port === String(server.address.port);
+    if (local && url.pathname === '/@vite/client') return req.respond({ contentType: 'text/javascript', body: VITE_CLIENT_STUB });
+    if (local || url.protocol === 'data:' || FONT_HOSTS.includes(url.hostname)) return req.continue();
+    blocked.push(req.url());
+    req.abort();
+  });
+  const cdp = await page.createCDPSession();
+  await cdp.send('Network.enable');
+  cdp.on('Network.webSocketCreated', ({ url }) => blocked.push(url));
+  // A script that fails to load never sets __ogError itself, so report it from here instead of timing out.
+  page.on('pageerror', (err) => page.evaluate((msg) => (window.__ogError ??= msg), err.message).catch(() => {}));
+
+  for (const slug of slugs) {
+    await page.goto(`${origin}/og-card/${slug}/`, { waitUntil: 'load', timeout: 60000 });
+    await page.waitForFunction(() => window.__ogReady || window.__ogError, { timeout: 60000 });
+    if (blocked.length) throw new Error(`${slug}: unexpected network requests:\n  ${blocked.join('\n  ')}`);
+    const error = await page.evaluate(() => window.__ogError);
+    if (error) throw new Error(`${slug}: ${error}`);
+
+    // A missing font silently falls back to system-ui, which would ship a card in the wrong type.
+    const fonts = await page.evaluate(() =>
+      ['National Park', 'Overpass'].map((family) => ({
+        family,
+        ok:
+          document.fonts.check(`700 40px "${family}"`) &&
+          [...document.fonts].some((f) => f.family.replace(/["']/g, '') === family && f.status === 'loaded'),
+      })),
+    );
+    const missing = fonts.filter((f) => !f.ok).map((f) => f.family);
+    if (missing.length) throw new Error(`${slug}: fonts did not load: ${missing.join(', ')}`);
+
+    // Rendered at 2x, then downscaled, so small text and ridge edges come out clean.
+    const shot = await page.screenshot({ type: 'png' });
+    const file = join(outDir, `${slug}.png`);
+    await mkdir(dirname(file), { recursive: true });
+    await sharp(shot).resize(W, H, { kernel: 'lanczos3' }).png({ compressionLevel: 9 }).toFile(file);
+    console.log('wrote', `public/og/${slug}.png`);
   }
-  return `
-  <g transform="rotate(-6 ${x + w / 2} ${y + h / 2})">
-    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#14100d" stroke="rgba(232,228,223,0.16)" stroke-width="1"/>
-    <clipPath id="clap"><rect x="${x}" y="${y}" width="${w}" height="${bar}"/></clipPath>
-    <g clip-path="url(#clap)">
-      <g transform="translate(${x} ${y}) skewX(-20)">${stripes}</g>
-    </g>
-    <line x1="${x}" y1="${y + bar}" x2="${x + w}" y2="${y + bar}" stroke="rgba(232,228,223,0.18)" stroke-width="1"/>
-    <text x="${x + w / 2}" y="${y + bar + 66}" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="21" letter-spacing="5" fill="${DIM}">TAKE</text>
-    <text x="${x + w / 2}" y="${y + bar + 134}" text-anchor="middle" font-family="Georgia, serif" font-size="76" font-weight="700" fill="${ACCENT}">${esc(take)}</text>
-  </g>`;
-}
 
-function card({ eyebrow, title, titleSize, subtitle, stats, take, dot = ACCENT }) {
-  // librsvg cannot measure text, so approximate advances and lay the stat
-  // columns out left to right. Keeps long words from colliding.
-  const valueW = (t) => t.length * 58 * 0.56;
-  const labelW = (t) => t.length * (20 * 0.62 + 2.4);
+  const stale = (await readdir(join(outDir, 'blog')).catch(() => []))
+    .filter((f) => f.endsWith('.png') && !all.includes(`blog/${f.slice(0, -4)}`));
+  for (const f of stale) console.warn(`stale: public/og/blog/${f} has no post. Delete it if the post is gone.`);
 
-  let cursor = 72;
-  let statCells = '';
-  for (const s of stats) {
-    const x = cursor;
-    cursor += Math.max(valueW(s.value), labelW(s.label)) + 82;
-    statCells += `
-  <text x="${x}" y="518" font-family="Georgia, serif" font-size="58" font-weight="700" fill="${CREAM}">${esc(s.value)}</text>
-  <text x="${x}" y="556" font-family="Segoe UI, sans-serif" font-size="20" letter-spacing="2.4" fill="${DIM}">${esc(s.label.toUpperCase())}</text>`;
+  // Feeds cache previews by image URL, so a changed card needs a new one.
+  const manifest = {};
+  for (const slug of all) {
+    const file = join(outDir, `${slug}.png`);
+    if (existsSync(file)) manifest[slug] = createHash('sha256').update(await readFile(file)).digest('hex').slice(0, 10);
   }
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
-  <defs>
-    <radialGradient id="glow" cx="0.12" cy="0.08" r="0.9">
-      <stop offset="0%" stop-color="#c8956c" stop-opacity="0.15"/>
-      <stop offset="65%" stop-color="#c8956c" stop-opacity="0.02"/>
-      <stop offset="100%" stop-color="#c8956c" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
-
-  <rect width="${W}" height="${H}" fill="${BG}"/>
-  <rect width="${W}" height="${H}" fill="url(#glow)"/>
-  ${sprocket(30)}
-  ${sprocket(H - 37)}
-
-  <circle cx="79" cy="117" r="6" fill="${dot}"/>
-  <text x="99" y="124" font-family="Segoe UI, sans-serif" font-size="20" letter-spacing="5" fill="${ACCENT}">${esc(eyebrow.toUpperCase())}</text>
-
-  <text x="72" y="262" font-family="Georgia, serif" font-size="${titleSize}" font-weight="700" fill="${CREAM}" letter-spacing="-3">${esc(title)}</text>
-  <rect x="72" y="296" width="108" height="4" fill="${ACCENT}"/>
-
-  <text x="72" y="368" font-family="Segoe UI, sans-serif" font-size="35" fill="${MUTED}">${esc(subtitle)}</text>
-
-  <line x1="72" y1="448" x2="${W - 72}" y2="448" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-  ${statCells}
-
-  ${slate({ x: 800, y: 108, w: 328, h: 240, take })}
-</svg>`;
-}
-
-const cards = {
-  'disdubs.png': card({
-    eyebrow: 'Case Study',
-    title: 'DisDubs',
-    titleSize: 126,
-    subtitle: 'A group dubbing game inside Discord',
-    stats: [
-      { value: '6,000+', label: 'Servers' },
-      { value: '240,000+', label: 'Members reached' },
-      { value: '70%', label: 'Finished a dub' },
-    ],
-    take: '01',
-    dot: '#e05252',
-  }),
-  'default.png': card({
-    eyebrow: 'Software Engineer',
-    title: 'Tanner Steorts',
-    titleSize: 92,
-    subtitle: 'Real-time systems and audio pipelines',
-    stats: [
-      { value: 'Discord', label: 'Activities' },
-      { value: 'Audio', label: 'Pipelines' },
-      { value: 'Full-stack', label: 'Product' },
-    ],
-    take: '01',
-  }),
-};
-
-await mkdir(outDir, { recursive: true });
-for (const [name, svg] of Object.entries(cards)) {
-  await sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toFile(join(outDir, name));
-  console.log('wrote', `public/og/${name}`);
+  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  console.log('wrote', 'src/redesign/og-cards.json');
+} finally {
+  await browser?.close();
+  await server?.stop();
+  if (profile) await rm(profile, { recursive: true, force: true }).catch(() => {});
 }

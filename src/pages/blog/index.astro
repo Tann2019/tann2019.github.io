@@ -7,7 +7,10 @@ const posts = (await getCollection('blog')).sort(
 );
 ---
 
-<BaseLayout title="Blog — Tanner Steorts">
+<BaseLayout
+  title="Blog — Tanner Steorts"
+  description="Posts by Tanner Steorts on real-time apps, hardware side projects and how he builds them."
+>
   <section class="blog-hero">
     <div class="blog-label animate-in">Blog</div>
     <h1 class="animate-in" style="animation-delay: 0.1s">
@@ -20,7 +23,7 @@ const posts = (await getCollection('blog')).sort(
   ) : (
     <div class="post-list">
       {posts.map((post, i) => (
-        <a href={`/blog/${post.id}`} class="post-item animate-in" style={`animation-delay: ${0.15 + i * 0.08}s`}>
+        <a href={`/blog/${post.id}/`} class="post-item animate-in" style={`animation-delay: ${0.15 + i * 0.08}s`}>
           <div class="post-date">
             <span class="post-month">
               {post.data.pubDate.toLocaleDateString('en-us', { month: 'short' })}

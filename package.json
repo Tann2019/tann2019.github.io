@@ -6,11 +6,16 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "og": "node scripts/generate-og.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.2.0",
     "astro": "^5.7.0",
     "dynamic-sky": "2.1.0"
+  },
+  "devDependencies": {
+    "puppeteer-core": "25.12.0",
+    "sharp": "0.34.5"
   }
 }

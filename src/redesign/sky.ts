@@ -341,7 +341,8 @@ export function paintSky(svg: SVGSVGElement, date: Date): SkySnapshot {
     // Daytime moons are faint, the way they are outside.
     const visible = moon.alt > -2 && lit > 0.04;
     moonG.style.opacity = visible ? String(0.35 + 0.65 * dark) : '0';
-    const shadow = moonG.querySelector<SVGCircleElement>('.moon-shadow');
+    // The shadow lives in the mask under <defs>, not inside the moon's group.
+    const shadow = svg.querySelector<SVGCircleElement>('#moon-mask .moon-shadow');
     if (shadow) {
       // The shadow disc is a touch larger than the moon (r 26) so a full moon leaves no sliver.
       const offset = 54 * lit;
