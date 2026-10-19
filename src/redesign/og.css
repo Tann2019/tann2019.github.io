@@ -1,0 +1,169 @@
+/* Share card layout, linked after styles.css by src/pages/og-card/[...slug].astro. Cards are 1200×630
+   and read at about 550 wide, so nothing here is under 22px. Site chrome is scaled up with zoom so its
+   proportions stay the site's own. */
+
+.og #sky-sun,
+.og #sky-moon,
+.og #sky-stars {
+  transition: none;
+}
+
+.og .bar {
+  zoom: 1.8;
+  top: 9px;
+  left: 11px;
+  right: 11px;
+}
+
+.og .task {
+  max-width: none;
+}
+
+/* -------------------------------------------------------------- home */
+
+.og .conky {
+  left: 44px;
+  top: 128px;
+  width: auto;
+  padding: 38px 48px 44px;
+  border-radius: 22px;
+}
+
+.og .conky-name {
+  font-size: 120px;
+  line-height: 0.94;
+}
+
+.og .conky-name span {
+  display: block;
+}
+
+.og .conky-intro {
+  max-width: none;
+  margin-top: 26px;
+  font-size: 34px;
+  line-height: 1.25;
+}
+
+/* ----------------------------------------------------------- windows */
+
+.og .win[hidden] {
+  display: flex !important;
+}
+
+.og .win {
+  left: 44px;
+  top: 118px;
+  width: 880px;
+  height: 472px;
+  border-width: 3px;
+  border-color: var(--accent);
+  border-radius: 16px;
+}
+
+.og .win-bar {
+  zoom: 1.85;
+  color: var(--fg);
+}
+
+.og .win-body {
+  overflow: hidden;
+}
+
+.og-doc {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding: 34px 48px 40px;
+}
+
+.og-head {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
+
+/* The icon's drawing sits inset in its box; pull it back so its ink lines up with the text below. */
+.og-head .ficon {
+  margin-left: -12px;
+}
+
+.og-doc .ficon {
+  flex: none;
+  width: 108px;
+  height: 108px;
+  filter: drop-shadow(0 4px 6px rgb(0 0 0 / 0.3));
+}
+
+.og-title {
+  min-width: 0;
+  font-family: var(--font-display);
+  font-size: 100px;
+  font-weight: 700;
+  line-height: 1.04;
+}
+
+.og-lede {
+  margin-top: 18px;
+  font-size: 34px;
+  line-height: 1.25;
+}
+
+.og .stats {
+  grid-template-columns: none;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  justify-content: start;
+  gap: 60px;
+  margin-top: 32px;
+  padding: 26px 0 0;
+  border-bottom: 0;
+}
+
+.og .stats li {
+  gap: 8px;
+}
+
+.og .stats strong {
+  font-size: 58px;
+}
+
+.og .stats span {
+  font-size: 26px;
+}
+
+/* -------------------------------------------------------------- posts */
+
+.og-post .og-doc {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-content: center;
+  gap: 0 28px;
+  height: 100%;
+}
+
+.og-post .og-doc .ficon {
+  grid-row: span 2;
+  width: 100px;
+  height: 100px;
+  margin-left: -8px;
+}
+
+/* Starts big for short titles; og.ts shrinks long ones to three lines. */
+.og-post .og-title {
+  font-size: 100px;
+  line-height: 1.06;
+}
+
+.og-sub {
+  display: block;
+  color: var(--accent);
+}
+
+.og-date {
+  margin-top: 22px;
+  color: var(--muted);
+  font-size: 28px;
+  font-weight: 600;
+}

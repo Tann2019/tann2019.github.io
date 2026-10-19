@@ -1,5 +1,8 @@
 ---
 // Search and social metadata, shared by BaseLayout and the desktop homepage.
+import { toolkit } from '../redesign/content';
+import ogCards from '../redesign/og-cards.json';
+
 interface Props {
   title: string;
   description?: string;
@@ -16,15 +19,20 @@ interface Props {
   noindex?: boolean;
 }
 
+const SITE = 'https://tannersteorts.com';
 const SITE_NAME = 'Tanner Steorts';
+const GITHUB = 'https://github.com/Tann2019';
+const DEFAULT_IMAGE = '/og/default.png';
 const DEFAULT_DESCRIPTION =
-  'Tanner Steorts — software engineer in Billings, Montana. Case studies on real-time systems, audio pipelines, and products built end to end.';
+  'Tanner Steorts, a software engineer in Billings, Montana, builds real-time apps like DisDubs and Gridiron Duels. His homepage is an interactive desktop.';
+/** Describes /og/default.png. Keep the two in step. */
+const DEFAULT_IMAGE_ALT =
+  'Tanner Steorts, software engineer in Billings, Montana, on a desktop under a mountain sky at golden hour.';
 
 const {
   title,
   description = DEFAULT_DESCRIPTION,
-  image = '/og/default.png',
-  imageAlt = 'Tanner Steorts — software engineer. Real-time systems and audio pipelines.',
+  image = DEFAULT_IMAGE,
   type = 'website',
   publishedTime,
   modifiedTime,
@@ -32,20 +40,29 @@ const {
   schema,
   noindex = false,
 } = Astro.props;
+// The default alt describes the default card only. A page with its own card and no alt gets its title.
+const imageAlt = Astro.props.imageAlt ?? (Astro.props.image ? title : DEFAULT_IMAGE_ALT);
 
 const currentPath = Astro.url.pathname;
 // Pages build to directory format, so the served URL keeps its trailing slash.
 // The canonical has to name the URL that actually returns 200, not a redirect.
 const canonicalPath = currentPath.endsWith('/') ? currentPath : `${currentPath}/`;
 const canonical = new URL(canonicalPath, Astro.site ?? Astro.url).href;
-const imageURL = new URL(image, Astro.site ?? Astro.url).href;
+// Cards from `npm run og` carry their hash, so a regenerated card gets a URL that feeds haven't cached.
+const card = /^\/og\/(.+)\.png$/.exec(image)?.[1];
+const version = card ? (ogCards as Record<string, string>)[card] : undefined;
+const imageURL = new URL(version ? `${image}?v=${version}` : image, Astro.site ?? Astro.url).href;
 
 const person = {
   '@type': 'Person',
-  '@id': 'https://tannersteorts.com/#person',
+  '@id': `${SITE}/#person`,
   name: 'Tanner Steorts',
-  url: 'https://tannersteorts.com/',
+  givenName: 'Tanner',
+  familyName: 'Steorts',
+  url: `${SITE}/`,
+  description: 'Software engineer in Billings, Montana who builds real-time apps people use together.',
   jobTitle: 'Software Engineer',
+  alumniOf: { '@type': 'CollegeOrUniversity', name: 'Rocky Mountain College' },
   email: 'mailto:tanner.steorts@icloud.com',
   address: {
     '@type': 'PostalAddress',
@@ -53,16 +70,17 @@ const person = {
     addressRegion: 'MT',
     addressCountry: 'US',
   },
-  sameAs: ['https://github.com/Tann2019'],
+  knowsAbout: toolkit.flatMap((group) => group.items),
+  sameAs: [GITHUB],
 };
 
 const website = {
   '@type': 'WebSite',
-  '@id': 'https://tannersteorts.com/#website',
-  url: 'https://tannersteorts.com/',
+  '@id': `${SITE}/#website`,
+  url: `${SITE}/`,
   name: SITE_NAME,
   description: DEFAULT_DESCRIPTION,
-  publisher: { '@id': 'https://tannersteorts.com/#person' },
+  publisher: { '@id': `${SITE}/#person` },
   inLanguage: 'en-US',
 };
 
@@ -82,6 +100,7 @@ const jsonLd = {
   name="robots"
   content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'}
 />
+<link rel="me" href={GITHUB} />
 
 <!-- Open Graph: what LinkedIn, Facebook, Slack and Discord read. -->
 <meta property="og:type" content={type} />

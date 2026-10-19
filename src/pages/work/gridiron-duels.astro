@@ -19,9 +19,9 @@ const stack = [
 ];
 
 const stats = [
-  { value: '18', label: 'NFL weeks per game' },
+  { value: '3,400+', label: 'Players' },
+  { value: '1,041,000+', label: 'Picks made' },
   { value: '16', label: 'Players per league' },
-  { value: '09', label: 'Scheduled tasks' },
   { value: '50', label: 'Battle pass tiers' },
 ];
 
@@ -49,6 +49,8 @@ const schedule = [
 <BaseLayout
   title="Gridiron Duels — A Real-Time Fantasy Football Draft Platform"
   description="Case study for Gridiron Duels: a real-time fantasy football draft platform built end to end across web, mobile, and a service-oriented Laravel backend."
+  image="/og/gridiron-duels.png"
+  imageAlt="Gridiron Duels, real-time fantasy football drafts, in a window on a desktop on a sunny afternoon: 3,400+ players, 1,041,000+ picks made."
   type="article"
   keywords={[
     'real-time draft',
@@ -66,6 +68,7 @@ const schedule = [
     description:
       'A real-time fantasy football draft platform built end to end across web, mobile, and a service-oriented Laravel backend.',
     articleSection: 'Case Study',
+    image: 'https://tannersteorts.com/og/gridiron-duels.png',
     inLanguage: 'en-US',
     author: { '@id': 'https://tannersteorts.com/#person' },
     publisher: { '@id': 'https://tannersteorts.com/#person' },
@@ -1173,12 +1176,17 @@ const schedule = [
     }
 
     .stats {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 2.5rem 0;
       padding: 2rem 0;
     }
 
+    .stat { padding: 0 0.5rem; }
+
     .stat:nth-child(2) { border-right: 0; }
+
+    /* Small enough that 1,041,000+ fits half a phone screen. */
+    .stat-num { font-size: clamp(1.6rem, 8vw, 3.5rem); }
 
     .services {
       grid-template-columns: 1fr;

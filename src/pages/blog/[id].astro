@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection, render } from 'astro:content';
+import ogCards from '../../redesign/og-cards.json';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
@@ -17,11 +18,26 @@ const { Content, remarkPluginFrontmatter } = await render(post);
 const body = post.body ?? '';
 const wordCount = body.split(/\s+/).filter(Boolean).length;
 const readTime = Math.max(1, Math.ceil(wordCount / 225));
+
+// Results cut titles off around 60 characters; og:site_name already carries the name.
+const withName = `${post.data.title} — Tanner Steorts`;
+const title = withName.length > 60 ? post.data.title : withName;
+
+// The post's share card from `npm run og`, once generated. Until then Seo falls back to the site card.
+const card = `blog/${post.id}`;
+const cardDate = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+const cardProps = card in ogCards
+  ? {
+      image: `/og/${card}.png`,
+      imageAlt: `${post.data.title}, a blog post from ${cardDate.format(post.data.pubDate)}, in a window on a desktop under a mountain sky.`,
+    }
+  : {};
 ---
 
 <BaseLayout
-  title={`${post.data.title} — Tanner Steorts`}
+  title={title}
   description={post.data.description}
+  {...cardProps}
   type="article"
   publishedTime={post.data.pubDate.toISOString()}
   modifiedTime={(post.data.updatedDate ?? post.data.pubDate).toISOString()}
@@ -33,6 +49,7 @@ const readTime = Math.max(1, Math.ceil(wordCount / 225));
     description: post.data.description,
     datePublished: post.data.pubDate.toISOString(),
     dateModified: (post.data.updatedDate ?? post.data.pubDate).toISOString(),
+    image: new URL(cardProps.image ?? '/og/default.png', 'https://tannersteorts.com').href,
     wordCount,
     keywords: (post.data.tags ?? []).join(', '),
     inLanguage: 'en-US',
@@ -44,7 +61,7 @@ const readTime = Math.max(1, Math.ceil(wordCount / 225));
 >
   <article>
     <header class="post-header">
-      <a href="/blog" class="back-link animate-in">&larr; Back to blog</a>
+      <a href="/blog/" class="back-link animate-in">&larr; Back to blog</a>
       <div class="post-meta animate-in" style="animation-delay: 0.05s">
         <time datetime={post.data.pubDate.toISOString()}>
           {post.data.pubDate.toLocaleDateString('en-us', {

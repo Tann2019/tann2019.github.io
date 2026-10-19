@@ -6,6 +6,7 @@ import Seo from '../components/Seo.astro';
 import '../redesign/styles.css';
 import Win from '../redesign/Win.astro';
 import FileIcon from '../redesign/FileIcon.astro';
+import Wallpaper from '../redesign/Wallpaper.astro';
 import Synth from '../redesign/apps/Synth.astro';
 import Guestbook from '../redesign/apps/Guestbook.astro';
 import {
@@ -19,20 +20,6 @@ import {
 
 const posts = (await getCollection('blog')).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 const postDate = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
-
-// ------------------------------------------------------------- wallpaper
-// Seeded so the poster is identical on every build.
-function seeded(seed: number) {
-  let s = seed;
-  return () => (s = (s * 16807) % 2147483647) / 2147483647;
-}
-const rand = seeded(1882);
-
-const stars = Array.from({ length: 120 }, () => ({
-  x: +(rand() * 1600).toFixed(1),
-  y: +(Math.pow(rand(), 1.5) * 620).toFixed(1),
-  r: +(0.6 + rand() * 1.5).toFixed(2),
-}));
 
 // --------------------------------------------------------------- neofetch
 // Original ASCII: the Beartooths and the Rims. Each segment is [ink, text].
@@ -75,9 +62,41 @@ const launcherEntries = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
     <script is:inline>document.documentElement.classList.remove('no-js');</script>
-    <Seo title="Tanner Steorts — Software Engineer" />
+    <Seo
+      title="Tanner Steorts, software engineer in Billings, Montana"
+      description="Tanner Steorts builds real-time apps from Billings, Montana. Open his case studies, work history and writing as windows on a desktop under the live sky."
+      schema={[
+        {
+          '@type': 'ProfilePage',
+          '@id': 'https://tannersteorts.com/#profile',
+          url: 'https://tannersteorts.com/',
+          name: 'Tanner Steorts, software engineer in Billings, Montana',
+          inLanguage: 'en-US',
+          isPartOf: { '@id': 'https://tannersteorts.com/#website' },
+          mainEntity: { '@id': 'https://tannersteorts.com/#person' },
+          /* The Big Sky launch, or the newest post if later: the desktop lists every post. */
+          dateModified: new Date(
+            Math.max(
+              Date.parse('2026-10-19T10:59:02-06:00'),
+              ...posts.map((p) => (p.data.updatedDate ?? p.data.pubDate).valueOf())
+            )
+          ).toISOString(),
+        },
+        {
+          '@type': 'ItemList',
+          '@id': 'https://tannersteorts.com/#case-studies',
+          name: 'Case studies',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'DisDubs', url: 'https://tannersteorts.com/work/disdubs/' },
+            { '@type': 'ListItem', position: 2, name: 'Gridiron Duels', url: 'https://tannersteorts.com/work/gridiron-duels/' },
+          ],
+        },
+      ]}
+    />
     <meta name="theme-color" content="#1f5fb6" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -89,39 +108,7 @@ const launcherEntries = [
     <a class="skip" href="/classic/">Skip to the plain site</a>
 
     <!-- ============================== WALLPAPER ============================== -->
-    <div id="sky-base" aria-hidden="true"></div>
-    <div id="sky" aria-hidden="true"></div>
-    <svg id="wallpaper" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-      <defs>
-        <radialGradient id="sun-glow">
-          <stop offset="0" stop-color="#fffbe8" stop-opacity="0.85"></stop>
-          <stop offset="0.18" stop-color="#fff3d0" stop-opacity="0.4"></stop>
-          <stop offset="0.45" stop-color="#ffe6b8" stop-opacity="0.12"></stop>
-          <stop offset="1" stop-color="#ffe0b0" stop-opacity="0"></stop>
-        </radialGradient>
-        <mask id="moon-mask" maskUnits="userSpaceOnUse" x="-40" y="-40" width="80" height="80">
-          <rect x="-40" y="-40" width="80" height="80" fill="#fff"></rect>
-          <circle class="moon-shadow" r="27" fill="#000"></circle>
-        </mask>
-      </defs>
-
-      <g id="sky-stars">
-        {stars.map((s) => <circle cx={s.x} cy={s.y} r={s.r} fill="#fff" opacity={0.5 + s.r / 4} />)}
-      </g>
-
-      <g id="sky-moon">
-        <circle r="26" data-ink="moon" mask="url(#moon-mask)"></circle>
-      </g>
-
-      <g id="sky-sun">
-        <circle r="120" fill="url(#sun-glow)"></circle>
-        <circle r="17" data-ink="sun"></circle>
-      </g>
-
-    </svg>
-    <canvas id="clouds" aria-hidden="true"></canvas>
-    <canvas id="land" aria-hidden="true"></canvas>
-    <canvas id="precip" aria-hidden="true"></canvas>
+    <Wallpaper />
 
     <!-- ================================ DESKTOP ================================ -->
     <div id="desktop">

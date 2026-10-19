@@ -1,4 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="16" fill="#0c0c0c"/>
-  <text x="50" y="72" font-family="Georgia, serif" font-size="64" font-weight="700" fill="#c8956c" text-anchor="middle">T</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Sunset over the Beartooths: the sun sits behind the ridge so it reads as a sky, not a photo icon. Drawn on a 32 grid so it holds at 16px.
+       scripts/generate-icons.mjs builds the PNG and ICO icons from this file. -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a6ac0"/>
+      <stop offset=".6" stop-color="#e08a7c"/>
+      <stop offset=".92" stop-color="#ffc178"/>
+    </linearGradient>
+    <clipPath id="tile">
+      <rect width="32" height="32" rx="7"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#tile)">
+    <rect width="32" height="32" fill="url(#sky)"/>
+    <circle cx="23" cy="18" r="6" fill="#fff2c6"/>
+    <path d="M-1 30L12 13l6 7 3-3 12 13v3H-1z" fill="#3b3277"/>
+    <path d="M12 13L8.6 17.5l1.9-.9 1.5 1.3 1.6-1.2 1.8.8z" fill="#fff"/>
+  </g>
 </svg>
