@@ -36,9 +36,9 @@ Live cursors: other visitors' cursors show on the desktop, with a "N here" chip 
 
 ## Backend (guestbook + cursors)
 
-`worker/` is a Cloudflare Worker: D1 for notes, KV for rate limits, a Durable Object for cursors. Not deployed. Setup steps are in `worker/README.md`. Then set `PUBLIC_BIGSKY_API` for the site build.
+`worker/` is a Cloudflare Worker at https://api.tannersteorts.com: D1 for notes, KV for rate limits, a Durable Object for cursors. Setup steps are in `worker/README.md`. The site reads the URL from `PUBLIC_BIGSKY_API` in `.env`.
 
-Until then the guestbook works in local mode (notes stay in the visitor's browser) and cursors stay off.
+Without it, the guestbook keeps notes in the visitor's browser and cursors stay off.
 
 ## Lofi radio
 
