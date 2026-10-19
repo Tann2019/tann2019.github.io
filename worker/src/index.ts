@@ -44,8 +44,8 @@ export default {
       const m = /^\/notes\/(\d{1,12})(\/hide)?$/.exec(url.pathname);
       if (m) {
         const id = Number(m[1]);
-        if (!m[2] && request.method === 'DELETE') return await moderate(request, env, id, 'delete');
-        if (m[2] && request.method === 'POST') return await moderate(request, env, id, 'hide');
+        if (!m[2] && request.method === 'DELETE') return await moderate(request, env, id, 'delete', cors);
+        if (m[2] && request.method === 'POST') return await moderate(request, env, id, 'hide', cors);
         return fail(405, 'Method not allowed.', cors);
       }
 

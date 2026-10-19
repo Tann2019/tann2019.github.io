@@ -57,6 +57,8 @@ Then start the site with `PUBLIC_BIGSKY_API=http://127.0.0.1:8787 npm run dev` f
 
 ## Moderate
 
+Open https://tannersteorts.com/moderate/ (or `/moderate/` on `npm run dev`), paste `ADMIN_TOKEN`, then hide or delete notes. Hidden notes drop off that list; delete them with curl.
+
 ```sh
 API=https://api.tannersteorts.com
 curl -X POST   -H "Authorization: Bearer $ADMIN_TOKEN" $API/notes/42/hide
