@@ -1,0 +1,39 @@
+# Big Sky API: guestbook notes (D1) and live cursors (a Durable Object).
+# Setup steps are in README.md.
+name = "bigsky-api"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+workers_dev = false
+
+# Served on the site's own zone, so no workers.dev subdomain is needed.
+routes = [{ pattern = "api.tannersteorts.com", custom_domain = true }]
+
+[vars]
+# Sites allowed to call the API. Comma separated, exact origins.
+ALLOWED_ORIGINS = "https://tannersteorts.com,https://www.tannersteorts.com,http://localhost:4321,http://127.0.0.1:4321"
+
+# Secrets, set with `npx wrangler secret put <NAME>`:
+#   ADMIN_TOKEN  Bearer token for hiding and deleting notes
+#   IP_SALT      Salt for hashing client IPs before rate limiting
+#   BLOCKLIST    Optional extra blocked words, comma separated
+
+[[d1_databases]]
+binding = "DB"
+database_name = "bigsky"
+database_id = "1c229045-1e41-4683-81b4-db691015122c"
+
+# Rate limit stamps: salted IP hashes that expire after 60 s.
+[[kv_namespaces]]
+binding = "RATE"
+id = "0fbc0b8d33624b2bb647099ac343edcc"
+
+[[durable_objects.bindings]]
+name = "CURSORS"
+class_name = "CursorRoom"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["CursorRoom"]
+
+[observability]
+enabled = true

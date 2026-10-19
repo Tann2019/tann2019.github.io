@@ -1,0 +1,141 @@
+---
+// Flat, screen-printed objects for the file manager and launcher. Drawn on a 64×64 grid.
+import { pieceMarkup } from './chess/pieces';
+
+interface Props {
+  name: string;
+  class?: string;
+}
+const { name, class: className = 'ficon' } = Astro.props;
+const knight = pieceMarkup('n', 'w', 'ficon-knight');
+---
+
+<svg class={className} viewBox="0 0 64 64" aria-hidden="true">
+  {name === 'slate' && (
+    <g>
+      <rect x="8" y="27" width="48" height="29" rx="3" fill="#ece7db" />
+      <path d="M15 37h20M15 43h27M15 49h14" stroke="#2b2f3a" stroke-width="3" stroke-linecap="round" />
+      <rect x="8" y="20" width="48" height="8" rx="1.5" fill="#2b2f3a" />
+      <path d="M12 20l-4 8h6l4-8zM24 20l-4 8h6l4-8zM36 20l-4 8h6l4-8zM48 20l-4 8h6l4-8z" fill="#ece7db" />
+      <g transform="rotate(-17 9 19)">
+        <rect x="8" y="11" width="48" height="8" rx="1.5" fill="#2b2f3a" />
+        <path d="M12 11l-4 8h6l4-8zM24 11l-4 8h6l4-8zM36 11l-4 8h6l4-8zM48 11l-4 8h6l4-8z" fill="#ece7db" />
+      </g>
+      <circle cx="10" cy="20" r="2.4" fill="#a3a9b4" />
+    </g>
+  )}
+  {name === 'football' && (
+    <g transform="rotate(-32 32 32)">
+      <ellipse cx="32" cy="32" rx="25" ry="15" fill="#86462a" />
+      <ellipse cx="31" cy="29" rx="19" ry="8.5" fill="#a65c36" />
+      <path d="M14 26c1.8 4 1.8 8 0 12M50 26c-1.8 4-1.8 8 0 12" stroke="#f2ede4" stroke-width="2.6" fill="none" stroke-linecap="round" />
+      <path d="M22 32h20M25.5 28.5v7M29.5 28.5v7M33.5 28.5v7M37.5 28.5v7" stroke="#f2ede4" stroke-width="2.4" stroke-linecap="round" />
+    </g>
+  )}
+  {name === 'd20' && (
+    <g stroke="#7a2520" stroke-width="1" stroke-linejoin="round">
+      <path d="M10 18.5L32 6l0 11z M32 6l22 12.5L32 17z" fill="#ef7f72" />
+      <path d="M10 18.5L32 17 17 42z M54 18.5L47 42 32 17z" fill="#d65a4e" />
+      <path d="M10 18.5L17 42l-7 3.5z M54 18.5v27L47 42z" fill="#b8423a" />
+      <path d="M10 45.5L17 42l15 16z M54 45.5L32 58l15-16z M17 42h30L32 58z" fill="#952f29" />
+      <path d="M32 17l15 25H17z" fill="#e8685c" />
+      <text x="32" y="37.5" text-anchor="middle" font-family="National Park, Overpass, sans-serif" font-weight="800" font-size="11" fill="#fff6ee" stroke="none">20</text>
+    </g>
+  )}
+  {name === 'knight' && <g transform="translate(4 2) scale(.875)" set:html={knight} />}
+  {name === 'notebook' && (
+    <g>
+      <rect x="15" y="7" width="35" height="50" rx="4" fill="#c79f62" />
+      <rect x="15" y="7" width="7" height="50" rx="2.5" fill="#a9824a" />
+      <rect x="26" y="16" width="18" height="9" rx="1.2" fill="#f3ead9" />
+      <path d="M29 20.5h12" stroke="#a9824a" stroke-width="1.6" stroke-linecap="round" />
+      <rect x="42" y="7" width="3.6" height="50" fill="#2e2620" />
+    </g>
+  )}
+  {name === 'clipboard' && (
+    <g>
+      <rect x="12" y="9" width="40" height="49" rx="4" fill="#9c6a3c" />
+      <rect x="17" y="16" width="30" height="37" rx="1.5" fill="#f4f1ea" />
+      <path d="M22 27h20M22 33h20M22 39h14M22 45h17" stroke="#7b8494" stroke-width="2.4" stroke-linecap="round" />
+      <rect x="23" y="5.5" width="18" height="9" rx="2.5" fill="#c7ccd4" />
+      <circle cx="32" cy="5.5" r="3" fill="none" stroke="#c7ccd4" stroke-width="2.4" />
+    </g>
+  )}
+  {name === 'tacklebox' && (
+    <g>
+      <path d="M24 21a8 8 0 0 1 16 0" fill="none" stroke="#c7ccd4" stroke-width="3.2" />
+      <rect x="8" y="22" width="48" height="12" rx="3" fill="#3f8159" />
+      <rect x="8" y="33" width="48" height="23" rx="3" fill="#2f6647" />
+      <rect x="8" y="32" width="48" height="2.6" fill="#22503a" />
+      <rect x="28" y="29" width="8" height="9" rx="1.5" fill="#e0b54f" />
+      <path d="M14 44h10M40 44h10" stroke="#22503a" stroke-width="2" stroke-linecap="round" />
+    </g>
+  )}
+  {name === 'mailbox' && (
+    <g>
+      <rect x="28.5" y="38" width="7" height="22" fill="#8a5a35" />
+      <path d="M8 39V27a11 11 0 0 1 11-11h26a11 11 0 0 1 11 11v12z" fill="#b9c1ca" />
+      <path d="M8 39V27a11 11 0 0 1 11-11h1a11 11 0 0 1 11 11v12z" fill="#959fab" />
+      <rect x="47" y="8" width="3" height="20" fill="#d6463a" />
+      <rect x="47" y="8" width="11" height="7.5" rx="1" fill="#d6463a" />
+      <circle cx="19.5" cy="29" r="1.8" fill="#5e6873" />
+    </g>
+  )}
+  {name === 'synth' && (
+    <g>
+      <rect x="5" y="12" width="54" height="42" rx="5" fill="#2b2f3a" />
+      <rect x="10" y="17" width="30" height="24" rx="2.5" fill="#e0b54f" />
+      <path d="M13 29c2.5-7 5.5-7 8 0s5.5 7 8 0 5.5-7 8 0" stroke="#2b2f3a" stroke-width="2.6" fill="none" stroke-linecap="round" />
+      <circle cx="33" cy="24" r="3" fill="#d6463a" />
+      <circle cx="49.5" cy="23" r="4.5" fill="#ece7db" />
+      <circle cx="49.5" cy="35" r="4.5" fill="#ece7db" />
+      <path d="M49.5 23l2.4-2.4M49.5 35l-2.4-2.4" stroke="#2b2f3a" stroke-width="1.8" stroke-linecap="round" />
+      <path d="M10 45h6v5h-6zM17.6 45h6v5h-6zM25.2 45h6v5h-6zM32.8 45h6v5h-6zM40.4 45h6v5h-6zM48 45h6v5h-6z" fill="#ece7db" />
+    </g>
+  )}
+  {name === 'stickynote' && (
+    <g>
+      <rect x="7" y="13" width="42" height="42" rx="2" fill="#a8d5a2" transform="rotate(-10 28 34)" />
+      <g transform="rotate(5 34 33)">
+        <path d="M13 12h41v32l-9 9H13z" fill="#f2d769" />
+        <path d="M54 44h-9v9z" fill="#cfae3f" />
+        <path d="M20 30c4-5 8 3 12-1s7 2 12-3" stroke="#2c5fb3" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M20 40h17" stroke="#2c5fb3" stroke-width="3" stroke-linecap="round" />
+      </g>
+      <circle cx="33" cy="12" r="5.6" fill="#d6463a" />
+    </g>
+  )}
+  {name === 'vinyl' && (
+    <g>
+      <rect x="5" y="12" width="36" height="40" rx="2" fill="#d8b27a" />
+      <path d="M9 46l9-12 6 6 6-10 7 16z" fill="#9a6a46" opacity="0.6" />
+      <circle cx="38" cy="32" r="20" fill="#1c1f27" />
+      <circle cx="38" cy="32" r="15.5" fill="none" stroke="#323846" stroke-width="1" />
+      <circle cx="38" cy="32" r="11.5" fill="none" stroke="#323846" stroke-width="1" />
+      <circle cx="38" cy="32" r="6.5" fill="#e0b54f" />
+      <circle cx="38" cy="32" r="1.6" fill="#1c1f27" />
+    </g>
+  )}
+  {name === 'folder' && (
+    <g>
+      <path d="M8 18a4 4 0 0 1 4-4h12l5 5h23a4 4 0 0 1 4 4v25a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4z" fill="#c9954b" />
+      <path d="M8 26h48v22a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4z" fill="#e3b46a" />
+    </g>
+  )}
+  {name === 'terminal' && (
+    <g>
+      <rect x="8" y="12" width="48" height="40" rx="5" fill="#1e2433" />
+      <rect x="8" y="12" width="48" height="8" rx="4" fill="#2c3446" />
+      <path d="M17 29l7 6-7 6" stroke="#f0c27a" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M28 42h14" stroke="#e8e4d8" stroke-width="3.2" stroke-linecap="round" />
+    </g>
+  )}
+  {name === 'lock' && (
+    <g>
+      <path d="M22 30v-7a10 10 0 0 1 20 0v7" fill="none" stroke="#c7ccd4" stroke-width="4.5" />
+      <rect x="15" y="29" width="34" height="26" rx="4" fill="#e0b54f" />
+      <circle cx="32" cy="40" r="3.5" fill="#6b5321" />
+      <rect x="30.5" y="41" width="3" height="7" rx="1.5" fill="#6b5321" />
+    </g>
+  )}
+</svg>

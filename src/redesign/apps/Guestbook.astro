@@ -1,0 +1,535 @@
+---
+// Sticky notes: draw a small note and pin it to a shared wall. Body content only; the
+// orchestrator wraps it in <Win app="guestbook" title="Sticky notes">. Behaviour is in guestbook.ts.
+
+// Ink and paper are the note's own colors, not theme colors: they have to read on paper at any hour.
+const inks = [
+  { name: 'Graphite', hex: '#2b2f3a' },
+  { name: 'Red', hex: '#c4352b' },
+  { name: 'Blue', hex: '#2c5fb3' },
+  { name: 'Green', hex: '#2e7d4b' },
+  { name: 'Orange', hex: '#c8641e' },
+  { name: 'Violet', hex: '#6d4ba3' },
+];
+const sizes = [
+  { name: 'Fine', value: 4 },
+  { name: 'Bold', value: 10 },
+];
+// Keys must match PAPERS in worker/src/notes.ts. Colors live in the CSS below.
+const papers = [
+  { key: 'butter', name: 'Yellow' },
+  { key: 'mint', name: 'Green' },
+  { key: 'sky', name: 'Blue' },
+  { key: 'blush', name: 'Pink' },
+];
+---
+
+<div class="gb">
+  <div class="gb-head">
+    <div class="gb-tabs" role="tablist" aria-label="Sticky notes">
+      <button class="gb-tab" type="button" role="tab" id="gb-tab-wall" aria-controls="gb-wall" aria-selected="true" data-autofocus>Wall</button>
+      <button class="gb-tab" type="button" role="tab" id="gb-tab-new" aria-controls="gb-new" aria-selected="false" tabindex="-1">New note</button>
+    </div>
+    <p class="gb-banner" hidden>Shared wall isn’t connected yet. Notes stay in this browser.</p>
+  </div>
+
+  <section class="gb-panel gb-wallpane" id="gb-wall" role="tabpanel" aria-labelledby="gb-tab-wall" tabindex="-1">
+    <p class="gb-loading" hidden>Loading notes…</p>
+    <div class="gb-empty" hidden>
+      <p>No notes yet.</p>
+      <button class="btn btn-primary" type="button" data-gb="first">Pin the first one</button>
+    </div>
+    <ol class="gb-wall" aria-label="Notes, newest first"></ol>
+    <p class="gb-wall-status" role="status"></p>
+    <div class="gb-more-row">
+      <button class="btn gb-more" type="button" hidden>Load more</button>
+    </div>
+  </section>
+
+  <section class="gb-panel gb-compose" id="gb-new" role="tabpanel" aria-labelledby="gb-tab-new" tabindex="-1" hidden>
+    <div class="gb-draw">
+      <div class="gb-pad" data-paper="butter">
+        <canvas
+          class="gb-canvas"
+          width="480"
+          height="360"
+          tabindex="0"
+          role="application"
+          aria-roledescription="drawing pad"
+          aria-label="Drawing pad"
+          aria-describedby="gb-pad-help"
+        ></canvas>
+        <span class="gb-pen" aria-hidden="true" hidden></span>
+      </div>
+      <p class="gb-help" id="gb-pad-help">Arrow keys draw too. Shift+arrow moves without drawing.</p>
+
+      <div class="gb-tools">
+        <fieldset class="gb-set">
+          <legend class="gb-sr">Ink</legend>
+          {inks.map((ink, i) => (
+            <label class="gb-swatch" title={ink.name}>
+              <input type="radio" name="gb-ink" value={ink.hex} checked={i === 0} />
+              <span class="gb-chip" style={`--swatch: ${ink.hex}`} aria-hidden="true"></span>
+              <span class="gb-sr">{ink.name}</span>
+            </label>
+          ))}
+        </fieldset>
+        <fieldset class="gb-set">
+          <legend class="gb-sr">Brush</legend>
+          {sizes.map((s, i) => (
+            <label class="gb-swatch gb-size" title={s.name}>
+              <input type="radio" name="gb-size" value={s.value} checked={i === 0} />
+              <span class="gb-chip" style={`--dot: ${s.value / 2 + 3}px`} aria-hidden="true"></span>
+              <span class="gb-sr">{s.name}</span>
+            </label>
+          ))}
+        </fieldset>
+        <div class="gb-set">
+          <button class="btn gb-btn-sm" type="button" data-gb="eraser" aria-pressed="false">Eraser</button>
+          <button class="btn gb-btn-sm" type="button" data-gb="undo" disabled>Undo</button>
+          <button class="btn gb-btn-sm" type="button" data-gb="clear" disabled>Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <form class="gb-form" novalidate>
+      <fieldset class="gb-set gb-papers">
+        <legend class="gb-label">Paper</legend>
+        {papers.map((p, i) => (
+          <label class="gb-swatch gb-paper" title={p.name}>
+            <input type="radio" name="gb-paper" value={p.key} checked={i === 0} />
+            <span class="gb-chip" data-paper={p.key} aria-hidden="true"></span>
+            <span class="gb-sr">{p.name}</span>
+          </label>
+        ))}
+      </fieldset>
+      <label class="gb-field">
+        <span class="gb-label">Name</span>
+        <input name="name" type="text" maxlength="40" autocomplete="nickname" spellcheck="false" placeholder="Anonymous" />
+      </label>
+      <label class="gb-field">
+        <span class="gb-label">From</span>
+        <input name="place" type="text" maxlength="40" autocomplete="off" />
+      </label>
+      <label class="gb-field">
+        <span class="gb-label">Message</span>
+        <textarea name="message" maxlength="140" rows="3" aria-describedby="gb-count"></textarea>
+      </label>
+      <p class="gb-count" id="gb-count">0/140</p>
+      <div class="gb-actions">
+        <button class="btn btn-primary" type="submit">Pin it</button>
+      </div>
+      <p class="gb-status" role="status"></p>
+    </form>
+  </section>
+</div>
+
+<style is:global>
+  .gb {
+    --gb-ink: #2b2f3a;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    container-type: inline-size;
+  }
+
+  .gb [data-paper='butter'] { --paper: #f7e8a4; }
+  .gb [data-paper='mint'] { --paper: #d4ead2; }
+  .gb [data-paper='sky'] { --paper: #d3e3f4; }
+  .gb [data-paper='blush'] { --paper: #f6d6cf; }
+
+  .gb-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* ------------------------------------------------------------- header */
+
+  .gb-head {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 12px 18px 10px;
+    background: rgb(var(--bg-rgb) / 0.92);
+    border-bottom: 1px solid rgb(var(--fg-rgb) / 0.08);
+  }
+
+  .gb-tabs {
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 9px;
+    background: rgb(var(--fg-rgb) / 0.07);
+  }
+
+  .gb-tab {
+    height: 30px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 7px;
+    background: none;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .gb-tab:hover {
+    color: var(--fg);
+  }
+
+  .gb-tab[aria-selected='true'] {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  .gb-banner {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .gb-panel {
+    flex: 1;
+    padding: 20px 18px 24px;
+  }
+
+  .gb-panel:focus {
+    outline: none;
+  }
+
+  /* --------------------------------------------------------------- wall */
+
+  .gb-wall {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
+    align-items: start;
+    gap: 26px 20px;
+    padding: 6px 4px 0;
+  }
+
+  .gb-note {
+    position: relative;
+    padding: 10px 10px 11px;
+    border-radius: 2px;
+    background: var(--paper);
+    color: var(--gb-ink);
+    box-shadow: 0 12px 20px -14px rgb(0 0 0 / 0.7), 0 1px 2px rgb(0 0 0 / 0.22);
+    transform: rotate(var(--tilt, 0deg));
+    transition: transform 0.18s var(--ease);
+  }
+
+  .gb-note:hover {
+    transform: rotate(0deg) scale(1.02);
+  }
+
+  /* The pin takes the sky's accent, so the wall changes with the time of day too. */
+  .gb-note::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    width: 13px;
+    height: 13px;
+    margin-left: -6.5px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 2px 3px rgb(0 0 0 / 0.35), inset 0 -2px 0 rgb(0 0 0 / 0.18);
+  }
+
+  .gb-note img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+
+  .gb-note-msg {
+    margin-top: 6px;
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.3;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+  }
+
+  .gb-note-by {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 2px 8px;
+    margin-top: 8px;
+    font-size: 12.5px;
+    line-height: 1.35;
+    opacity: 0.78;
+  }
+
+  .gb-note-by span {
+    overflow-wrap: anywhere;
+  }
+
+  .gb-note.is-new {
+    animation: gb-pin 0.42s var(--ease);
+  }
+
+  @keyframes gb-pin {
+    from {
+      opacity: 0;
+      transform: translateY(-18px) rotate(calc(var(--tilt, 0deg) * 3)) scale(1.06);
+    }
+  }
+
+  .gb-loading,
+  .gb-empty p,
+  .gb-wall-status {
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .gb-empty {
+    display: grid;
+    justify-items: start;
+    gap: 12px;
+  }
+
+  .gb-wall-status:empty {
+    display: none;
+  }
+
+  .gb-wall-status {
+    margin-top: 18px;
+  }
+
+  .gb-more-row {
+    display: flex;
+    justify-content: center;
+    margin-top: 26px;
+  }
+
+  /* ------------------------------------------------------------ compose */
+
+  .gb-compose:not([hidden]) {
+    display: grid;
+    grid-template-columns: minmax(0, 360px) minmax(220px, 1fr);
+    align-items: start;
+    gap: 24px;
+  }
+
+  .gb-pad {
+    position: relative;
+    border-radius: 3px;
+    background: var(--paper);
+    box-shadow: 0 12px 24px -16px rgb(0 0 0 / 0.7), 0 1px 2px rgb(0 0 0 / 0.22);
+  }
+
+  .gb-canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    cursor: crosshair;
+    touch-action: none;
+  }
+
+  .gb-canvas:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .gb-pen {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+    border-radius: 50%;
+    border: 2px solid var(--gb-ink);
+    pointer-events: none;
+  }
+
+  .gb-help {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+
+  .gb-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    margin-top: 12px;
+  }
+
+  .gb-set {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .gb-swatch {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  .gb-swatch input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .gb-chip {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--swatch);
+    box-shadow: 0 0 0 1px rgb(var(--fg-rgb) / 0.25);
+  }
+
+  .gb-swatch input:checked + .gb-chip {
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--fg);
+  }
+
+  .gb-swatch input:focus-visible + .gb-chip {
+    outline: 2px solid var(--accent);
+    outline-offset: 5px;
+  }
+
+  .gb-size .gb-chip {
+    display: grid;
+    place-items: center;
+    background: rgb(var(--fg-rgb) / 0.08);
+  }
+
+  .gb-size .gb-chip::after {
+    content: '';
+    width: var(--dot);
+    height: var(--dot);
+    border-radius: 50%;
+    background: var(--fg);
+  }
+
+  .gb-paper .gb-chip {
+    border-radius: 4px;
+    background: var(--paper);
+  }
+
+  .gb-paper .gb-chip,
+  .gb-paper {
+    border-radius: 6px;
+  }
+
+  .gb-btn-sm {
+    height: 32px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  .gb-btn-sm[aria-pressed='true'] {
+    background: rgb(var(--accent-rgb) / 0.22);
+    border-color: var(--accent);
+  }
+
+  .gb-form {
+    display: grid;
+    gap: 12px;
+  }
+
+  .gb-label {
+    display: block;
+    margin-bottom: 4px;
+    padding: 0;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .gb-papers legend {
+    width: 100%;
+  }
+
+  .gb-field input,
+  .gb-field textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid rgb(var(--fg-rgb) / 0.2);
+    border-radius: 8px;
+    background: rgb(var(--fg-rgb) / 0.06);
+    color: var(--fg);
+    font: inherit;
+    font-size: 15px;
+  }
+
+  .gb-field textarea {
+    resize: vertical;
+    min-height: 76px;
+    line-height: 1.4;
+  }
+
+  .gb-field input::placeholder {
+    color: var(--muted);
+    opacity: 0.8;
+  }
+
+  .gb-field input:focus-visible,
+  .gb-field textarea:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 0;
+    border-color: transparent;
+  }
+
+  .gb-count {
+    margin-top: -6px;
+    color: var(--muted);
+    font-size: 12.5px;
+    text-align: right;
+  }
+
+  .gb-status {
+    min-height: 1.5em;
+    font-size: 14px;
+  }
+
+  .gb-status.is-error {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  @container (max-width: 600px) {
+    .gb-compose:not([hidden]) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .gb-wall {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 22px 14px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gb-note {
+      transition: none;
+    }
+
+    .gb-note.is-new {
+      animation: none;
+    }
+  }
+</style>

@@ -1,0 +1,2061 @@
+/* Big Sky desktop. Theme variables are rewritten live by sky.ts from the wallpaper's inks.
+   The defaults are the daytime palette, so the first paint before JS is sane. */
+
+:root {
+  --bg: #0f2036;
+  --bg-rgb: 15 32 54;
+  --fg: #eaf1f8;
+  --fg-rgb: 234 241 248;
+  --muted: #97abc2;
+  --accent: #8ec8ff;
+  --accent-rgb: 142 200 255;
+  --line: #24405f;
+  --c0: #1f5fb6; --c1: #4a86d1; --c2: #8db7e6; --c3: #f2f6fa;
+  --c4: #dcba85; --c5: #ffe08a; --c6: #5c7850; --c7: #8ec8ff;
+
+  --font-display: 'National Park', 'Overpass', system-ui, sans-serif;
+  --font-ui: 'Overpass', system-ui, sans-serif;
+  --font-mono: 'Overpass Mono', ui-monospace, 'Cascadia Mono', monospace;
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --radius: 10px;
+  --board-light: #e7d3ae;
+  --board-dark: #8c9c7a;
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--fg);
+  background: #1f5fb6;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+}
+
+h1, h2, h3, p, ol, ul, dl, dd, figure, pre {
+  margin: 0;
+}
+
+ol, ul {
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 3px;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgb(var(--accent-rgb) / 0.4);
+}
+
+.skip {
+  position: fixed;
+  left: 12px;
+  top: -64px;
+  z-index: 400;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.skip:focus {
+  top: 12px;
+}
+
+/* ----------------------------------------------------------- wallpaper */
+
+/* Night base under the scattering sky. sky.ts fades it in as the sun goes down; the scattering
+   layer screens over it, so a black scattering result shows navy instead of black. */
+#sky-base,
+#sky {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+#sky-base {
+  background: linear-gradient(to bottom, rgb(10 20 48), rgb(38 56 98));
+}
+
+#sky {
+  mix-blend-mode: screen;
+}
+
+/* Its own compositing layer, so moving a window doesn't re-rasterize a thousand SVG shapes.
+   Measured on a 2514px screen: 971ms per frame without this, 5ms with it. */
+#wallpaper {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 0;
+  will-change: transform;
+  contain: strict;
+}
+
+#clouds,
+#land,
+#precip {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  will-change: transform;
+}
+
+#sky-sun,
+#sky-moon,
+#sky-stars {
+  transition: opacity 0.6s ease;
+}
+
+/* ------------------------------------------------------------- desktop */
+
+#desktop {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* A glass panel, like conky with a background: white text alone drops to ~1.8:1 on the midday sky. */
+.conky {
+  position: absolute;
+  left: 24px;
+  top: 76px;
+  width: clamp(320px, 30vw, 460px);
+  padding: 20px 24px 22px;
+  border-radius: 14px;
+  color: var(--fg);
+  background: rgb(var(--bg-rgb) / 0.58);
+  border: 1px solid rgb(var(--fg-rgb) / 0.08);
+  backdrop-filter: blur(12px) saturate(1.15);
+  -webkit-backdrop-filter: blur(12px) saturate(1.15);
+}
+
+.conky-name {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 5.2vw, 76px);
+  font-weight: 700;
+  line-height: 0.95;
+}
+
+.conky-intro {
+  margin-top: 16px;
+  max-width: 30ch;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.conky-sky {
+  margin-top: 32px;
+}
+
+.conky-time {
+  font-family: var(--font-display);
+  font-size: 48px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.conky-ampm {
+  margin-left: 8px;
+  font-size: 21px;
+  font-weight: 600;
+}
+
+.conky-day {
+  margin-top: 8px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.conky-phase {
+  margin-top: 2px;
+  font-size: 15px;
+}
+
+.scrub {
+  margin-top: 18px;
+  max-width: 320px;
+}
+
+.scrub-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+#sky-scrub {
+  --track: linear-gradient(90deg, #0a1430, #8db7e6, #0a1430);
+  width: 100%;
+  height: 22px;
+  margin: 0;
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: ew-resize;
+}
+
+#sky-scrub::-webkit-slider-runnable-track {
+  height: 10px;
+  border-radius: 5px;
+  background: var(--track);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.35);
+}
+
+#sky-scrub::-moz-range-track {
+  height: 10px;
+  border-radius: 5px;
+  background: var(--track);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.35);
+}
+
+#sky-scrub::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--accent);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.35);
+}
+
+#sky-scrub::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--accent);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.35);
+}
+
+.scrub-ticks {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 11.5px;
+  opacity: 0.85;
+}
+
+.scrub-live {
+  margin-top: 12px;
+  height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 7px;
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 700;
+  font-size: 14px;
+  text-shadow: none;
+  cursor: pointer;
+}
+
+.dicon {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px 6px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: #fff;
+  cursor: default;
+  touch-action: none;
+}
+
+.dicon .ficon {
+  width: 56px;
+  height: 56px;
+  padding: 2px;
+  border-radius: 9px;
+  filter: drop-shadow(0 3px 4px rgb(0 0 0 / 0.3));
+}
+
+/* A soft pill keeps labels readable over bright sky and dark forest alike. */
+.dicon-name {
+  max-width: 100%;
+  padding: 1px 7px 0;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+  overflow-wrap: anywhere;
+  color: var(--fg);
+  background: rgb(var(--bg-rgb) / 0.6);
+}
+
+/* Two-tone ring: shows on light sky, dark land and glass. */
+.dicon:focus-visible,
+#sky-scrub:focus-visible,
+.scrub-live:focus-visible {
+  outline: 2px solid #0f2036;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.dicon:hover .ficon {
+  background: rgb(255 255 255 / 0.12);
+}
+
+.dicon.is-selected .ficon {
+  background: rgb(var(--accent-rgb) / 0.3);
+}
+
+.dicon.is-selected .dicon-name {
+  background: var(--accent);
+  color: var(--bg);
+  text-shadow: none;
+}
+
+.dicon.is-dragging {
+  z-index: 2;
+  opacity: 0.85;
+}
+
+.dicon.is-settling {
+  transition: transform 0.18s var(--ease);
+}
+
+.desk-hint {
+  position: absolute;
+  left: 32px;
+  bottom: 18px;
+  color: #fff;
+  font-size: 13px;
+  opacity: 0.8;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.5);
+}
+
+.hint-touch {
+  display: none;
+}
+
+@media (hover: none) {
+  .hint-mouse { display: none; }
+  .hint-touch { display: inline; }
+}
+
+#marquee {
+  position: fixed;
+  z-index: 6;
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  background: rgb(var(--accent-rgb) / 0.16);
+  pointer-events: none;
+}
+
+#snap-preview {
+  position: fixed;
+  z-index: 45;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  background: rgb(var(--accent-rgb) / 0.12);
+  pointer-events: none;
+}
+
+/* ----------------------------------------------------------------- bar */
+
+.bar {
+  position: fixed;
+  top: 8px;
+  left: 12px;
+  right: 12px;
+  z-index: 50;
+  height: 40px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 0 5px;
+  font-size: 13.5px;
+  border-radius: var(--radius);
+  background: rgb(var(--bg-rgb) / 0.82);
+  border: 1px solid rgb(var(--fg-rgb) / 0.08);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+}
+
+.bar-left,
+.bar-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bar-right {
+  gap: 12px;
+  padding-right: 2px;
+}
+
+.bar button {
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.bar-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+}
+
+.bar-icon svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.8;
+}
+
+.bar-launch svg {
+  width: 20px;
+  height: 20px;
+  fill: var(--accent);
+  stroke: none;
+}
+
+.bar-icon:hover,
+.bar-sun:hover,
+.bar-ws button:hover,
+.task:hover {
+  background: rgb(var(--fg-rgb) / 0.08);
+}
+
+.bar-ws {
+  display: flex;
+  gap: 2px;
+}
+
+.bar-ws button {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.bar-ws button.has-windows::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 3px;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.bar-ws button[aria-current='true'] {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.taskbar {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.task {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  max-width: 190px;
+  height: 30px;
+  padding: 0 10px 0 6px;
+  border-radius: 7px;
+  color: var(--muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.task svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+}
+
+.task span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task[aria-pressed='true'] {
+  color: var(--fg);
+  background: rgb(var(--fg-rgb) / 0.1);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.task.is-min {
+  opacity: 0.6;
+}
+
+.bar-weather,
+.bar-clock {
+  white-space: nowrap;
+  color: var(--fg);
+}
+
+.bar-sun {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 7px;
+  white-space: nowrap;
+  color: var(--muted);
+}
+
+.bar-sun svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+/* ---------------------------------------------------------- workspaces */
+
+#workspaces {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ws {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.42s var(--ease), visibility 0s linear 0s;
+}
+
+.ws[data-pos='left'],
+.ws[data-pos='right'] {
+  visibility: hidden;
+  transition: transform 0.42s var(--ease), visibility 0s linear 0.42s;
+}
+
+.ws[data-pos='left'] {
+  transform: translateX(-100%);
+}
+
+.ws[data-pos='right'] {
+  transform: translateX(100%);
+}
+
+#float-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+
+/* -------------------------------------------------------------- windows */
+
+.win {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-radius: var(--radius);
+  border: 2px solid rgb(var(--fg-rgb) / 0.1);
+  background: rgb(var(--bg-rgb) / 0.88);
+  backdrop-filter: blur(20px) saturate(1.15);
+  -webkit-backdrop-filter: blur(20px) saturate(1.15);
+  box-shadow: 0 24px 60px -24px rgb(0 0 0 / 0.6), 0 2px 8px rgb(0 0 0 / 0.16);
+  pointer-events: auto;
+}
+
+.win:focus {
+  outline: none;
+}
+
+.win.is-focused {
+  border-color: var(--accent);
+}
+
+.win.is-gliding {
+  transition: left 0.26s var(--ease), top 0.26s var(--ease), width 0.26s var(--ease), height 0.26s var(--ease);
+}
+
+.win.is-min {
+  display: none;
+}
+
+.win.is-dragging,
+.win.is-resizing {
+  user-select: none;
+}
+
+.win.is-dragging .win-body,
+.win.is-resizing .win-body {
+  pointer-events: none;
+}
+
+.win-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 34px;
+  padding: 0 4px 0 14px;
+  border-bottom: 1px solid rgb(var(--fg-rgb) / 0.08);
+  border-radius: 8px 8px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  user-select: none;
+  cursor: grab;
+}
+
+.win.is-dragging .win-bar {
+  cursor: grabbing;
+}
+
+.win.is-focused .win-bar {
+  color: var(--fg);
+}
+
+.win-title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.win-ctl {
+  display: flex;
+  gap: 2px;
+}
+
+.win-ctl button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  cursor: pointer;
+}
+
+.win-ctl svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.win-ctl button:hover {
+  background: rgb(var(--fg-rgb) / 0.1);
+  color: var(--fg);
+}
+
+.win-ctl [data-win='close']:hover {
+  background: #d9534f;
+  color: #fff;
+}
+
+.win-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border-radius: 0 0 8px 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--fg-rgb) / 0.2) transparent;
+}
+
+/* Resize handles sit just outside the border so they're easy to catch. */
+.rz {
+  position: absolute;
+  z-index: 2;
+}
+
+.rz-n, .rz-s { left: 10px; right: 10px; height: 10px; cursor: ns-resize; }
+.rz-e, .rz-w { top: 10px; bottom: 10px; width: 10px; cursor: ew-resize; }
+.rz-n { top: -6px; }
+.rz-s { bottom: -6px; }
+.rz-e { right: -6px; }
+.rz-w { left: -6px; }
+.rz-ne, .rz-nw, .rz-se, .rz-sw { width: 16px; height: 16px; }
+.rz-ne { top: -7px; right: -7px; cursor: nesw-resize; }
+.rz-sw { bottom: -7px; left: -7px; cursor: nesw-resize; }
+.rz-nw { top: -7px; left: -7px; cursor: nwse-resize; }
+.rz-se { bottom: -7px; right: -7px; cursor: nwse-resize; }
+
+.win.is-max .rz {
+  display: none;
+}
+
+/* -------------------------------------------------------------- buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid rgb(var(--fg-rgb) / 0.2);
+  background: none;
+  color: var(--fg);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.btn:hover {
+  border-color: rgb(var(--fg-rgb) / 0.45);
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.btn-primary:hover {
+  border-color: var(--fg);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ------------------------------------------------------------- terminal */
+
+.win[data-app='terminal'] .win-body {
+  overflow: hidden;
+}
+
+.term {
+  height: 100%;
+  overflow: auto;
+  padding: 12px 18px 14px;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.55;
+  cursor: text;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--fg-rgb) / 0.2) transparent;
+}
+
+.term-line {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.term-line b,
+.term-help .t-cmd {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.term-prompt {
+  color: color-mix(in srgb, var(--c3) 55%, var(--fg));
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.term-prompt b {
+  color: var(--accent);
+}
+
+.term-help {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0 3ch;
+  white-space: normal;
+}
+
+.t-dim {
+  color: var(--muted);
+}
+
+.t-dir {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.term-form {
+  display: flex;
+  align-items: baseline;
+  gap: 1ch;
+}
+
+.term-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  caret-color: var(--accent);
+}
+
+.term-input::placeholder {
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+.neofetch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 3ch;
+  margin: 6px 0 14px;
+}
+
+/* Wallpaper inks are too dark to read at night, so the art mixes each one toward the text color. */
+.nf-art {
+  font: inherit;
+  line-height: 1.32;
+  color: color-mix(in srgb, var(--c1) 55%, var(--fg));
+}
+
+/* Swatch slots (sky.ts): c0 sky top, c1 mid sky, c2 horizon, c3 sun, c4 moon, c5 accent, c6 muted, c7 line. */
+.nf-s { color: var(--accent); }
+.nf-m { color: color-mix(in srgb, var(--c1) 45%, var(--fg)); }
+.nf-w { color: var(--fg); }
+.nf-r { color: color-mix(in srgb, var(--c3) 65%, var(--accent)); }
+.nf-g { color: color-mix(in srgb, var(--c6) 55%, var(--fg)); }
+.nf-v { color: color-mix(in srgb, var(--c1) 60%, var(--fg)); }
+
+.nf-info > div {
+  display: flex;
+  gap: 1ch;
+}
+
+.nf-info dt {
+  flex: none;
+  width: 9ch;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.nf-head {
+  font-weight: 700;
+}
+
+.nf-head span {
+  color: var(--accent);
+}
+
+.nf-rule {
+  color: var(--muted);
+}
+
+.nf-info > .nf-swatches {
+  gap: 0;
+  margin-top: 10px;
+}
+
+.nf-swatches span {
+  width: 3ch;
+  height: 1.35em;
+  transition: background-color 0.6s ease;
+}
+
+/* ---------------------------------------------------------- doc windows */
+
+.doc {
+  max-width: 72ch;
+  margin-inline: auto;
+  padding: 30px 34px 40px;
+}
+
+.doc-title {
+  font-family: var(--font-display);
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.doc-lede {
+  margin-top: 16px;
+  max-width: 58ch;
+  font-size: 18px;
+  line-height: 1.55;
+}
+
+.doc-meta {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.doc h3 {
+  margin: 32px 0 12px;
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.doc p {
+  line-height: 1.6;
+}
+
+.doc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 20px;
+  margin-top: 28px;
+  padding: 18px 0;
+  border-top: 1px solid rgb(var(--fg-rgb) / 0.12);
+  border-bottom: 1px solid rgb(var(--fg-rgb) / 0.12);
+}
+
+.stats li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stats strong {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.stats span {
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.35;
+}
+
+.reel {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+  counter-reset: reel;
+}
+
+.reel li {
+  counter-increment: reel;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.reel img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 6px;
+  background: rgb(var(--fg-rgb) / 0.06);
+}
+
+.reel span::before {
+  content: counter(reel) '. ';
+  color: var(--accent);
+}
+
+.facts {
+  display: grid;
+  gap: 18px;
+  margin-top: 26px;
+}
+
+.facts dt,
+.toolkit dt {
+  font-weight: 700;
+}
+
+.facts dd {
+  margin-top: 4px;
+  line-height: 1.6;
+  color: rgb(var(--fg-rgb) / 0.88);
+}
+
+.jobs {
+  margin-top: 8px;
+}
+
+.jobs > li {
+  padding: 4px 0 18px;
+  border-bottom: 1px solid rgb(var(--fg-rgb) / 0.1);
+}
+
+.jobs h3 {
+  margin-top: 22px;
+  margin-bottom: 0;
+}
+
+.jobs ul {
+  margin-top: 10px;
+  display: grid;
+  gap: 6px;
+}
+
+.jobs ul li {
+  position: relative;
+  padding-left: 16px;
+  line-height: 1.55;
+  color: rgb(var(--fg-rgb) / 0.88);
+}
+
+.jobs ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.7em;
+  width: 7px;
+  height: 2px;
+  background: var(--accent);
+}
+
+.toolkit {
+  display: grid;
+  gap: 10px;
+}
+
+.toolkit div {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 12px;
+}
+
+.toolkit dd {
+  color: rgb(var(--fg-rgb) / 0.88);
+}
+
+.side-list {
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.side-list li {
+  padding: 14px 0;
+  border-bottom: 1px solid rgb(var(--fg-rgb) / 0.1);
+}
+
+.side-list h3 {
+  margin: 0 0 4px;
+}
+
+.side-list h3 a {
+  color: var(--fg);
+}
+
+.posts {
+  margin-top: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.posts a {
+  display: grid;
+  gap: 4px;
+  padding: 16px 18px;
+  border-radius: 9px;
+  border: 1px solid rgb(var(--fg-rgb) / 0.1);
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.posts a:hover {
+  border-color: var(--accent);
+}
+
+.post-title {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.post-desc {
+  line-height: 1.55;
+  color: rgb(var(--fg-rgb) / 0.85);
+}
+
+.posts .doc-meta {
+  margin-top: 2px;
+}
+
+.hi {
+  padding: 22px 24px 24px;
+}
+
+.hi-addr {
+  margin-top: 6px;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.hi .doc-actions {
+  margin-top: 18px;
+}
+
+.hi-more {
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* ---------------------------------------------------------------- radio */
+
+.win[data-app='radio'] .win-body {
+  overflow: hidden;
+}
+
+.radio {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.radio-screen {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+/* Until the embed handshake, radio.ts lays the page out large and scales it down to fit. */
+.radio-screen iframe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  transform-origin: 0 0;
+}
+
+.radio-deck {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid rgb(var(--fg-rgb) / 0.08);
+}
+
+.radio-cover {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.radio-btn {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgb(var(--fg-rgb) / 0.18);
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+}
+
+.radio-btn svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+.radio-btn[data-radio='toggle'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.radio-btn .i-pause,
+.radio-btn.is-playing .i-play {
+  display: none;
+}
+
+.radio-btn.is-playing .i-pause {
+  display: block;
+}
+
+.radio-now {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.radio-vol input {
+  width: 84px;
+  accent-color: var(--accent);
+}
+
+.radio.is-embedded .radio-credit {
+  display: none;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.radio-credit {
+  flex: none;
+  padding: 8px 14px 10px;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+/* ---------------------------------------------------------------- chess */
+
+.win[data-app='chess'] .win-body {
+  overflow: hidden;
+}
+
+.cb {
+  container-type: size;
+  height: 100%;
+  display: grid;
+  grid-template-columns: auto 260px;
+  justify-content: center;
+  gap: 24px;
+  padding: 20px;
+}
+
+.cb-board-wrap {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+}
+
+.cb-board {
+  --size: min(calc(100cqh - 40px), calc(100cqw - 324px));
+  width: var(--size);
+  height: var(--size);
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 0 0 3px rgb(var(--fg-rgb) / 0.12), 0 18px 40px -18px rgb(0 0 0 / 0.6);
+  touch-action: none;
+  user-select: none;
+}
+
+.sq {
+  --sq-bg: var(--board-light);
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--sq-bg);
+  cursor: pointer;
+}
+
+.sq-dark {
+  --sq-bg: var(--board-dark);
+}
+
+.sq .pc {
+  position: relative;
+  z-index: 1;
+  width: 88%;
+  height: 88%;
+  pointer-events: none;
+}
+
+.sq.is-last {
+  background: linear-gradient(rgb(240 196 96 / 0.5), rgb(240 196 96 / 0.5)), var(--sq-bg);
+}
+
+.sq.is-selected {
+  background: linear-gradient(rgb(var(--accent-rgb) / 0.55), rgb(var(--accent-rgb) / 0.55)), var(--sq-bg);
+}
+
+.sq.is-check {
+  background: radial-gradient(circle, #e5484d 0%, rgb(229 72 77 / 0.65) 38%, transparent 72%), var(--sq-bg);
+}
+
+.sq.is-target::after {
+  content: '';
+  position: absolute;
+  width: 28%;
+  height: 28%;
+  border-radius: 50%;
+  background: rgb(26 34 48 / 0.32);
+}
+
+.sq.is-capture::after {
+  content: '';
+  position: absolute;
+  inset: 5%;
+  z-index: 2;
+  border-radius: 50%;
+  border: 5px solid rgb(26 34 48 / 0.32);
+}
+
+/* Fixed two-tone ring: the sky-colored accent all but vanishes on sandstone squares. */
+.sq:focus-visible {
+  outline: 3px solid #1b2230;
+  outline-offset: -3px;
+  box-shadow: inset 0 0 0 5px #fff;
+  z-index: 3;
+}
+
+.sq.is-lifted .pc {
+  opacity: 0.25;
+}
+
+.sq-rank,
+.sq-file {
+  position: absolute;
+  z-index: 2;
+  font-size: 10.5px;
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.sq-rank { top: 4px; left: 4px; }
+.sq-file { bottom: 3px; right: 4px; }
+.sq-light .sq-rank, .sq-light .sq-file { color: #6d7d5c; }
+.sq-dark .sq-rank, .sq-dark .sq-file { color: #eee0c3; }
+
+.pf {
+  fill: var(--pc-fill);
+  stroke: var(--pc-line);
+  stroke-width: 3.4;
+  stroke-linejoin: round;
+}
+
+.pd {
+  fill: var(--pc-detail);
+}
+
+.pc-w {
+  --pc-fill: #f8f3e8;
+  --pc-line: #1b2230;
+  --pc-detail: #1b2230;
+}
+
+.pc-b {
+  --pc-fill: #263042;
+  --pc-line: #0e131c;
+  --pc-detail: #ece5d4;
+}
+
+.cb-ghost {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 500;
+  pointer-events: none;
+}
+
+.cb-ghost .pc {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 10px 10px rgb(0 0 0 / 0.35));
+}
+
+.cb-side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+}
+
+.cb-mort {
+  padding: 14px 16px;
+  border-radius: 9px;
+  background: rgb(var(--fg-rgb) / 0.06);
+}
+
+.cb-mort-name {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.cb-mort-about {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.cb-mort-line {
+  font-size: 14px;
+  color: rgb(var(--fg-rgb) / 0.88);
+}
+
+.is-thinking .cb-mort-name::after {
+  content: '';
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-left: 10px;
+  vertical-align: middle;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: think 0.9s ease-in-out infinite;
+}
+
+@keyframes think {
+  50% { opacity: 0.2; }
+}
+
+.cb-status {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.cb-moves {
+  flex: 1;
+  min-height: 60px;
+  overflow: auto;
+  font-size: 14px;
+  border-top: 1px solid rgb(var(--fg-rgb) / 0.1);
+  padding-top: 8px;
+  counter-reset: move;
+  scrollbar-width: thin;
+}
+
+.cb-moves li {
+  counter-increment: move;
+  display: grid;
+  grid-template-columns: 3ch 1fr 1fr;
+  gap: 8px;
+  padding: 2px 0;
+}
+
+.cb-moves li::before {
+  content: counter(move) '.';
+  color: var(--muted);
+}
+
+.cb-taken {
+  display: flex;
+  flex-wrap: wrap;
+  min-height: 22px;
+}
+
+.cb-taken .pc {
+  width: 22px;
+  height: 22px;
+  margin-right: -5px;
+}
+
+.cb-mort .cb-taken {
+  margin-top: 8px;
+}
+
+.cb-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.cb-actions .btn {
+  flex: 1;
+}
+
+/* Promotion picker: a column over the promotion square, queen first. Built by board.ts. */
+.cb-board {
+  position: relative;
+}
+
+.cb-promo {
+  position: absolute;
+  top: 0;
+  z-index: 4;
+  width: 12.5%;
+  height: 50%;
+  display: grid;
+  grid-template-rows: repeat(4, 1fr);
+  background: var(--bg);
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  box-shadow: 0 16px 32px -10px rgb(0 0 0 / 0.6);
+}
+
+.cb-promo-opt {
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.cb-promo-opt .pc {
+  width: 84%;
+  height: 84%;
+  pointer-events: none;
+}
+
+.cb-promo-opt:hover,
+.cb-promo-opt:focus-visible {
+  background: rgb(var(--accent-rgb) / 0.3);
+}
+
+.cb-promo-opt:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+}
+
+/* Spoken copy of Mort's move. Screen readers get words instead of notation. */
+.cb-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.win[data-app='synth'] .win-body {
+  overflow: hidden;
+}
+
+/* ------------------------------------------------------------- launcher */
+
+.launcher-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16vh 16px 16px;
+  background: rgb(0 0 0 / 0.22);
+}
+
+.launcher {
+  width: min(560px, 100%);
+  max-height: 68vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  border: 2px solid var(--accent);
+  background: rgb(var(--bg-rgb) / 0.95);
+  box-shadow: 0 30px 80px -20px rgb(0 0 0 / 0.65);
+  overflow: hidden;
+  animation: pop-in 0.2s var(--ease);
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+.launcher-input {
+  flex: none;
+  height: 54px;
+  padding: 0 18px;
+  border: 0;
+  border-bottom: 1px solid rgb(var(--fg-rgb) / 0.1);
+  outline: none;
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  font-size: 18px;
+}
+
+.launcher-list {
+  overflow: auto;
+  padding: 6px;
+}
+
+.launcher-list li {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.launcher-list li .ficon {
+  width: 36px;
+  height: 36px;
+}
+
+.launcher-list li[aria-selected='true'] {
+  background: rgb(var(--accent-rgb) / 0.2);
+}
+
+.l-name {
+  font-weight: 700;
+}
+
+.l-desc {
+  color: var(--muted);
+  font-size: 13.5px;
+  text-align: right;
+}
+
+.launcher-empty {
+  padding: 18px;
+  color: var(--muted);
+}
+
+.launcher-keys {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  padding: 10px 16px;
+  border-top: 1px solid rgb(var(--fg-rgb) / 0.1);
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+kbd {
+  display: inline-block;
+  padding: 0 5px;
+  border-radius: 4px;
+  border: 1px solid rgb(var(--fg-rgb) / 0.25);
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--fg);
+}
+
+/* ---------------------------------------------------------- lock screen */
+
+.lock {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #fff;
+  text-align: center;
+  background: rgb(var(--bg-rgb) / 0.28);
+  backdrop-filter: blur(18px) brightness(0.86);
+  -webkit-backdrop-filter: blur(18px) brightness(0.86);
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+  cursor: pointer;
+  transition: opacity 0.5s ease, visibility 0s linear 0s;
+}
+
+.lock.is-gone {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0s linear 0.5s;
+}
+
+.lock-ring-wrap {
+  position: relative;
+  width: 250px;
+  height: 250px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 14px;
+}
+
+.lock-ring {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+
+.lock-ring circle {
+  fill: none;
+  stroke-width: 7;
+}
+
+.ring-track {
+  stroke: rgb(255 255 255 / 0.25);
+}
+
+.ring-fill {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  stroke-dasharray: 628.32;
+  stroke-dashoffset: 628.32;
+  transition: stroke-dashoffset 0.48s var(--ease);
+}
+
+.lock.is-unlocking .ring-fill {
+  stroke-dashoffset: 0;
+}
+
+.ring-key {
+  stroke: #fff;
+  stroke-dasharray: 70 558.32;
+  opacity: 0;
+  transform-origin: 110px 110px;
+}
+
+.ring-key.is-flash {
+  animation: key-flash 0.45s ease-out;
+}
+
+@keyframes key-flash {
+  from { opacity: 0.9; }
+  to { opacity: 0; }
+}
+
+.lock-clock {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: 64px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.lock-ampm {
+  margin-left: 6px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.lock-day {
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.lock-phase {
+  font-size: 15px;
+  opacity: 0.92;
+}
+
+.lock-go {
+  margin-top: 22px;
+  height: 42px;
+  padding: 0 26px;
+  border: 0;
+  border-radius: 21px;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 15px;
+  font-weight: 800;
+  text-shadow: none;
+  cursor: pointer;
+}
+
+.lock-hint {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+/* --------------------------------------------------------------- phones */
+/* Phones get a home screen: name and sky up top, icons in a grid, windows as full-screen sheets. */
+
+@media (max-width: 760px) {
+  .bar {
+    left: 8px;
+    right: 8px;
+    top: 6px;
+  }
+
+  .bar-ws,
+  .taskbar,
+  #bar-tile,
+  .bar-weather,
+  .bar-sun {
+    display: none;
+  }
+
+  .bar {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .bar-clock {
+    font-size: 12.5px;
+  }
+
+  #desktop {
+    overflow-y: auto;
+    padding: 58px 12px 24px;
+    user-select: auto;
+  }
+
+  .conky {
+    position: static;
+    width: auto;
+    padding: 16px 18px 18px;
+  }
+
+  .conky-intro {
+    font-size: 16px;
+  }
+
+  .conky-sky {
+    margin-top: 22px;
+  }
+
+  .dicons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px 0;
+    margin-top: 22px;
+  }
+
+  .dicon {
+    position: static;
+    width: auto;
+  }
+
+  .desk-hint {
+    position: static;
+    margin: 16px 6px 0;
+  }
+
+  /* One tap opens in the phone layout, even with a mouse. */
+  .hint-mouse {
+    display: none;
+  }
+
+  .hint-touch {
+    display: inline;
+  }
+
+  .win,
+  #float-layer .win {
+    position: fixed;
+    inset: 54px 6px 6px;
+    width: auto;
+    height: auto;
+  }
+
+  .win-bar {
+    cursor: default;
+  }
+
+  .win-ctl [data-win='min'],
+  .win-ctl [data-win='max'],
+  .rz {
+    display: none;
+  }
+
+  /* The radio can tuck away and keep playing; reopen it from its icon. */
+  .win[data-app='radio'] .win-ctl [data-win='min'] {
+    display: grid;
+  }
+
+  .doc {
+    padding: 22px 18px 28px;
+  }
+
+  .doc-title {
+    font-size: 38px;
+  }
+
+  .win[data-app='chess'] .win-body {
+    overflow: auto;
+  }
+
+  .cb {
+    container-type: inline-size;
+    height: auto;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 12px;
+  }
+
+  .cb-board {
+    --size: 100cqw;
+  }
+
+  .cb-moves {
+    max-height: 140px;
+  }
+
+  .lock-ring-wrap {
+    width: 210px;
+    height: 210px;
+  }
+
+  .lock-clock {
+    font-size: 52px;
+  }
+}
+
+/* -------------------------------------------------------------- no JS */
+/* Without scripts the desktop can't run, so the windows read as one plain column over a day sky. */
+
+.no-js body {
+  overflow: auto;
+}
+
+.no-js #sky-stars,
+.no-js #sky-moon,
+.no-js #sky-sun,
+.no-js #lock,
+.no-js #bar,
+.no-js .dicons,
+.no-js .desk-hint,
+.no-js .conky-sky,
+.no-js #workspaces,
+.no-js #float-layer,
+.no-js .win-ctl,
+.no-js .rz,
+.no-js .term-form {
+  display: none !important;
+}
+
+.no-js #sky-base {
+  opacity: 0;
+}
+
+.no-js #sky {
+  background: linear-gradient(to bottom, #3f7fd0, #9cc4ea);
+}
+
+.no-js #desktop {
+  position: relative;
+  inset: auto;
+  padding: 48px 16px 0;
+}
+
+.no-js .conky {
+  position: static;
+  width: auto;
+  max-width: 72ch;
+  margin: 0 auto;
+}
+
+.no-js #win-pool[hidden] {
+  position: relative;
+  z-index: 6;
+  display: grid !important;
+  gap: 16px;
+  max-width: 76ch;
+  margin: 32px auto 64px;
+  padding: 0 16px;
+}
+
+.no-js .win[hidden] {
+  position: static;
+  display: flex !important;
+}
+
+/* Apps that can't work without scripts. More specific than the rule above, so they stay hidden. */
+.no-js #win-pool .win[data-app='chess'],
+.no-js #win-pool .win[data-app='radio'],
+.no-js #win-pool .win[data-app='synth'],
+.no-js #win-pool .win[data-app='guestbook'] {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ws,
+  .win,
+  .lock,
+  .ring-fill,
+  .dicon,
+  #sky-sun,
+  #sky-moon,
+  #sky-stars,
+  #city-lights,
+  .nf-swatches span {
+    transition: none !important;
+  }
+
+  .launcher,
+  .ring-key.is-flash,
+  .is-thinking .cb-mort-name::after {
+    animation: none !important;
+  }
+}
