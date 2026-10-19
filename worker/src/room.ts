@@ -13,6 +13,9 @@ const MAX_MESSAGE = 200;
 const MIN_MOVE_GAP = 45;
 /** Clients debounce label edits. Anything faster counts against them. */
 const MIN_PROFILE_GAP = 250;
+/** Every message spends a token from a per-socket bucket: 20 a second, bursts of 40. Clients need about 15. */
+const MSGS_PER_SEC = 20;
+const MSG_BURST = 40;
 /** Moves are batched into one broadcast per tick, not one per sender. */
 const TICK = 50;
 const IDLE_MS = 8000;
@@ -40,6 +43,8 @@ export class CursorRoom extends DurableObject<Env> {
   private lastMove = new WeakMap<WebSocket, number>();
   private lastProfile = new WeakMap<WebSocket, number>();
   private strikes = new WeakMap<WebSocket, number>();
+  /** Memory only, like the rest: buckets start full again after hibernation. */
+  private buckets = new WeakMap<WebSocket, { tokens: number; at: number }>();
   private gone = new WeakSet<WebSocket>();
   private timer: ReturnType<typeof setTimeout> | null = null;
 
@@ -83,6 +88,9 @@ export class CursorRoom extends DurableObject<Env> {
   }
 
   async webSocketMessage(ws: WebSocket, message: string | ArrayBuffer) {
+    if (this.gone.has(ws)) return;
+    const now = Date.now();
+    if (!this.take(ws, now)) return this.strike(ws);
     const peer = peerOf(ws);
     if (!peer || typeof message !== 'string' || message.length > MAX_MESSAGE) return this.strike(ws);
     let msg: Record<string, unknown>;
@@ -92,7 +100,6 @@ export class CursorRoom extends DurableObject<Env> {
     } catch {
       return this.strike(ws);
     }
-    const now = Date.now();
 
     switch (msg.t) {
       case 'm': {
@@ -107,7 +114,7 @@ export class CursorRoom extends DurableObject<Env> {
         return;
       }
       case 'me': {
-        if (now - (this.lastProfile.get(ws) ?? 0) < MIN_PROFILE_GAP) this.strike(ws);
+        if (now - (this.lastProfile.get(ws) ?? 0) < MIN_PROFILE_GAP) return this.strike(ws);
         this.lastProfile.set(ws, now);
         const name = cleanText(msg.name, 16);
         const c = typeof msg.c === 'number' && Number.isInteger(msg.c) && msg.c >= 0 && msg.c < COLORS ? msg.c : peer.c;
@@ -117,7 +124,8 @@ export class CursorRoom extends DurableObject<Env> {
         return;
       }
       case 'idle':
-        this.positions.delete(peer.id);
+        // Only news if there was a cursor to hide.
+        if (!this.positions.delete(peer.id)) return;
         this.pending.delete(peer.id);
         this.broadcast({ t: 'idle', id: peer.id }, ws);
         return;
@@ -159,6 +167,17 @@ export class CursorRoom extends DurableObject<Env> {
     const data = JSON.stringify({ t: 'm', p: [...this.pending].map(([id, [x, y]]) => [id, x, y]) });
     this.pending.clear();
     for (const ws of this.open()) this.send(ws, data);
+  }
+
+  /** Spend one token from the socket's bucket. False once it's empty. */
+  private take(ws: WebSocket, now: number) {
+    const b = this.buckets.get(ws) ?? { tokens: MSG_BURST, at: now };
+    b.tokens = Math.min(MSG_BURST, b.tokens + ((now - b.at) / 1000) * MSGS_PER_SEC);
+    b.at = now;
+    this.buckets.set(ws, b);
+    if (b.tokens < 1) return false;
+    b.tokens -= 1;
+    return true;
   }
 
   /** Malformed, oversized or too-frequent messages. Enough of them and the socket goes. */

@@ -508,8 +508,8 @@ export function mountGuestbook(root: HTMLElement) {
         if (!isNote(res.note)) throw new ApiError(500, 'Bad response.');
         pinned(res.note, false);
       } catch (err) {
-        // The server said no: say why and keep the draft.
-        if (err instanceof ApiError && err.status >= 400 && err.status < 500) return say(err.message, true);
+        // The server said no, or "try again shortly" (503): say why and keep the draft.
+        if (err instanceof ApiError && ((err.status >= 400 && err.status < 500) || err.status === 503)) return say(err.message, true);
         // Unreachable or broken: fall back to this browser.
         goLocal();
         pinned(keepLocal(draft), true);

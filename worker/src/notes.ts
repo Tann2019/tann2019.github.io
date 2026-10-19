@@ -60,14 +60,33 @@ function checkImage(value: unknown): ImageCheck {
   return { image: value };
 }
 
+/** The body as text, or null once it passes MAX_BODY bytes. Chunked uploads have no Content-Length to check first. */
+async function readBody(request: Request): Promise<string | null> {
+  if (!request.body) return '';
+  const reader = request.body.getReader();
+  const decoder = new TextDecoder();
+  let text = '';
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) return text + decoder.decode();
+    size += value.byteLength;
+    if (size > MAX_BODY) {
+      await reader.cancel().catch(() => {});
+      return null;
+    }
+    text += decoder.decode(value, { stream: true });
+  }
+}
+
 /** POST /notes. Validates, rate limits by salted IP hash, then stores. */
 export async function createNote(request: Request, env: Env, cors: Record<string, string>): Promise<Response> {
   if (!env.IP_SALT) return fail(503, 'The wall is not set up yet.', cors);
   if (!(request.headers.get('Content-Type') ?? '').includes('application/json')) return fail(415, 'Send JSON.', cors);
   if (Number(request.headers.get('Content-Length') ?? 0) > MAX_BODY) return fail(413, 'That note is too big.', cors);
 
-  const raw = await request.text();
-  if (raw.length > MAX_BODY) return fail(413, 'That note is too big.', cors);
+  const raw = await readBody(request);
+  if (raw === null) return fail(413, 'That note is too big.', cors);
   let body: Record<string, unknown>;
   try {
     const parsed: unknown = JSON.parse(raw);
@@ -95,8 +114,15 @@ export async function createNote(request: Request, env: Env, cors: Record<string
 
   // KV is eventually consistent, so two posts in the same instant can both slip through. Fine for a guestbook.
   const stamp = `note:${await clientKey(request, env.IP_SALT)}`;
-  if (await env.RATE.get(stamp)) {
-    return fail(429, 'One note a minute. Try again shortly.', { ...cors, 'Retry-After': String(RATE_SECONDS) });
+  try {
+    if (await env.RATE.get(stamp)) {
+      return fail(429, 'One note a minute. Try again shortly.', { ...cors, 'Retry-After': String(RATE_SECONDS) });
+    }
+    // Stamp before storing: if KV fails (say, the free plan's daily write cap), the note is refused, not let through unlimited.
+    await env.RATE.put(stamp, '1', { expirationTtl: RATE_SECONDS });
+  } catch (err) {
+    console.error(err);
+    return fail(503, 'Try again shortly.', cors);
   }
 
   const note = await env.DB.prepare(
@@ -104,7 +130,6 @@ export async function createNote(request: Request, env: Env, cors: Record<string
   )
     .bind(new Date().toISOString(), name, place, message, paper, img.image)
     .first<NoteRow>();
-  await env.RATE.put(stamp, '1', { expirationTtl: RATE_SECONDS });
   return json({ note }, 201, cors);
 }
 
