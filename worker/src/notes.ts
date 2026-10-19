@@ -134,12 +134,18 @@ export async function createNote(request: Request, env: Env, cors: Record<string
 }
 
 /** DELETE /notes/:id and POST /notes/:id/hide. Bearer ADMIN_TOKEN only. */
-export async function moderate(request: Request, env: Env, id: number, action: 'delete' | 'hide'): Promise<Response> {
-  if (!(await isAdmin(request, env))) return fail(401, 'Not allowed.', { 'WWW-Authenticate': 'Bearer' });
+export async function moderate(
+  request: Request,
+  env: Env,
+  id: number,
+  action: 'delete' | 'hide',
+  cors: Record<string, string>,
+): Promise<Response> {
+  if (!(await isAdmin(request, env))) return fail(401, 'Not allowed.', { ...cors, 'WWW-Authenticate': 'Bearer' });
   const stmt = action === 'delete'
     ? env.DB.prepare('DELETE FROM notes WHERE id = ?').bind(id)
     : env.DB.prepare('UPDATE notes SET hidden = 1 WHERE id = ?').bind(id);
   const { meta } = await stmt.run();
-  if (!meta.changes) return fail(404, 'No note with that id.');
-  return new Response(null, { status: 204 });
+  if (!meta.changes) return fail(404, 'No note with that id.', cors);
+  return new Response(null, { status: 204, headers: cors });
 }
