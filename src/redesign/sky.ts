@@ -199,6 +199,9 @@ export function billingsDateAt(minutes: number, ref: Date): Date {
   let t = guess - tzOffset(new Date(guess));
   const corrected = guess - tzOffset(new Date(t));
   if (corrected !== t) t = corrected;
+  // 2:00-2:59 AM doesn't exist on the spring-forward day; carry it on to 3:xx instead of falling back.
+  const got = billingsMinutes(new Date(t));
+  if (got !== minutes % 1440 && minutes < 1440) t += (minutes - got) * 60000;
   return new Date(t);
 }
 
@@ -247,7 +250,8 @@ export function nextSunLine(date: Date): string {
   const { rise, set } = sunEvents(date);
   if (rise && date < rise) return `Sunrise at ${formatTime(rise)}`;
   if (set && date < set) return `Sunset at ${formatTime(set)}`;
-  const tomorrow = sunEvents(new Date(date.getTime() + 86400000)).rise;
+  // Midday tomorrow on the Billings calendar, so a DST change can't skip or repeat a day.
+  const tomorrow = sunEvents(new Date(billingsDateAt(0, date).getTime() + 36 * 3600000)).rise;
   return tomorrow ? `Sunrise at ${formatTime(tomorrow)}` : '';
 }
 

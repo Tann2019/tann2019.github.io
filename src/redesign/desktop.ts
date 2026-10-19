@@ -14,6 +14,13 @@ interface Point {
 
 const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySelector<T>(sel)!;
 
+/** Clicking the desktop unfocuses windows, including any caret left in one (or `/` would type into it). */
+function releaseWindowFocus() {
+  unfocusAll();
+  const active = document.activeElement as HTMLElement | null;
+  if (active?.closest('.win')) active.blur();
+}
+
 export function setupDesktop() {
   const desk = $('#desktop');
   const marquee = $('#marquee');
@@ -103,7 +110,7 @@ export function setupDesktop() {
   desk.addEventListener('pointerdown', (e) => {
     const icon = (e.target as HTMLElement).closest<HTMLElement>('.dicon');
     if (!icon || e.button !== 0) return;
-    unfocusAll();
+    releaseWindowFocus();
     if (e.ctrlKey || e.metaKey || e.shiftKey) {
       if (selected.has(icon)) selected.delete(icon);
       else selected.add(icon);
@@ -179,7 +186,7 @@ export function setupDesktop() {
   desk.addEventListener('pointerdown', (e) => {
     const t = e.target as HTMLElement;
     if (e.button !== 0 || isCompact() || t.closest('.dicon, input, button, a, label')) return;
-    unfocusAll();
+    releaseWindowFocus();
     const additive = e.ctrlKey || e.metaKey || e.shiftKey;
     const base = additive ? new Set(selected) : new Set<HTMLElement>();
     if (!additive) select([]);
@@ -245,7 +252,10 @@ export function setupDesktop() {
   });
   desk.addEventListener('focusin', (e) => {
     const icon = (e.target as HTMLElement).closest<HTMLElement>('.dicon');
-    if (icon) icons.forEach((el) => (el.tabIndex = el === icon ? 0 : -1));
+    if (!icon) return;
+    icons.forEach((el) => (el.tabIndex = el === icon ? 0 : -1));
+    // The name pill doubles as the focus marker, which reads on any sky.
+    if (!selected.has(icon)) select([icon]);
   });
 
   // Escape clears the selection when nothing else wants it.

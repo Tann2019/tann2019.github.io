@@ -174,9 +174,9 @@ const launcherEntries = [
         </button>
         <button id="bar-presence" type="button" hidden></button>
         <span class="bar-weather" id="bar-weather" hidden></span>
-        <button class="bar-sun" id="bar-sun" type="button" aria-label="Preview the sky at another time">
+        <button class="bar-sun" id="bar-sun" type="button">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="4.5"></circle><path d="M3 20h18"></path></svg>
-          <span id="bar-sun-text"></span>
+          <span id="bar-sun-text"></span><span class="sr-only">. Change the time of day</span>
         </button>
         <span class="bar-clock" id="bar-clock"></span>
         <button class="bar-icon bar-lock" id="bar-lock" type="button" aria-label="Lock the screen">
@@ -461,7 +461,7 @@ const launcherEntries = [
           autocomplete="off"
           spellcheck="false"
         />
-        <ul class="launcher-list" id="launcher-list" role="listbox" aria-label="Apps">
+        <ul class="launcher-list" id="launcher-list" role="listbox" aria-label="Apps" tabindex="-1">
           {launcherEntries.map((e) => (
             <li role="option" id={`launch-${e.id}`} data-launch={e.id} data-terms={`${e.name} ${e.desc} ${e.id}`.toLowerCase()} aria-selected="false">
               <FileIcon name={e.icon} />

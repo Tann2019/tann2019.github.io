@@ -80,13 +80,13 @@ export function mountTerminal(root: HTMLElement) {
       if (file === 'about.txt') return print(ABOUT.map(escape).join('<br>'));
       if (file === 'work-history.txt') {
         open('work');
-        return print('Opened work history on workspace 2.');
+        return print('Opened work history.');
       }
       print(file ? `cat: ${escape(file)}: no such file. Try <b>ls</b>.` : 'cat: name a file, e.g. <b>cat about.txt</b>');
     },
     open(args) {
       const name = (args[0] ?? '').replace(/\/$/, '').toLowerCase();
-      const id = OPENABLE[name];
+      const id = Object.hasOwn(OPENABLE, name) ? OPENABLE[name] : undefined;
       if (!id) {
         print(name ? `open: nothing called ${escape(name)}. Try <b>ls</b>.` : 'open: name something, e.g. <b>open chess</b>');
         return;
@@ -134,7 +134,9 @@ export function mountTerminal(root: HTMLElement) {
       history.push(raw);
       cursor = history.length;
       const [cmd, ...args] = raw.split(/\s+/);
-      const run = commands[cmd.toLowerCase()];
+      const key = cmd.toLowerCase();
+      // hasOwn, so `__proto__` or `toString` is just an unknown command.
+      const run = Object.hasOwn(commands, key) ? commands[key] : undefined;
       if (run) run(args);
       else print(`${escape(cmd)}: command not found. Type <b>help</b> to see what’s here.`);
     }

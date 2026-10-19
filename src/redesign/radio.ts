@@ -47,8 +47,8 @@ export function mountRadio(root: HTMLElement) {
   function render() {
     root.classList.toggle('is-embedded', embedded);
     deck.hidden = !embedded;
+    // A toggle keeps one name; "pressed" says whether it's playing.
     playBtn.setAttribute('aria-pressed', String(state.playing));
-    playBtn.setAttribute('aria-label', state.playing ? 'Pause' : 'Play');
     playBtn.classList.toggle('is-playing', state.playing);
     if (document.activeElement !== volume) volume.value = String(Math.round(state.volume));
     const title = state.track?.title;

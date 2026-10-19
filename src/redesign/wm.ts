@@ -141,6 +141,25 @@ export function unfocusAll() {
   focusWindow(null);
 }
 
+/** True when keyboard focus is nowhere useful, or inside `el` (about to disappear). */
+function focusLost(el?: HTMLElement) {
+  const a = document.activeElement;
+  return !a || a === document.body || (!!el && el.contains(a));
+}
+
+/** After a window goes away, move keyboard focus to the next window, or to a fallback control. */
+function refocus(next: string | null, fallback: () => HTMLElement | null) {
+  if (next) return focusWindow(next, true);
+  focusWindow(null);
+  (fallback() ?? $('#bar-launch')).focus({ preventScroll: true });
+}
+
+function syncMaxLabel(id: string) {
+  const el = win(id);
+  const label = el.getAttribute('aria-label');
+  el.querySelector('[data-win="max"]')?.setAttribute('aria-label', `${state.get(id)?.max ? 'Restore' : 'Maximize'} ${label}`);
+}
+
 /** The frontmost visible window on the current workspace. */
 function topmost(): string | null {
   let best: string | null = null;
@@ -160,6 +179,8 @@ function topmost(): string | null {
 
 function renderTaskbar() {
   const bar = $('#taskbar');
+  // Rebuilding the buttons would drop keyboard focus, so remember which one had it.
+  const hadFocus = (document.activeElement as HTMLElement | null)?.closest<HTMLElement>('.task')?.dataset.task;
   bar.innerHTML = '';
   state.forEach((s, id) => {
     if (s.ws !== current && s.ws !== 0) return;
@@ -176,6 +197,7 @@ function renderTaskbar() {
     btn.append(label);
     bar.append(btn);
   });
+  if (hadFocus) taskButton(hadFocus)?.focus({ preventScroll: true });
   $$('[data-ws-btn]').forEach((btn) => {
     const n = Number(btn.dataset.wsBtn);
     if (n === current) btn.setAttribute('aria-current', 'true');
@@ -195,21 +217,35 @@ function onTaskClick(id: string) {
 
 export function switchTo(n: number) {
   if (n < 1 || n > 4 || n === current) return;
+  const leaving = !!(document.activeElement as HTMLElement | null)?.closest('.ws') || focusLost();
   current = n;
   $$('.ws').forEach((el) => {
     const k = Number(el.dataset.ws);
     el.dataset.pos = k < n ? 'left' : k > n ? 'right' : 'center';
     el.toggleAttribute('inert', k !== n);
   });
-  focusWindow(topmost());
+  // Focus inside the workspace we just left is now inert, so move it along.
+  if (leaving) refocus(topmost(), () => document.querySelector(`[data-ws-btn="${n}"]`));
+  else focusWindow(topmost());
 }
 
 // ------------------------------------------------------------- open/close
 
+/** In-flight minimize and close animations, so a fast reopen or restore can cancel them. */
+const anims = new Map<string, Animation>();
+/** Close cleanups still waiting on their animation. */
+const closing = new Map<string, () => void>();
+
 export function open(id: string, { from }: { from?: HTMLElement } = {}) {
+  if (!Object.hasOwn(APPS, id)) return;
   const def = APPS[id];
-  if (!def) return;
   const el = win(id);
+  // Reopened mid-close: finish the close now so its cleanup can't hide the new window later.
+  const pending = closing.get(id);
+  if (pending) {
+    anims.get(id)?.cancel();
+    pending();
+  }
   const existing = state.get(id);
 
   if (existing) {
@@ -221,7 +257,10 @@ export function open(id: string, { from }: { from?: HTMLElement } = {}) {
 
   const s: WinState = { ws: def.sticky ? 0 : current, min: false, restore: null, max: false };
   state.set(id, s);
-  (def.sticky ? $('#float-layer') : wsEl(current)).append(el);
+  el.classList.remove('is-min', 'is-max');
+  syncMaxLabel(id);
+  // On phones every window is a full-screen sheet, so sticky ones share a layer to stack properly.
+  (def.sticky && !isCompact() ? $('#float-layer') : wsEl(current)).append(el);
   // Embedded players load only when opened, and unload when closed.
   el.querySelectorAll<HTMLIFrameElement>('iframe[data-src]').forEach((f) => (f.src = f.dataset.src!));
   el.hidden = false;
@@ -250,24 +289,31 @@ export function open(id: string, { from }: { from?: HTMLElement } = {}) {
 
 export function close(id: string) {
   if (!state.has(id)) return;
-  state.delete(id);
   const el = win(id);
+  const lost = focused === id || focusLost(el);
+  state.delete(id);
+  anims.get(id)?.cancel();
   emit(id, 'win:close');
   const finish = () => {
+    closing.delete(id);
+    anims.delete(id);
     el.hidden = true;
-    el.classList.remove('is-focused', 'is-max');
+    el.classList.remove('is-focused', 'is-max', 'is-min');
     el.removeAttribute('style');
     el.querySelectorAll<HTMLIFrameElement>('iframe[data-src]').forEach((f) => f.removeAttribute('src'));
     $('#win-pool').append(el);
   };
   if (reducedMotion.matches) finish();
   else {
-    el.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(0.96)' }], {
+    closing.set(id, finish);
+    const anim = el.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(0.96)' }], {
       duration: 160,
       easing: 'ease-in',
-    }).onfinish = finish;
+    });
+    anims.set(id, anim);
+    anim.onfinish = finish;
   }
-  if (focused === id) focusWindow(topmost(), true);
+  if (lost) refocus(topmost(), () => document.querySelector(`.dicon[data-app="${id}"]`));
   else renderTaskbar();
   if (location.hash === `#${id}`) history.replaceState(null, '', location.pathname + location.search);
 }
@@ -281,25 +327,35 @@ export function minimize(id: string) {
   if (!s || s.min) return;
   const el = win(id);
   const target = taskButton(id)?.getBoundingClientRect();
+  const lost = focusLost(el);
   s.min = true;
   emit(id, 'win:minimize');
-  const finish = () => el.classList.add('is-min');
+  // Restored before the animation ended? Then don't hide it after all.
+  const finish = () => {
+    anims.delete(id);
+    if (state.get(id)?.min) el.classList.add('is-min');
+  };
   if (reducedMotion.matches || !target) finish();
   else {
     const b = el.getBoundingClientRect();
     const dx = target.left + target.width / 2 - (b.left + b.width / 2);
     const dy = target.top + target.height / 2 - (b.top + b.height / 2);
-    el.animate([{ transform: 'none', opacity: 1 }, { transform: `translate(${dx}px, ${dy}px) scale(0.08)`, opacity: 0 }], {
+    const anim = el.animate([{ transform: 'none', opacity: 1 }, { transform: `translate(${dx}px, ${dy}px) scale(0.08)`, opacity: 0 }], {
       duration: 240,
       easing: 'cubic-bezier(0.4, 0, 0.8, 0.6)',
-    }).onfinish = finish;
+    });
+    anims.set(id, anim);
+    anim.onfinish = finish;
   }
-  focusWindow(focused === id ? topmost() : focused);
+  if (lost) refocus(topmost(), () => taskButton(id));
+  else focusWindow(focused === id ? topmost() : focused);
 }
 
 function restoreWindow(id: string) {
   const s = state.get(id)!;
   const el = win(id);
+  anims.get(id)?.cancel();
+  anims.delete(id);
   s.min = false;
   el.classList.remove('is-min');
   focusWindow(id, true);
@@ -331,6 +387,7 @@ export function toggleMaximize(id: string) {
     el.classList.add('is-max');
     glideTo(el, workArea());
   }
+  syncMaxLabel(id);
   focusWindow(id);
 }
 
@@ -357,6 +414,7 @@ export function tileWindows() {
     if (!s.restore) s.restore = getRect(el);
     s.max = false;
     el.classList.remove('is-max');
+    syncMaxLabel(id);
     glideTo(el, rects[i]);
   });
 }
@@ -399,6 +457,8 @@ function setupPointer() {
     const grabY = e.clientY - r.y;
     let moved = false;
     let snap: 'left' | 'right' | 'top' | null = null;
+    // Kept here: once the preview is hidden its box reads as 0x0.
+    let snapRect: Rect | null = null;
     bar.setPointerCapture(e.pointerId);
     el.classList.add('is-dragging');
 
@@ -413,6 +473,7 @@ function setupPointer() {
         s.max = false;
         s.restore = null;
         el.classList.remove('is-max');
+        syncMaxLabel(el.dataset.app!);
       }
       moved = true;
       r = clampToScreen({ ...r, x: ev.clientX - grabX, y: ev.clientY - grabY });
@@ -423,10 +484,13 @@ function setupPointer() {
       if (snap) {
         const a = workArea();
         const half = (a.w - GAP) / 2;
-        const target = snap === 'top' ? a : { x: snap === 'left' ? a.x : a.x + half + GAP, y: a.y, w: half, h: a.h };
-        setRect(preview, target);
+        snapRect = snap === 'top' ? a : { x: snap === 'left' ? a.x : a.x + half + GAP, y: a.y, w: half, h: a.h };
+        setRect(preview, snapRect);
         preview.hidden = false;
-      } else preview.hidden = true;
+      } else {
+        snapRect = null;
+        preview.hidden = true;
+      }
     };
 
     const up = () => {
@@ -435,7 +499,7 @@ function setupPointer() {
       bar.removeEventListener('pointercancel', up);
       el.classList.remove('is-dragging');
       preview.hidden = true;
-      if (!snap) return;
+      if (!snap || !snapRect) return;
       const id = el.dataset.app!;
       if (snap === 'top') {
         s.restore = r;
@@ -443,7 +507,7 @@ function setupPointer() {
         toggleMaximize(id);
       } else {
         s.restore = r;
-        glideTo(el, getRect(preview));
+        glideTo(el, snapRect);
       }
     };
 
@@ -466,6 +530,7 @@ function setupPointer() {
     s.max = false;
     s.restore = null;
     el.classList.remove('is-max');
+    syncMaxLabel(el.dataset.app!);
 
     const move = (ev: PointerEvent) => {
       const dx = ev.clientX - e.clientX;
@@ -531,9 +596,11 @@ function setupLauncher() {
     highlight(0);
   }
 
+  // The launcher is modal: everything behind it goes inert while it's open.
   function show() {
     returnTo = document.activeElement as HTMLElement;
     scrim.hidden = false;
+    setInert(true);
     input.value = '';
     filter();
     input.focus();
@@ -541,11 +608,13 @@ function setupLauncher() {
 
   function hide() {
     scrim.hidden = true;
+    setInert(false);
     returnTo?.focus?.();
   }
 
   function launch(o: HTMLElement) {
     scrim.hidden = true;
+    setInert(false);
     const id = o.dataset.launch!;
     if (id === 'lock') lock();
     else if (id === 'tile') tileWindows();
@@ -557,8 +626,20 @@ function setupLauncher() {
   input.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowDown') { e.preventDefault(); highlight(active + 1); }
     else if (e.key === 'ArrowUp') { e.preventDefault(); highlight(active - 1); }
-    else if (e.key === 'Enter') { e.preventDefault(); const o = visible()[active]; if (o) launch(o); }
-    else if (e.key === 'Escape') { e.preventDefault(); hide(); }
+    else if (e.key === 'Enter') {
+      e.preventDefault();
+      // Stop here, or the lock screen's any-key listener sees this Enter and unlocks at once.
+      e.stopPropagation();
+      const o = visible()[active];
+      if (o) launch(o);
+    }
+  });
+  // Escape works wherever focus is inside the launcher.
+  scrim.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      hide();
+    }
   });
   options.forEach((o) => o.addEventListener('click', () => launch(o)));
   scrim.addEventListener('pointerdown', (e) => { if (e.target === scrim) hide(); });
@@ -617,12 +698,14 @@ function unlock() {
 
 function setupLock(skip: boolean) {
   lockEl = $('#lock');
+  // Only the first showing is skipped; the listeners are needed for every lock() later.
   if (skip || wasUnlocked()) {
     lockEl.hidden = true;
     lockEl.classList.add('is-gone');
-    return;
+  } else {
+    setInert(true);
+    $('#lock-go').focus();
   }
-  setInert(true);
   lockEl.addEventListener('click', (e) => {
     if (!(e.target as HTMLElement).closest('a')) unlock();
   });
@@ -636,7 +719,6 @@ function setupLock(skip: boolean) {
     key.classList.add('is-flash');
     unlock();
   });
-  $('#lock-go').focus();
 }
 
 // ------------------------------------------------------------------- setup
@@ -646,7 +728,9 @@ export function setupWindowManager() {
   setupPointer();
 
   const hashApp = location.hash.slice(1);
-  setupLock(hashApp in APPS);
+  // hasOwn, not `in`: a hash like #toString must not count as an app.
+  const deepLink = Object.hasOwn(APPS, hashApp);
+  setupLock(deepLink);
 
   $$('.ws').forEach((el) => {
     const k = Number(el.dataset.ws);
@@ -656,7 +740,12 @@ export function setupWindowManager() {
 
   // The terminal, running neofetch, is the first thing on the desk.
   if (!isCompact()) open('terminal');
-  if (hashApp in APPS && hashApp !== 'terminal') open(hashApp);
+  if (deepLink && hashApp !== 'terminal') open(hashApp);
+  // In-page links like href="#chess" open the app too. open() itself uses replaceState, which fires no event.
+  window.addEventListener('hashchange', () => {
+    const id = location.hash.slice(1);
+    if (Object.hasOwn(APPS, id)) open(id);
+  });
   renderTaskbar();
 
   document.addEventListener('click', (e) => {
