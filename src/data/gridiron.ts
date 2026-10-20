@@ -14,6 +14,7 @@ export const gridiron = {
   app: 'gridiron',
   icon: 'football',
   title: 'Gridiron Duels',
+  launcher: 'Live football drafts',
   site: { href: 'https://gridiron-duels.com/', name: 'gridiron-duels.com' },
   essay: '/blog/gridiron-duels-architecture/',
   // The case study's first commit, 85e7300, and the move to the article layout with its figures. The page doesn't
@@ -30,13 +31,13 @@ export const gridiron = {
   stats,
   /** The roster behind the roster: one row per position in the stack. */
   stack: [
-    { pos: 'Backend', item: 'Laravel 12 · PHP 8.3 · Octane / RoadRunner' },
-    { pos: 'Frontend', item: 'React 19 · Inertia.js · Tailwind CSS' },
-    { pos: 'Mobile', item: 'Expo SDK 54 · React Native' },
-    { pos: 'Real-time', item: 'Laravel Reverb (Pusher protocol)' },
-    { pos: 'Database', item: 'PostgreSQL' },
-    { pos: 'Payments', item: 'Stripe (checkout + virtual currency)' },
-    { pos: 'Infra', item: 'Laravel Cloud · scheduler · queue workers' },
+    { key: 'Backend', value: 'Laravel 12 · PHP 8.3 · Octane / RoadRunner' },
+    { key: 'Frontend', value: 'React 19 · Inertia.js · Tailwind CSS' },
+    { key: 'Mobile', value: 'Expo SDK 54 · React Native' },
+    { key: 'Real-time', value: 'Laravel Reverb (Pusher protocol)' },
+    { key: 'Database', value: 'PostgreSQL' },
+    { key: 'Payments', value: 'Stripe (checkout + virtual currency)' },
+    { key: 'Infra', value: 'Laravel Cloud · scheduler · queue workers' },
   ],
   window: {
     lede: 'Live fantasy football drafts against friends or the CPU, on web and mobile.',
@@ -46,5 +47,6 @@ export const gridiron = {
     lede: 'Real-time fantasy football drafts',
     // The first two headline numbers.
     stats: stats.slice(0, 2).map((s) => ({ value: s.value, label: s.label.toLowerCase() })),
+    scene: { minutes: 14 * 60 + 30, cloud: 35 },
   },
 } satisfies CaseStudy;

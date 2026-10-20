@@ -9,8 +9,8 @@ import KeyRows from '../../components/article/KeyRows.astro';
 import Ledger from '../../components/article/Ledger.astro';
 import Note from '../../components/article/Note.astro';
 import PrevNext from '../../components/article/PrevNext.astro';
+import { neighbours } from '../../data/case-studies';
 import { disdubs } from '../../data/disdubs';
-import { gridiron } from '../../data/gridiron';
 import booth from '../../assets/work/disdubs/booth.png';
 import sheet from '../../assets/work/disdubs/sheet.png';
 
@@ -54,15 +54,15 @@ const schema = [
     publisher: { '@id': 'https://tannersteorts.com/#person' },
     isPartOf: { '@id': 'https://tannersteorts.com/#website' },
     mainEntityOfPage: pageURL,
-    about: { '@id': 'https://disdubs.com/#app' },
+    about: { '@id': `${disdubs.site.href}#app` },
     keywords:
       'Discord Activity, Discord Embedded App SDK, discord.js, voice receiver, real-time audio, ffmpeg, TypeScript, Electron, Steam',
   },
   {
     '@type': 'SoftwareApplication',
-    '@id': 'https://disdubs.com/#app',
+    '@id': `${disdubs.site.href}#app`,
     name: 'DisDubs',
-    url: 'https://disdubs.com/',
+    url: disdubs.site.href,
     applicationCategory: 'GameApplication',
     operatingSystem: 'Discord (web, desktop, mobile), Windows via Steam',
     description:
@@ -495,7 +495,7 @@ const schema = [
       silently fails inside Discord.
     </p>
 
-    <KeyRows rows={disdubs.stack.map((s) => ({ key: s.pos, value: s.item }))} />
+    <KeyRows rows={disdubs.stack} />
 
     <Note>
       The product is called DisDubs because Discord won't allow "discord" in a
@@ -507,11 +507,11 @@ const schema = [
 
   <p class="closing">
     DisDubs is live at
-    <a href="https://disdubs.com/" target="_blank" rel="noopener">disdubs.com</a>,
+    <a href={disdubs.site.href} target="_blank" rel="noopener">{disdubs.site.name}</a>,
     and free to add to a server.
   </p>
 
-  <PrevNext prev={{ href: gridiron.href, title: gridiron.title }} />
+  <PrevNext {...neighbours(disdubs.slug)} />
 </ArticleLayout>
 
 <style>

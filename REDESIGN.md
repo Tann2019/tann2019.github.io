@@ -60,7 +60,7 @@ Without it, the guestbook keeps notes in the visitor's browser and cursors stay 
 
 `styles.css` is the desktop. It imports the parts other pages can share from `css/` (`tokens`, `base`, `scene`, `bar`, `window`, `doc`), plus the desktop-only partials that sit between them, in the original order. `css/article.css` imports the same shared parts for article pages.
 
-`src/data/`: case study facts (`disdubs`, `gridiron`, `caseStudies`), read by the homepage (windows, icons, launcher, neofetch), the share cards, the sitemap and the case studies.
+`src/data/`: case study facts (`disdubs`, `gridiron`, `caseStudies`), read by the homepage (windows, icons, launcher, terminal, neofetch), the share cards, the sitemap and the case studies.
 
 ## Article kit
 
@@ -68,9 +68,9 @@ Without it, the guestbook keeps notes in the visitor's browser and cursors stay 
 
 To add a case study:
 
-1. Its facts in `src/data/<slug>.ts`, added to `caseStudies` (which also lists it in the sitemap): title, lede, meta, stats, `published` and `modified` (JSON-LD, `article:*` tags, sitemap `lastmod`), plus the homepage window's and share card's copy.
-2. Its homepage window: `APPS` in `wm.ts`, plus its icon and `<Win>` in `index.astro`.
-3. `src/pages/work/<slug>.astro` on `ArticleLayout`, with `name`, `app` (× goes to `/#<app>`), `icon` and the Seo props. Copy `disdubs.astro`. Page-only pieces go in the page's `<style>`, colored with the theme tokens.
+1. Its facts in `src/data/<slug>.ts`, added to `caseStudies`: title, `launcher` line, lede, meta, stats, `stack`, `published` and `modified` (JSON-LD, `article:*` tags, sitemap `lastmod`), the homepage window's copy, and the share card's copy and `scene` (its time of day). From that alone it gets a desktop icon, a launcher entry, `open` and `ls` in the terminal, a row in the sitemap and the homepage's ItemList, a share card page, and Previous and Next links, all in the array's order.
+2. Its homepage window: an `APPS` entry in `src/redesign/windows.ts` keyed by its `app`, and a `<Win>` in `index.astro` linking to the page. A new `icon` needs a glyph in `FileIcon.astro`; an unknown name draws nothing.
+3. `src/pages/work/<slug>.astro` on `ArticleLayout`, with `name`, `app` (× goes to `/#<app>`), `icon` and the Seo props. Start from `gridiron-duels.astro`, which reads its facts from the data and ends with `<PrevNext {...neighbours(slug)} />`. Page-only pieces go in the page's `<style>`, colored with the theme tokens.
 4. `npm run og` for its share card.
 
 Figures: PNG masters in `src/assets/work/<slug>/`, passed as `src`, ship as lazy AVIF and WebP with their size set. Web screens get `frame="window"` (the default, out to 64rem, `title` names the screen); iOS screens `frame="phone"` (a 280px bezel). Number them with `n` in document order.

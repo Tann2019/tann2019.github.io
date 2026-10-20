@@ -9,14 +9,24 @@ export interface Stat {
   label: string;
 }
 
+/** A share card's moment: minutes past midnight, Billings time, on og.ts's reference day, and cloud cover 0-100. */
+export interface CardScene {
+  minutes: number;
+  /** The way Open-Meteo reports it. */
+  cloud: number;
+}
+
 export interface CaseStudy {
-  /** Its page is /work/<slug>/ and its share card public/og/<slug>.png. */
+  /** Its page is /work/<slug>/ and its share card public/og/<slug>.png. The terminal opens and lists it by this. */
   slug: string;
   href: string;
-  /** The homepage window that sums it up (APPS in src/redesign/wm.ts), and that window's FileIcon. */
+  /** The homepage window that sums it up (APPS in src/redesign/windows.ts), and the FileIcon of its desktop icon,
+   * launcher entry and bar chip. */
   app: string;
   icon: string;
   title: string;
+  /** Its line in the desktop's launcher. */
+  launcher: string;
   /** The product's own site. */
   site: { href: string; name: string };
   /** A companion post, when there is one. */
@@ -33,12 +43,20 @@ export interface CaseStudy {
   stats: (Stat & { note?: string; short?: string })[];
   /** DisDubs: how a dub gets made, one screen per step. The images are masters under src/assets/. */
   reel?: { title: string; img: ImageMetadata; alt: string; line: string }[];
-  /** The stack, one row per position. */
-  stack?: { pos: string; item: string }[];
+  /** The stack, one row per position, as KeyRows takes it. */
+  stack?: { key: string; value: string }[];
   /** The homepage window's shorter copy. */
   window: { lede: string; meta: string; stats?: Stat[] };
-  /** The share card. Any change here needs `npm run og` for a new card. */
-  card: { lede: string; stats: Stat[] };
+  /** The share card and its time of day. Any change here needs `npm run og` for a new card. */
+  card: { lede: string; stats: Stat[]; scene: CardScene };
 }
 
 export const caseStudies: CaseStudy[] = [disdubs, gridiron];
+
+/** The case studies either side of this one in caseStudies, for its PrevNext. */
+export function neighbours(slug: string) {
+  const i = caseStudies.findIndex((s) => s.slug === slug);
+  if (i === -1) throw new Error(`neighbours: no case study ${slug}`);
+  const link = (s: CaseStudy | undefined) => s && { href: s.href, title: s.title };
+  return { prev: link(caseStudies[i - 1]), next: link(caseStudies[i + 1]) };
+}

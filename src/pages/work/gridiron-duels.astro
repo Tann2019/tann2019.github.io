@@ -8,8 +8,8 @@ import KeyRows from '../../components/article/KeyRows.astro';
 import Ledger from '../../components/article/Ledger.astro';
 import Note from '../../components/article/Note.astro';
 import PrevNext from '../../components/article/PrevNext.astro';
+import { neighbours } from '../../data/case-studies';
 import { gridiron } from '../../data/gridiron';
-import { disdubs } from '../../data/disdubs';
 import draftRoom from '../../assets/work/gridiron/draft-room.png';
 import results from '../../assets/work/gridiron/results.png';
 import profile from '../../assets/work/gridiron/profile.png';
@@ -109,7 +109,7 @@ const schema = {
       server-rendered and SPA pages without ever feeling the seam.
     </p>
 
-    <KeyRows rows={gridiron.stack.map((s) => ({ key: s.pos, value: s.item }))} />
+    <KeyRows rows={gridiron.stack} />
   </Chapter>
 
   <Chapter numeral="II" title="The engine that orchestrates the draft">
@@ -249,7 +249,7 @@ const schema = {
     <a href={gridiron.essay}>in the blog</a>.
   </p>
 
-  <PrevNext next={{ href: disdubs.href, title: disdubs.title }} />
+  <PrevNext {...neighbours(gridiron.slug)} />
 </ArticleLayout>
 
 <style>

@@ -23,6 +23,7 @@ export const disdubs = {
   app: 'disdubs',
   icon: 'slate',
   title: 'DisDubs',
+  launcher: 'Dubbing in Discord',
   site: { href: 'https://disdubs.com/', name: 'disdubs.com' },
   published: '2026-09-09T00:00:00-06:00',
   modified: '2026-09-10T00:00:00-06:00',
@@ -45,14 +46,14 @@ export const disdubs = {
   ],
   /** What it runs on, one row per layer. */
   stack: [
-    { pos: 'Runtime', item: 'Node 20 · TypeScript · npm workspaces' },
-    { pos: 'Client', item: 'Discord Embedded App SDK · Vite · no framework' },
-    { pos: 'Voice', item: 'discord.js 14 · @discordjs/voice receiver' },
-    { pos: 'Audio', item: 'Timeline-aligned PCM writer · ffmpeg adelay + amix' },
-    { pos: 'Transport', item: 'One WebSocket, one process, shared memory' },
-    { pos: 'Desktop', item: 'Electron shell for Steam, with on-device voice separation' },
-    { pos: 'Billing', item: 'Discord SKUs and entitlements' },
-    { pos: 'Infra', item: 'Single box behind Caddy · marketing site on Cloudflare' },
+    { key: 'Runtime', value: 'Node 20 · TypeScript · npm workspaces' },
+    { key: 'Client', value: 'Discord Embedded App SDK · Vite · no framework' },
+    { key: 'Voice', value: 'discord.js 14 · @discordjs/voice receiver' },
+    { key: 'Audio', value: 'Timeline-aligned PCM writer · ffmpeg adelay + amix' },
+    { key: 'Transport', value: 'One WebSocket, one process, shared memory' },
+    { key: 'Desktop', value: 'Electron shell for Steam, with on-device voice separation' },
+    { key: 'Billing', value: 'Discord SKUs and entitlements' },
+    { key: 'Infra', value: 'Single box behind Caddy · marketing site on Cloudflare' },
   ],
   window: {
     lede: 'A group dubbing game inside Discord. Pick a scene, hand out parts, and the voice channel performs it together.',
@@ -67,5 +68,6 @@ export const disdubs = {
       { value: '240,000+', label: 'members reached' },
       { value: '70%', label: 'finished a dub' },
     ],
+    scene: { minutes: 18 * 60 + 50, cloud: 20 },
   },
 } satisfies CaseStudy;

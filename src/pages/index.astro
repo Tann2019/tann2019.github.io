@@ -38,8 +38,7 @@ const artHtml = art.map((line) => line.map(([ink, text]) => `<span class="nf-${i
 
 const launcherEntries = [
   { id: 'terminal', name: 'Terminal', desc: 'neofetch and a shell', icon: 'terminal' },
-  { id: disdubs.app, name: disdubs.title, desc: 'Dubbing in Discord', icon: disdubs.icon },
-  { id: gridiron.app, name: gridiron.title, desc: 'Live football drafts', icon: gridiron.icon },
+  ...caseStudies.map((s) => ({ id: s.app, name: s.title, desc: s.launcher, icon: s.icon })),
   { id: 'mothership', name: 'DnD Mothership', desc: 'Screens for D&D', icon: 'd20' },
   { id: 'work', name: 'Work history', desc: 'Jobs and toolkit', icon: 'clipboard' },
   { id: 'side', name: 'Side projects', desc: 'Smaller builds', icon: 'tacklebox' },
@@ -192,7 +191,7 @@ const launcherEntries = [
     <!-- ===================== WINDOWS, MOVED IN WHEN OPENED ===================== -->
     <div id="win-pool" hidden>
       <Win app="terminal" title="tanner@billings: ~" label="Terminal">
-        <div class="term">
+        <div class="term" data-studies={JSON.stringify(caseStudies.map((s) => [s.slug, s.app]))}>
           <div class="term-out" aria-live="polite">
             <div class="term-line"><span class="term-prompt">tanner@billings <b>~</b> $</span> neofetch</div>
             <div class="neofetch">
