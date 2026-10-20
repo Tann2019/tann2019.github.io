@@ -111,13 +111,17 @@ let height = 0;
 let snowLine = 0;
 let stable = false;
 
-/** The height to draw for: the window's, or with `stableHeight` the canvas's own box. */
+/**
+ * The size to draw for: the window's, or with `stableHeight` the canvas's own box. On a page that scrolls, a
+ * classic scrollbar leaves that box narrower than the window.
+ */
+const boxWidth = () => (stable && canvas.clientWidth) || window.innerWidth;
 const boxHeight = () => (stable && canvas.clientHeight) || window.innerHeight;
 
 /** Rebuild ridge geometry for the current viewport. Positions are in CSS px. */
 function build() {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  width = window.innerWidth;
+  width = boxWidth();
   height = boxHeight();
   canvas.width = Math.round(width * dpr);
   canvas.height = Math.round(height * dpr);
@@ -312,7 +316,7 @@ export function setupLand(el: HTMLCanvasElement, { stableHeight = false }: LandO
   window.addEventListener('resize', () => {
     cancelAnimationFrame(raf);
     raf = requestAnimationFrame(() => {
-      if (stable && window.innerWidth === width && boxHeight() === height) return;
+      if (stable && boxWidth() === width && boxHeight() === height) return;
       build();
       if (last) paintLand(last);
     });

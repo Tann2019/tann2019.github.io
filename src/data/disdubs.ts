@@ -3,10 +3,10 @@ import type { CaseStudy } from './case-studies';
 
 /** Where it stood one month after launch. */
 const stats = [
-  { value: '6,131', label: 'Servers have opened it', note: 'first month after launch' },
-  { value: '241,502', label: 'Members reached', note: 'summed at last connect' },
-  { value: '4,322', label: 'Servers finished a dub', note: '70% of everyone who opened it' },
-  { value: '100+', label: 'Paying subscriptions', note: 'across two tiers' },
+  { value: '6,131', label: 'Servers have opened it', note: 'first month after launch', short: 'servers opened it in the first month' },
+  { value: '241,502', label: 'Members reached', note: 'summed at last connect', short: 'members reached' },
+  { value: '4,322', label: 'Servers finished a dub', note: '70% of everyone who opened it', short: 'servers finished a dub' },
+  { value: '100+', label: 'Paying subscriptions', note: 'across two tiers', short: 'paying subscriptions' },
 ];
 
 export const disdubs = {
@@ -35,13 +35,21 @@ export const disdubs = {
     { title: 'Fix a line', img: '/work/disdubs/booth.png', alt: 'The booth, showing one line’s waveform against the original', line: 'One flubbed line costs one line. Redo it against the original.' },
     { title: 'Premiere', img: '/work/disdubs/premiere.png', alt: 'The screening view, playing the finished dub back to the room', line: 'Mix down, then watch it back together before anyone leaves.' },
   ],
+  /** What it runs on, one row per layer. */
+  stack: [
+    { pos: 'Runtime', item: 'Node 20 · TypeScript · npm workspaces' },
+    { pos: 'Client', item: 'Discord Embedded App SDK · Vite · no framework' },
+    { pos: 'Voice', item: 'discord.js 14 · @discordjs/voice receiver' },
+    { pos: 'Audio', item: 'Timeline-aligned PCM writer · ffmpeg adelay + amix' },
+    { pos: 'Transport', item: 'One WebSocket, one process, shared memory' },
+    { pos: 'Desktop', item: 'Electron shell for Steam, with on-device voice separation' },
+    { pos: 'Billing', item: 'Discord SKUs and entitlements' },
+    { pos: 'Infra', item: 'Single box behind Caddy · marketing site on Cloudflare' },
+  ],
   window: {
     lede: 'A group dubbing game inside Discord. Pick a scene, hand out parts, and the voice channel performs it together.',
     meta: 'Discord Activity and Steam. Solo build, 2026.',
-    // The same numbers, worded to stand without the page's notes.
-    stats: ['servers opened it in the first month', 'members reached', 'servers finished a dub', 'paying subscriptions'].map(
-      (label, i) => ({ value: stats[i].value, label }),
-    ),
+    stats: stats.map((s) => ({ value: s.value, label: s.short })),
   },
   card: {
     lede: 'A group dubbing game inside Discord',

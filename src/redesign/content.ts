@@ -1,5 +1,6 @@
 // Mockup copy of the data that lives inline in src/pages/index.astro today.
 // Phase 1 moves these into src/data/ so the desktop and the plain pages share one source.
+import { caseStudies } from '../data/case-studies';
 
 export const experience = [
   {
@@ -55,8 +56,7 @@ export const sideProjects = [
 
 /** Icons on the desktop, top to bottom from the right edge. `app` is the window each one opens. */
 export const desktopIcons = [
-  { name: 'disdubs', icon: 'slate', app: 'disdubs', label: 'DisDubs case study' },
-  { name: 'gridiron-duels', icon: 'football', app: 'gridiron', label: 'Gridiron Duels case study' },
+  ...caseStudies.map((s) => ({ name: s.slug, icon: s.icon, app: s.app, label: `${s.title} case study` })),
   { name: 'mothership', icon: 'd20', app: 'mothership', label: 'DnD Mothership' },
   { name: 'work-history.txt', icon: 'clipboard', app: 'work', label: 'Work history' },
   { name: 'side-projects', icon: 'tacklebox', app: 'side', label: 'Side projects' },

@@ -23,13 +23,16 @@ export interface CaseStudy {
   /** ISO 8601 with the Billings offset. */
   published?: string;
   modified?: string;
-  /** The page's own hero line, meta and headline numbers. */
+  /**
+   * The page's own hero line, meta and headline numbers. A stat's `short` is its label for the homepage window,
+   * worded to stand without the note.
+   */
   lede: string;
   meta: { label: string; value: string }[];
-  stats: (Stat & { note?: string })[];
+  stats: (Stat & { note?: string; short?: string })[];
   /** DisDubs: how a dub gets made, one screen per step. */
   reel?: { title: string; img: string; alt: string; line: string }[];
-  /** Gridiron Duels: the stack, one row per position. */
+  /** The stack, one row per position. */
   stack?: { pos: string; item: string }[];
   /** The homepage window's shorter copy. */
   window: { lede: string; meta: string; stats?: Stat[] };

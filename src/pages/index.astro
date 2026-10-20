@@ -35,8 +35,8 @@ const artHtml = art.map((line) => line.map(([ink, text]) => `<span class="nf-${i
 
 const launcherEntries = [
   { id: 'terminal', name: 'Terminal', desc: 'neofetch and a shell', icon: 'terminal' },
-  { id: 'disdubs', name: 'DisDubs', desc: 'Dubbing in Discord', icon: 'slate' },
-  { id: 'gridiron', name: 'Gridiron Duels', desc: 'Live football drafts', icon: 'football' },
+  { id: disdubs.app, name: disdubs.title, desc: 'Dubbing in Discord', icon: disdubs.icon },
+  { id: gridiron.app, name: gridiron.title, desc: 'Live football drafts', icon: gridiron.icon },
   { id: 'mothership', name: 'DnD Mothership', desc: 'Screens for D&D', icon: 'd20' },
   { id: 'work', name: 'Work history', desc: 'Jobs and toolkit', icon: 'clipboard' },
   { id: 'side', name: 'Side projects', desc: 'Smaller builds', icon: 'tacklebox' },
@@ -192,7 +192,7 @@ const launcherEntries = [
                 <div><dt>Uptime</dt><dd data-live="uptime">shipping since 2022</dd></div>
                 <div><dt>Role</dt><dd>Support engineer at Givebutter</dd></div>
                 <div><dt>Building</dt><dd>Gridiron Duels</dd></div>
-                <div><dt>Shipped</dt><dd>DisDubs, 6,131 servers in month one</dd></div>
+                <div><dt>Shipped</dt><dd>{disdubs.title}, {disdubs.stats[0].value} servers in month one</dd></div>
                 <div><dt>Stack</dt><dd>Laravel, React, Expo, TypeScript</dd></div>
                 <div><dt>School</dt><dd>B.S. Computer Science, Rocky Mountain College</dd></div>
                 <div><dt>Sky</dt><dd data-live="sky"></dd></div>
@@ -209,7 +209,7 @@ const launcherEntries = [
         </div>
       </Win>
 
-      <Win app="disdubs" title="DisDubs">
+      <Win app={disdubs.app} title={disdubs.title}>
         <article class="doc">
           <h2 class="doc-title">{disdubs.title}</h2>
           <p class="doc-lede">{disdubs.window.lede}</p>
@@ -244,7 +244,7 @@ const launcherEntries = [
         </article>
       </Win>
 
-      <Win app="gridiron" title="Gridiron Duels">
+      <Win app={gridiron.app} title={gridiron.title}>
         <article class="doc">
           <h2 class="doc-title">{gridiron.title}</h2>
           <p class="doc-lede">{gridiron.window.lede}</p>

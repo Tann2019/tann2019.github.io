@@ -59,7 +59,7 @@ Without it, the guestbook keeps notes in the visitor's browser and cursors stay 
 
 `styles.css` is the desktop. It imports the parts other pages can share from `css/` (`tokens`, `base`, `scene`, `bar`, `window`, `doc`), plus the desktop-only partials that sit between them, in the original order.
 
-`src/data/`: case study facts (`disdubs`, `gridiron`, `caseStudies`), read by the homepage windows and the share cards.
+`src/data/`: case study facts (`disdubs`, `gridiron`, `caseStudies`), read by the homepage (windows, icons, launcher, neofetch) and the share cards.
 
 Credits: sky colors from [dynamic-sky](https://github.com/aakaashjois/dynamic-sky) (Apache-2.0). Weather from [Open-Meteo](https://open-meteo.com). Fonts: National Park, Overpass (Google Fonts, OFL).
 

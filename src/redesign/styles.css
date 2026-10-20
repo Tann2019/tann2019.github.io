@@ -1,5 +1,5 @@
-/* Big Sky desktop. The parts other pages share are in css/, imported in the original order so the cascade is
-   unchanged; everything after the imports is the desktop's own. */
+/* Big Sky desktop. The parts other pages share, and the desktop-only sections between them, are in css/, imported
+   in the original order so the cascade is unchanged; everything after the imports is the desktop's own. */
 
 @import './css/tokens.css';
 @import './css/base.css';
