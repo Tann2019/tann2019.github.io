@@ -1,0 +1,31 @@
+---
+// The end of an article: the neighbouring case study, and the way back to the desktop.
+interface Link {
+  href: string;
+  title: string;
+}
+interface Props {
+  prev?: Link;
+  next?: Link;
+}
+const { prev, next } = Astro.props;
+---
+
+<nav class="prevnext" aria-label="More work">
+  {prev && (
+    <a href={prev.href} rel="prev">
+      <span class="pn-label">Previous</span>
+      <span class="pn-title">{prev.title}</span>
+    </a>
+  )}
+  {next && (
+    <a href={next.href} rel="next">
+      <span class="pn-label">Next</span>
+      <span class="pn-title">{next.title}</span>
+    </a>
+  )}
+  <a href="/">
+    <span class="pn-label">Back to</span>
+    <span class="pn-title">All work →</span>
+  </a>
+</nav>

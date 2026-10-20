@@ -1,0 +1,25 @@
+/* Theme tokens. The colors are the daytime palette, so the first paint before JS is sane; sky.ts rewrites them live. */
+
+:root {
+  --bg: #0f2036;
+  --bg-rgb: 15 32 54;
+  --fg: #eaf1f8;
+  --fg-rgb: 234 241 248;
+  --muted: #97abc2;
+  --accent: #8ec8ff;
+  --accent-rgb: 142 200 255;
+  --line: #24405f;
+  --c0: #1f5fb6; --c1: #4a86d1; --c2: #8db7e6; --c3: #f2f6fa;
+  --c4: #dcba85; --c5: #ffe08a; --c6: #5c7850; --c7: #8ec8ff;
+
+  --font-display: 'National Park', 'Overpass', system-ui, sans-serif;
+  --font-ui: 'Overpass', system-ui, sans-serif;
+  --font-mono: 'Overpass Mono', ui-monospace, 'Cascadia Mono', monospace;
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --radius: 10px;
+  --board-light: #e7d3ae;
+  --board-dark: #8c9c7a;
+
+  color-scheme: dark;
+}

@@ -1,15 +1,15 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
+import { caseStudies } from '../data/case-studies';
 
 const SITE = 'https://tannersteorts.com';
 
-/** Static routes, with the weight I want search engines to read them at. */
-const staticPages: { path: string; priority: string; changefreq: string }[] = [
+/** Static routes, with the weight I want search engines to read them at. A case study's lastmod is its modified date. */
+const staticPages: { path: string; priority: string; changefreq: string; date?: string }[] = [
   { path: '/', priority: '1.0', changefreq: 'monthly' },
   { path: '/about/', priority: '0.7', changefreq: 'yearly' },
   { path: '/blog/', priority: '0.7', changefreq: 'weekly' },
-  { path: '/work/disdubs/', priority: '0.9', changefreq: 'monthly' },
-  { path: '/work/gridiron-duels/', priority: '0.9', changefreq: 'monthly' },
+  ...caseStudies.map((s) => ({ path: s.href, priority: '0.9', changefreq: 'monthly', date: s.modified ?? s.published })),
 ];
 
 export const GET: APIRoute = async () => {
@@ -18,7 +18,7 @@ export const GET: APIRoute = async () => {
   const urls = [
     ...staticPages.map((p) => ({
       loc: `${SITE}${p.path}`,
-      lastmod: undefined as string | undefined,
+      lastmod: p.date && new Date(p.date).toISOString(),
       priority: p.priority,
       changefreq: p.changefreq,
     })),

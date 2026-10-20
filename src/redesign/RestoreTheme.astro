@@ -1,0 +1,22 @@
+---
+// Before first paint: the theme and sky the last page saved (see theme.ts), so this page starts in its colours.
+// The page repaints for now as soon as its script runs. Known keys only, and nothing that could load an image,
+// since --sky lands in a background-image: no url/image/src in any case, no strings, no escapes. Real values are
+// colours, numbers and gradients, which never contain those. Goes after <meta name="theme-color">.
+import { RESTORED_VARS, THEME_KEY } from './theme';
+---
+
+<script is:inline define:vars={{ key: THEME_KEY, vars: RESTORED_VARS }}>
+  try {
+    const theme = JSON.parse(sessionStorage.getItem(key));
+    for (const k of vars) {
+      const v = theme[k];
+      if (typeof v === 'string' && v && !/url|image|src|["'\\]/i.test(v)) {
+        document.documentElement.style.setProperty(k, v);
+      }
+    }
+    if (typeof theme.color === 'string' && theme.color) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', theme.color);
+    }
+  } catch {}
+</script>

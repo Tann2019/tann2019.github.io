@@ -1,13 +1,10 @@
 import {
-  applyTheme,
   billingsDateAt,
   billingsMinutes,
-  fetchWeather,
   formatDay,
   formatShortDay,
   formatTime,
   nextSunLine,
-  paintSky,
   phaseName,
   skyColorsAt,
   sunPosition,
@@ -15,8 +12,9 @@ import {
 } from './sky';
 import { setupWindowManager } from './wm';
 import { setupDesktop } from './desktop';
-import { paintLand, setupLand } from './land';
-import { forcedWeather, lightWeather, setWeather, setupWeather } from './weather';
+import { setupLand } from './land';
+import { fitWallpaper, paintScene } from './scene';
+import { fetchWeather, forcedWeather, lightWeather, setWeather, setupWeather } from './weather';
 import { mountTerminal } from './terminal';
 import { mountChess } from './chess/board';
 import { mountRadio } from './radio';
@@ -55,11 +53,7 @@ function setText(sel: string, text: string) {
 function refresh() {
   const now = new Date();
   const shown = preview === null ? now : billingsDateAt(preview, now);
-  const snap = paintSky(wallpaper, shown);
-  const sky = { alt: snap.alt, ...skyColorsAt(snap.alt) };
-  applyTheme(snap.inks, sky);
-  paintLand(sky);
-  lightWeather(sky);
+  const snap = paintScene(wallpaper, shown, lightWeather);
 
   // Home: the conky block on the wallpaper follows whatever sky is showing.
   const t = splitTime(shown);
@@ -141,18 +135,12 @@ function setupCopy() {
   });
 }
 
-function fitWallpaper() {
-  // Phones are tall and narrow: frame the peaks, the city and the end of the Rims instead of the middle.
-  const compact = matchMedia('(max-width: 760px)').matches;
-  wallpaper.setAttribute('viewBox', compact ? '180 0 760 1000' : '0 0 1600 1000');
-}
-
 setupLand($<HTMLCanvasElement>('#land'));
 setupWeather($<HTMLCanvasElement>('#clouds'), $<HTMLCanvasElement>('#precip'));
 const forced = forcedWeather();
 if (forced) setWeather(forced);
 paintScrubTrack();
-fitWallpaper();
+fitWallpaper(wallpaper);
 refresh();
 setupDesktop();
 setupWindowManager();
@@ -170,7 +158,7 @@ window.setInterval(refresh, 30000);
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) refresh();
 });
-matchMedia('(max-width: 760px)').addEventListener('change', fitWallpaper);
+matchMedia('(max-width: 760px)').addEventListener('change', () => fitWallpaper(wallpaper));
 // The sun's arc depends on how much sky the window shows.
 let resizeRaf = 0;
 window.addEventListener('resize', () => {

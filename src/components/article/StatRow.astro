@@ -1,0 +1,32 @@
+---
+// Headline numbers, in the same markup as the desktop window's .stats so the two read alike. A note goes under its
+// label; a caption above the row and a footnote (the default slot) under it are optional.
+import type { Stat } from '../../data/case-studies';
+
+interface Props {
+  stats: (Stat & { note?: string })[];
+  caption?: string;
+}
+const { stats, caption } = Astro.props;
+
+// The longest number in figures, a comma or point counting half: article.css keeps every column at least that wide.
+const widest = Math.max(...stats.map((s) => [...s.value].reduce((n, c) => n + (c === ',' || c === '.' ? 0.5 : 1), 0)));
+---
+
+<div class="statrow">
+  {caption && <p class="statrow-cap">{caption}</p>}
+  <ul class="stats" style={`--widest: ${widest}`}>
+    {stats.map((s) => (
+      <li>
+        <strong>{s.value}</strong>
+        <span>{s.label}</span>
+        {s.note && <span class="stats-note">{s.note}</span>}
+      </li>
+    ))}
+  </ul>
+  {Astro.slots.has('default') && (
+    <p class="statrow-foot">
+      <slot />
+    </p>
+  )}
+</div>

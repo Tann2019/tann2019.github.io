@@ -7,18 +7,7 @@ import { getCollection } from 'astro:content';
 import Win from '../../redesign/Win.astro';
 import FileIcon from '../../redesign/FileIcon.astro';
 import Wallpaper from '../../redesign/Wallpaper.astro';
-
-interface Scene {
-  /** Minutes past midnight, Billings time, on the reference day in og.ts. */
-  minutes: number;
-  /** Cloud cover, 0-100, the way Open-Meteo reports it. */
-  cloud: number;
-}
-
-interface Stat {
-  value: string;
-  label: string;
-}
+import { caseStudies, type CardScene as Scene, type Stat } from '../../data/case-studies';
 
 type Card = { slug: string; scene: Scene } & (
   | { kind: 'home' }
@@ -47,34 +36,17 @@ export async function getStaticPaths() {
 
   const cards: Card[] = [
     { slug: 'default', kind: 'home', scene: { minutes: at(18, 2), cloud: 55 } },
-    {
-      slug: 'disdubs',
+    // Case study cards take their text and time of day from src/data/.
+    ...caseStudies.map((study): Card => ({
+      slug: study.slug,
       kind: 'project',
-      scene: { minutes: at(18, 50), cloud: 20 },
-      app: 'disdubs',
-      icon: 'slate',
-      title: 'DisDubs',
-      lede: 'A group dubbing game inside Discord',
-      stats: [
-        { value: '6,000+', label: 'servers' },
-        { value: '240,000+', label: 'members reached' },
-        { value: '70%', label: 'finished a dub' },
-      ],
-    },
-    {
-      slug: 'gridiron-duels',
-      kind: 'project',
-      scene: { minutes: at(14, 30), cloud: 35 },
-      app: 'gridiron',
-      icon: 'football',
-      title: 'Gridiron Duels',
-      lede: 'Real-time fantasy football drafts',
-      // From the stats block on /work/gridiron-duels/.
-      stats: [
-        { value: '3,400+', label: 'players' },
-        { value: '1,041,000+', label: 'picks made' },
-      ],
-    },
+      scene: study.card.scene,
+      app: study.app,
+      icon: study.icon,
+      title: study.title,
+      lede: study.card.lede,
+      stats: study.card.stats,
+    })),
     ...posts.map((post): Card => {
       // "Name — Subtitle" titles break at the dash instead of printing it. National Park draws a capital I
       // like an l, so "GridIron" would read "Gridlron".
@@ -94,9 +66,6 @@ export async function getStaticPaths() {
 }
 
 const { card, cards } = Astro.props as { card?: Card; cards: Card[] };
-
-/** Window titles, as APPS in src/redesign/wm.ts names them. */
-const TITLES: Record<string, string> = { disdubs: 'DisDubs', gridiron: 'Gridiron Duels', writing: 'Writing' };
 
 /** Where og.ts pans the sun (or the moon, once dusk is over): the open sky right of the window or panel. */
 const FOCUS_X = 1080;
@@ -155,7 +124,7 @@ const FOCUS_X = 1080;
             {card.kind !== 'home' && (
               <button class="task" type="button" aria-pressed="true">
                 <FileIcon name={card.kind === 'project' ? card.icon : 'notebook'} />
-                <span>{TITLES[card.kind === 'project' ? card.app : 'writing']}</span>
+                <span>{card.kind === 'project' ? card.title : 'Writing'}</span>
               </button>
             )}
           </div>
@@ -177,7 +146,7 @@ const FOCUS_X = 1080;
 
     {
       card?.kind === 'project' && (
-        <Win app={card.app} title={TITLES[card.app]}>
+        <Win app={card.app} title={card.title}>
           <div class="og-doc">
             <div class="og-head">
               <FileIcon name={card.icon} />
@@ -199,7 +168,7 @@ const FOCUS_X = 1080;
 
     {
       card?.kind === 'post' && (
-        <Win app="writing" title={TITLES.writing}>
+        <Win app="writing" title="Writing">
           <div class="og-doc">
             <FileIcon name="notebook" />
             <h1 class="og-title" data-fit data-max-lines="3" data-min-size="44">

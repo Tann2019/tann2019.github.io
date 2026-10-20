@@ -4,11 +4,8 @@ import { formatDay, formatTime, nextSunLine, phaseName, sunPosition } from './sk
 const escape = (s: string) =>
   s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 
-/** Names the terminal accepts for `open`, mapped to window ids. */
+/** Names the terminal accepts for `open`, mapped to window ids. The case studies are added in mountTerminal. */
 const OPENABLE: Record<string, string> = {
-  disdubs: 'disdubs',
-  gridiron: 'gridiron',
-  'gridiron-duels': 'gridiron',
   mothership: 'mothership',
   chess: 'chess',
   writing: 'writing',
@@ -30,7 +27,7 @@ const OPENABLE: Record<string, string> = {
   'sticky-notes': 'guestbook',
 };
 
-const LS = ['disdubs/', 'gridiron-duels/', 'mothership/', 'side-projects/', 'writing/', 'chess', 'synth', 'sticky-notes', 'lofi-radio', 'say-hi', 'about.txt', 'work-history.txt'];
+const LS = ['mothership/', 'side-projects/', 'writing/', 'chess', 'synth', 'sticky-notes', 'lofi-radio', 'say-hi', 'about.txt', 'work-history.txt'];
 
 const ABOUT = [
   'Full-stack developer in Billings, Montana. Laravel and React, with',
@@ -43,6 +40,13 @@ export function mountTerminal(root: HTMLElement) {
   const form = root.querySelector<HTMLFormElement>('.term-form')!;
   const input = root.querySelector<HTMLInputElement>('.term-input')!;
   const neofetch = document.querySelector<HTMLTemplateElement>('#tpl-neofetch')!;
+  // Each case study as [slug, window id], from src/data/ by way of index.astro, so a new one opens and lists here too.
+  const studies: [string, string][] = JSON.parse(root.dataset.studies ?? '[]');
+  const openable: Record<string, string> = {
+    ...Object.fromEntries(studies.flatMap(([slug, app]): [string, string][] => [[slug, app], [app, app]])),
+    ...OPENABLE,
+  };
+  const ls = [...studies.map(([slug]) => `${slug}/`), ...LS];
   const history: string[] = [];
   let cursor = 0;
 
@@ -73,7 +77,7 @@ export function mountTerminal(root: HTMLElement) {
       );
     },
     ls() {
-      print(LS.map((f) => `<span class="${f.endsWith('/') ? 't-dir' : ''}">${f}</span>`).join('  '));
+      print(ls.map((f) => `<span class="${f.endsWith('/') ? 't-dir' : ''}">${f}</span>`).join('  '));
     },
     cat(args) {
       const file = args[0];
@@ -86,7 +90,7 @@ export function mountTerminal(root: HTMLElement) {
     },
     open(args) {
       const name = (args[0] ?? '').replace(/\/$/, '').toLowerCase();
-      const id = Object.hasOwn(OPENABLE, name) ? OPENABLE[name] : undefined;
+      const id = Object.hasOwn(openable, name) ? openable[name] : undefined;
       if (!id) {
         print(name ? `open: nothing called ${escape(name)}. Try <b>ls</b>.` : 'open: name something, e.g. <b>open chess</b>');
         return;

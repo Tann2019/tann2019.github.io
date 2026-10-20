@@ -50,15 +50,37 @@ Without it, the guestbook keeps notes in the visitor's browser and cursors stay 
 
 - `/` desktop. All window content is in the HTML. Without JS it reads as a plain column.
 - `/classic/` the old homepage, `noindex`, linked as "Skip to the plain site".
-- `/about/`, `/blog/*`, `/work/*` unchanged. SEO tags now come from `src/components/Seo.astro`.
+- `/work/disdubs/` and `/work/gridiron-duels/` on `ArticleLayout` (see Article kit). DisDubs' `pick`, `cast` and `premiere.png` also stay in `public/work/disdubs/` for the JSON-LD screenshot URLs.
+- `/about/`, `/blog/*` unchanged. SEO tags now come from `src/components/Seo.astro`.
 - Share cards in `public/og/` are frames of the desktop at a fixed time of day. `npm run og` rebuilds them from the dev-only `/og-card/` pages (Chrome or Edge required). Rerun after adding a post.
 
 ## Code
 
-`src/redesign/`: `sky` (sun math, scattering colors, theme), `land` (ridges), `weather`, `wm` (windows, workspaces, launcher, lock), `desktop` (icons), `terminal`, `radio`, `chess/*`, `apps/*` (synth, guestbook, cursors).
+`src/redesign/`: `sky` (sun math, scattering colors, theme), `land` (ridges), `weather` (clouds, rain and snow, and the desktop's Open-Meteo fetch), `scene` (paints all three for one moment, and saves the theme), `theme` (the theme kept in sessionStorage between pages; `RestoreTheme.astro` puts it back before first paint), `wm` (windows, workspaces, launcher, lock), `windows` (the window list and the unlocked flag's key, safe to read on the server), `desktop` (icons), `terminal`, `radio`, `chess/*`, `apps/*` (synth, guestbook, cursors), `article` (an article page's scene, sun line and clock).
+
+`styles.css` is the desktop. It imports the parts other pages can share from `css/` (`tokens`, `base`, `scene`, `bar`, `window`, `doc`), plus the desktop-only partials that sit between them, in the original order. `css/article.css` imports the same shared parts for article pages.
+
+`src/data/`: case study facts (`disdubs`, `gridiron`, `caseStudies`), read by the homepage (windows, icons, launcher, terminal, neofetch), the share cards, the sitemap and the case studies.
+
+## Article kit
+
+`src/layouts/ArticleLayout.astro`, `src/components/article/`, `src/redesign/css/article.css` and `src/redesign/article.ts`. The sky and a cut-down bar, a glass header (`ArticleHead`, `StatRow`), then one tall window that scrolls with the page, holding `Chapter`, `Figure`, `KeyRows`, `Ledger`, `Note` and `PrevNext`. The layout makes the BreadcrumbList from the breadcrumb in the window's title bar. Before first paint it restores the last page's theme and holds back the land and the bar's sun line and clock (and the sky, with no theme to restore) until `article.ts` paints, then fades them in. Preview any time of day with `?at=18:50` (dev only).
+
+To add a case study:
+
+1. Its facts in `src/data/<slug>.ts`, added to `caseStudies`: title, `launcher` line, lede, meta, stats, `stack`, `published` and `modified` (JSON-LD, `article:*` tags, sitemap `lastmod`), the homepage window's copy, and the share card's copy and `scene` (its time of day). From that alone it gets a desktop icon, a launcher entry, `open` and `ls` in the terminal, a row in the sitemap and the homepage's ItemList, a share card page, and Previous and Next links, all in the array's order.
+2. Its homepage window: an `APPS` entry in `src/redesign/windows.ts` keyed by its `app`, and a `<Win>` in `index.astro` linking to the page. A new `icon` needs a glyph in `FileIcon.astro`; an unknown name draws nothing.
+3. `src/pages/work/<slug>.astro` on `ArticleLayout`, with `name`, `app` (× goes to `/#<app>`), `icon` and the Seo props. Start from `gridiron-duels.astro`, which reads its facts from the data and ends with `<PrevNext {...neighbours(slug)} />`. Page-only pieces go in the page's `<style>`, colored with the theme tokens.
+4. `npm run og` for its share card.
+
+Figures: PNG masters in `src/assets/work/<slug>/`, passed as `src`, ship as lazy AVIF and WebP with their size set. Web screens get `frame="window"` (the default, out to 64rem, `title` names the screen); iOS screens `frame="phone"` (a 280px bezel). Number them with `n` in document order.
+
+A loop: `video={{ src, poster, width, height }}`, both files in `public/work/<slug>/`. It's muted and `preload="none"`, and `article.ts` plays it only while it's on screen, with a pause button (WCAG 2.2.2). Under reduced motion it waits on its poster until played, and turning reduced motion on mid-visit pauses it; without JS the poster shows. Encode H.264 with no audio and `+faststart`, shown at its own width at most (Gridiron's: 540px, 4.2s, 42 KB).
+
+After a build, `npm run check:overflow` loads the built pages at 320, 375, 768 and 1280px and fails if any scrolls sideways.
 
 Credits: sky colors from [dynamic-sky](https://github.com/aakaashjois/dynamic-sky) (Apache-2.0). Weather from [Open-Meteo](https://open-meteo.com). Fonts: National Park, Overpass (Google Fonts, OFL).
 
 ## Not done
 
-- Case-study pages keep their own styling.
+- The blog and /about/ keep their own styling.

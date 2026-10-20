@@ -1,6 +1,13 @@
 ---
 // The scene behind the desktop: sky layers, sun, moon and stars, then canvases for clouds, land and
-// precipitation. sky.ts, land.ts and weather.ts paint into these. Shared by the homepage and the share cards.
+// precipitation. sky.ts, land.ts and weather.ts paint into these. Shared by the homepage, the case studies and the
+// share cards.
+
+interface Props {
+  /** The cloud and precipitation canvases. Pages that run no weather leave them out. */
+  weather?: boolean;
+}
+const { weather = true } = Astro.props;
 
 // Seeded so the poster is identical on every build.
 function seeded(seed: number) {
@@ -46,6 +53,6 @@ const stars = Array.from({ length: 120 }, () => ({
   </g>
 
 </svg>
-<canvas id="clouds" aria-hidden="true"></canvas>
+{weather && <canvas id="clouds" aria-hidden="true"></canvas>}
 <canvas id="land" aria-hidden="true"></canvas>
-<canvas id="precip" aria-hidden="true"></canvas>
+{weather && <canvas id="precip" aria-hidden="true"></canvas>}

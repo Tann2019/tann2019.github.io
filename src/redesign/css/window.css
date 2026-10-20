@@ -1,0 +1,179 @@
+/* Window frame, title bar and controls, and the shared buttons. */
+
+.win {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-radius: var(--radius);
+  border: 2px solid rgb(var(--fg-rgb) / 0.1);
+  /* Opaque, no backdrop blur. Translucent windows showed blurred ghosts of the windows stacked
+     behind them, which read as rendering glitches. */
+  background: rgb(var(--bg-rgb));
+  box-shadow: 0 24px 60px -24px rgb(0 0 0 / 0.6), 0 2px 8px rgb(0 0 0 / 0.16);
+  pointer-events: auto;
+}
+
+.win:focus {
+  outline: none;
+}
+
+.win.is-focused {
+  border-color: var(--accent);
+}
+
+.win.is-gliding {
+  transition: left 0.26s var(--ease), top 0.26s var(--ease), width 0.26s var(--ease), height 0.26s var(--ease);
+}
+
+.win.is-min {
+  display: none;
+}
+
+.win.is-dragging,
+.win.is-resizing {
+  user-select: none;
+}
+
+.win.is-dragging .win-body,
+.win.is-resizing .win-body {
+  pointer-events: none;
+}
+
+.win-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 34px;
+  padding: 0 4px 0 14px;
+  border-bottom: 1px solid rgb(var(--fg-rgb) / 0.08);
+  border-radius: 8px 8px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  user-select: none;
+  cursor: grab;
+}
+
+.win.is-dragging .win-bar {
+  cursor: grabbing;
+}
+
+.win.is-focused .win-bar {
+  color: var(--fg);
+}
+
+.win-title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.win-ctl {
+  display: flex;
+  gap: 2px;
+}
+
+/* Links too: a case study's × is a link back to the desktop. */
+.win-ctl :is(button, a) {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.win-ctl svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.win-ctl :is(button, a):hover {
+  background: rgb(var(--fg-rgb) / 0.1);
+  color: var(--fg);
+}
+
+.win-ctl [data-win='close']:hover {
+  background: #d9534f;
+  color: #fff;
+}
+
+.win-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border-radius: 0 0 8px 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--fg-rgb) / 0.2) transparent;
+}
+
+/* Resize handles sit just outside the border so they're easy to catch. */
+.rz {
+  position: absolute;
+  z-index: 2;
+}
+
+.rz-n, .rz-s { left: 10px; right: 10px; height: 10px; cursor: ns-resize; }
+.rz-e, .rz-w { top: 10px; bottom: 10px; width: 10px; cursor: ew-resize; }
+.rz-n { top: -6px; }
+.rz-s { bottom: -6px; }
+.rz-e { right: -6px; }
+.rz-w { left: -6px; }
+.rz-ne, .rz-nw, .rz-se, .rz-sw { width: 16px; height: 16px; }
+.rz-ne { top: -7px; right: -7px; cursor: nesw-resize; }
+.rz-sw { bottom: -7px; left: -7px; cursor: nesw-resize; }
+.rz-nw { top: -7px; left: -7px; cursor: nwse-resize; }
+.rz-se { bottom: -7px; right: -7px; cursor: nwse-resize; }
+
+.win.is-max .rz {
+  display: none;
+}
+
+/* -------------------------------------------------------------- buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid rgb(var(--fg-rgb) / 0.2);
+  background: none;
+  color: var(--fg);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.btn:hover {
+  border-color: rgb(var(--fg-rgb) / 0.45);
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.btn-primary:hover {
+  border-color: var(--fg);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}

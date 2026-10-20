@@ -1,0 +1,21 @@
+---
+// One section of an article: an h2 with an anchor, an optional numeral and an optional line under it.
+interface Props {
+  title: string;
+  /** The anchor. Defaults to the title, lowercased and hyphenated. */
+  id?: string;
+  /** "II" and the like, set in Overpass (see article.css). */
+  numeral?: string;
+  /** A line under the heading. */
+  sub?: string;
+}
+const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const { title, id = slug(title), numeral, sub } = Astro.props;
+---
+
+<section class="chapter" id={id}>
+  {/* The space keeps "II Draft day" two words for screen readers and copied text. */}
+  <h2 class="chapter-title">{numeral && <><span class="chapter-n">{numeral}</span>{' '}</>}{title}</h2>
+  {sub && <p class="chapter-sub">{sub}</p>}
+  <slot />
+</section>

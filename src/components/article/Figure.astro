@@ -1,0 +1,67 @@
+---
+// A numbered figure. Web screens sit in a small window titled with what they show; iOS screens in a phone bezel.
+// Images go out as AVIF and WebP at a few widths; a video is a muted loop that article.ts plays only on screen, with
+// a pause button it shows once it runs.
+import { Picture } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Loop {
+  /** Paths under public/. */
+  src: string;
+  poster: string;
+  /** The clip's own size. The figure shows it no wider. */
+  width: number;
+  height: number;
+}
+
+interface Props {
+  /** A screenshot master under src/assets/. Not needed for a video. */
+  src?: ImageMetadata;
+  alt: string;
+  /** Printed as "Fig. 01". */
+  n?: number;
+  frame?: 'window' | 'phone';
+  /** The window frame's title. */
+  title?: string;
+  /** A muted loop instead of a screenshot. Without JS, and under reduced motion until played, its poster shows. */
+  video?: Loop;
+  /** Out of the text column to 64rem. Window screenshots do by default. */
+  wide?: boolean;
+}
+const { src, alt, n, frame = 'window', title, video, wide = frame === 'window' && !video } = Astro.props;
+if (!src && !video) throw new Error(`Figure "${alt}" needs a src or a video.`);
+const phone = frame === 'phone';
+
+// Widths for 1x to 2x screens: a wide figure shows at up to 64rem (1024px), a column one 44rem, a phone 264px.
+// Astro caps these at the source's width. Reading src.width here would also ship the PNG master, unused.
+const widths = phone ? [280, 560, 840] : [480, 800, 1200, 1600, 2048];
+// The page's 24px gutters, the window's border and its 40px padding; on phones 6px, 2px and 18px.
+const sizes = phone
+  ? '264px'
+  : `(max-width: 760px) calc(100vw - 52px), ${wide ? 'min(64rem, 100vw - 132px)' : 'min(44rem, 100vw - 132px)'}`;
+const label = n === undefined ? null : `Fig. ${String(n).padStart(2, '0')}`;
+---
+
+<figure class:list={['fig', `fig-${frame}`, { wide, 'fig-video': video }]} style={video && `--fig-w: ${video.width}px`}>
+  <div class="fig-frame">
+    {frame === 'window' && title && <div class="fig-bar">{title}</div>}
+    {
+      video ? (
+        <>
+          <video src={video.src} poster={video.poster} width={video.width} height={video.height} muted loop playsinline preload="none" data-loop aria-label={alt}></video>
+          <button type="button" class="fig-play" aria-label="Pause the clip" hidden>
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path class="i-pause" d="M5.5 4v8M10.5 4v8"></path><path class="i-play" d="M5 3.5v9l7.5-4.5z"></path></svg>
+          </button>
+        </>
+      ) : (
+        <Picture src={src!} alt={alt} formats={['avif', 'webp']} fallbackFormat="webp" widths={widths} sizes={sizes} loading="lazy" decoding="async" />
+      )
+    }
+  </div>
+  {(label || Astro.slots.has('default')) && (
+    <figcaption>
+      {label && <span class="fig-n">{label}</span>}
+      <slot />
+    </figcaption>
+  )}
+</figure>

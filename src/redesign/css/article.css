@@ -1,0 +1,858 @@
+/* Case studies: the desktop's sky, bar and window chrome around a page that scrolls like a document. The shared parts
+   are the desktop's own partials; everything after the imports is the article's. Page-only pieces (DisDubs' slate,
+   reel and funnel) stay in their page. */
+
+@import './tokens.css';
+@import './base.css';
+@import './scene.css';
+@import './bar.css';
+@import './window.css';
+@import './doc.css';
+
+/* ---------------------------------------------------------------- scene */
+
+html {
+  /* Shows only past the ends of the page, when a phone overscrolls. */
+  background: var(--bg);
+  /* Clears the fixed bar and the sticky title bar, for anchors, find-in-page and keyboard focus. */
+  scroll-padding-top: 104px;
+}
+
+/* Large-viewport tall, so a phone's URL bar showing and hiding doesn't resize the scene under the page. */
+#sky-base,
+#sky,
+#wallpaper,
+#land {
+  bottom: auto;
+  height: 100lvh;
+}
+
+/* Until article.ts paints, and without JS: the sky the head script restored from the last page, or the day. */
+#sky {
+  background-image: var(--sky, linear-gradient(to bottom, #3f7fd0, #9cc4ea));
+}
+
+#sky-base {
+  opacity: var(--sky-night, 0);
+}
+
+/* The head script holds these back until article.ts has painted, so the land and the bar's sun line and clock fade in
+   instead of popping in a frame after the sky. With no theme to restore, the day sky would be a wrong guess half the
+   time, so the night base stands in for it. */
+.scene-pending #land,
+.scene-pending .bar-right,
+.sky-pending #sky {
+  opacity: 0;
+}
+
+.sky-pending #sky-base {
+  opacity: 1 !important;
+}
+
+#sky-base,
+#sky,
+#land,
+.bar-right {
+  transition: opacity 0.3s ease;
+}
+
+/* paintSky places these and sets their opacity inline. */
+#sky-sun,
+#sky-moon,
+#sky-stars {
+  opacity: 0;
+}
+
+/* ------------------------------------------------------------------ bar */
+
+/* No workspaces or taskbar: the page's one chip sits after the mesa, so the clock filling in can't move it. */
+.bar {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.bar-left {
+  min-width: 0;
+}
+
+/* Here the sun line is a label, not the desktop's button that opens the time scrubber. */
+.bar-sun:hover {
+  background: none;
+}
+
+/* ----------------------------------------------------------------- page */
+
+.page {
+  position: relative;
+  z-index: 5;
+  padding: 64px 24px 0;
+}
+
+/* Wide enough for a 64rem figure plus the window's padding and border; the sky shows either side. */
+.ahead,
+.page-win {
+  width: min(100%, 64rem + 84px);
+  margin-inline: auto;
+}
+
+/* --------------------------------------------------------------- header */
+
+/* The conky panel's glass, with the sky behind it dimmed like the lock screen's: the conky holds only big type, and
+   this panel's small print fell under 4.5:1 on the midday sky. The text is all near-white for the same reason. */
+.ahead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 40px;
+  margin-bottom: 16px;
+  padding: 32px 40px 30px;
+  border-radius: 14px;
+  color: var(--fg);
+  background: rgb(var(--bg-rgb) / 0.58);
+  border: 1px solid rgb(var(--fg-rgb) / 0.08);
+  backdrop-filter: blur(12px) saturate(1.15) brightness(0.8);
+  -webkit-backdrop-filter: blur(12px) saturate(1.15) brightness(0.8);
+}
+
+.ahead > * {
+  grid-column: 1 / -1;
+}
+
+.ahead > .ahead-main {
+  grid-column: 1;
+}
+
+.ahead > .ahead-aside {
+  grid-column: 2;
+  align-self: center;
+}
+
+.ahead-title {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 5.2vw, 76px);
+  font-weight: 700;
+  line-height: 0.95;
+}
+
+.ahead-lede {
+  margin-top: 18px;
+  max-width: 36rem;
+  font-size: 18px;
+  line-height: 1.55;
+}
+
+.ahead-actions {
+  margin-top: 24px;
+}
+
+.ahead-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 14px 24px;
+  margin-top: 30px;
+  padding-top: 18px;
+  border-top: 1px solid rgb(var(--fg-rgb) / 0.12);
+}
+
+.ahead-meta dt {
+  font-size: 13px;
+  color: rgb(var(--fg-rgb) / 0.9);
+}
+
+.ahead-meta dd {
+  margin-top: 2px;
+  font-size: 15.5px;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------- stat row */
+
+/* The desktop window's .stats, plus an optional caption, a note under each label and a footnote. */
+.statrow {
+  margin-top: 30px;
+}
+
+/* Columns about as wide as the longest number: StatRow's --widest, in figures, which average 0.6em (16.8px) in
+   National Park bold at 28px. A long one like 1,041,000+ takes fewer columns instead of running into the next, and
+   the 20px gap absorbs the estimate's error. */
+.statrow .stats {
+  grid-template-columns: repeat(auto-fit, minmax(max(130px, var(--widest) * 16.8px), 1fr));
+  margin-top: 0;
+}
+
+.statrow-cap + .stats {
+  margin-top: 12px;
+}
+
+.statrow-cap {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.ahead .stats span {
+  color: rgb(var(--fg-rgb) / 0.92);
+}
+
+.stats .stats-note {
+  font-size: 12.5px;
+}
+
+.ahead .stats .stats-note {
+  color: rgb(var(--fg-rgb) / 0.8);
+}
+
+.statrow-foot {
+  margin-top: 14px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: rgb(var(--fg-rgb) / 0.8);
+}
+
+/* --------------------------------------------------------------- window */
+
+/* One tall window in the page's flow. The body doesn't scroll on its own: the document does. */
+.page-win {
+  position: relative;
+}
+
+.page-win .win-body {
+  overflow: visible;
+  container-type: inline-size;
+}
+
+/* The title bar follows you down, so × is always in reach. */
+.page-win .win-bar {
+  position: sticky;
+  top: 56px;
+  z-index: 2;
+  background: rgb(var(--bg-rgb));
+  cursor: default;
+  user-select: auto;
+}
+
+/* Set by article.ts. Square corners, and the strip above the bar covered, so text doesn't scroll by in slivers
+   around the top bar. */
+.page-win.is-stuck .win-bar {
+  border-radius: 0;
+}
+
+.page-win.is-stuck .win-bar::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 64px;
+  background: inherit;
+}
+
+/* Not .win-title's overflow: hidden, which clipped the focus ring. The last crumb carries the ellipsis instead. */
+.crumbs {
+  min-width: 0;
+  overflow: visible;
+}
+
+.crumbs ol {
+  display: flex;
+  min-width: 0;
+}
+
+.crumbs li {
+  white-space: nowrap;
+}
+
+.crumbs li:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crumbs li + li::before {
+  content: '/';
+  content: '/' / '';
+  margin: 0 0.5em;
+  color: var(--muted);
+}
+
+.crumbs a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.crumbs a:hover {
+  text-decoration: underline;
+}
+
+/* ---------------------------------------------------------------- prose */
+
+/* A 44rem column; .wide breaks out to 64rem. Widths come from the window body, the size container. */
+.prose {
+  --gutter: 40px;
+  --wide: min(64rem, 100cqw - 2 * var(--gutter));
+  width: min(44rem, 100% - 2 * var(--gutter));
+  margin: 0 auto;
+  padding: 52px 0 44px;
+  font-size: 17px;
+  line-height: 1.7;
+  color: rgb(var(--fg-rgb) / 0.88);
+}
+
+.wide {
+  margin-inline: calc((100% - var(--wide)) / 2);
+}
+
+.prose :is(p, ul, ol, pre) {
+  margin-bottom: 1.2em;
+}
+
+.prose :is(strong, em, h2, h3) {
+  color: var(--fg);
+}
+
+.prose strong {
+  font-weight: 700;
+}
+
+.prose code {
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: rgb(var(--fg-rgb) / 0.08);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+}
+
+.prose pre {
+  overflow-x: auto;
+  padding: 18px 20px;
+  border-radius: 8px;
+  border: 1px solid rgb(var(--fg-rgb) / 0.1);
+  background: rgb(var(--fg-rgb) / 0.04);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.75;
+  scrollbar-width: thin;
+}
+
+/* Overpass Mono joins "ff" in ffmpeg. */
+.prose :is(code, pre) {
+  font-variant-ligatures: none;
+}
+
+.prose pre code {
+  padding: 0;
+  background: none;
+  font-size: inherit;
+}
+
+/* The desktop's work-history bullet. */
+.prose ul > li {
+  position: relative;
+  padding-left: 18px;
+}
+
+.prose ul > li + li {
+  margin-top: 10px;
+}
+
+.prose ul > li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.8em;
+  width: 7px;
+  height: 2px;
+  background: var(--accent);
+}
+
+/* The opening paragraph, a step up from the rest. */
+.prose .lead {
+  margin-bottom: 1.1em;
+  font-size: 21px;
+  line-height: 1.5;
+  color: var(--fg);
+}
+
+.prose .closing {
+  margin-top: 64px;
+  padding-top: 28px;
+  border-top: 1px solid rgb(var(--fg-rgb) / 0.12);
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--fg);
+}
+
+/* -------------------------------------------------------------- chapter */
+
+.chapter {
+  margin-top: 72px;
+}
+
+.chapter-title {
+  margin-bottom: 20px;
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+/* Overpass, not National Park: National Park draws a capital I like an l, so "II" would read "ll". */
+.chapter-n {
+  margin-right: 0.2em;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.prose .chapter-sub {
+  margin-top: -10px;
+  margin-bottom: 26px;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+/* --------------------------------------------------------------- figure */
+
+/* Block margins only: the inline ones are .wide's. */
+.fig {
+  margin-block: 36px;
+}
+
+.fig-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid rgb(var(--fg-rgb) / 0.12);
+  background: #000;
+}
+
+/* A small window, like the ones on the desktop, titled with what the screen is. */
+.fig-bar {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border-bottom: 1px solid rgb(var(--fg-rgb) / 0.1);
+  background: rgb(var(--bg-rgb));
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fig img,
+.fig video {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* iOS screens: a plain bezel at most 280px wide. */
+.fig-phone .fig-frame {
+  width: min(280px, 100%);
+  margin-inline: auto;
+  border: 8px solid #0b0d12;
+  border-radius: 34px;
+  box-shadow: 0 0 0 1px rgb(var(--fg-rgb) / 0.16);
+}
+
+.fig-phone .fig-frame img,
+.fig-phone .fig-frame video {
+  border-radius: 26px;
+}
+
+/* Centred under the bezel, which is narrower than the column. */
+.fig-phone figcaption {
+  text-align: center;
+  text-wrap: balance;
+}
+
+/* A loop shows no wider than the clip, so it isn't upscaled, with its caption under it. --fig-w is set by Figure. */
+.fig-video.fig-window :is(.fig-frame, figcaption) {
+  max-width: calc(var(--fig-w) + 2px);
+  margin-inline: auto;
+}
+
+.fig-video video {
+  cursor: pointer;
+}
+
+/* A loop's pause button, which article.ts shows: one of the window's controls, or on a phone's screen. */
+.fig-play {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(var(--bg-rgb) / 0.85);
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.fig-bar ~ .fig-play {
+  top: 2px;
+  right: 4px;
+  bottom: auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: none;
+  color: var(--muted);
+}
+
+.fig-bar ~ .fig-play:hover {
+  background: rgb(var(--fg-rgb) / 0.1);
+  color: var(--fg);
+}
+
+.fig-video .fig-bar {
+  padding-right: 36px;
+}
+
+/* Inside, since the frame clips. */
+.fig-play:focus-visible {
+  outline-offset: -2px;
+}
+
+.fig-play svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.fig-play .i-play {
+  fill: currentColor;
+}
+
+.fig.is-stopped .i-pause,
+.fig:not(.is-stopped) .i-play {
+  display: none;
+}
+
+.fig figcaption {
+  max-width: 44rem;
+  margin: 12px auto 0;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.fig-n {
+  margin-right: 0.5em;
+  font-weight: 700;
+  color: var(--fg);
+}
+
+/* ------------------------------------------------------------------ note */
+
+.note {
+  margin: 30px 0;
+  padding: 2px 0 2px 18px;
+  border-left: 2px solid rgb(var(--accent-rgb) / 0.6);
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+.note :is(em, strong) {
+  color: rgb(var(--fg-rgb) / 0.9);
+}
+
+/* -------------------------------------------------------------- keyrows */
+
+.keyrows {
+  margin: 32px 0;
+  border-top: 1px solid rgb(var(--fg-rgb) / 0.12);
+}
+
+.keyrows > div {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: 2px 20px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgb(var(--fg-rgb) / 0.1);
+  font-size: 15.5px;
+  line-height: 1.5;
+}
+
+.keyrows dt {
+  font-weight: 700;
+  color: var(--fg);
+}
+
+.keyrows dd {
+  overflow-wrap: anywhere;
+}
+
+/* --------------------------------------------------------------- ledger */
+
+.ledger {
+  width: 100%;
+  margin: 32px 0;
+  border-collapse: collapse;
+  border-top: 1px solid rgb(var(--fg-rgb) / 0.12);
+  font-size: 15.5px;
+  line-height: 1.5;
+}
+
+.ledger td {
+  padding: 11px 20px 11px 0;
+  vertical-align: baseline;
+  border-bottom: 1px solid rgb(var(--fg-rgb) / 0.1);
+}
+
+.ledger td:last-child {
+  padding-right: 0;
+  color: var(--muted);
+}
+
+.ledger-key {
+  width: 7.5rem;
+  color: var(--accent);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ledger-what {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------- prevnext */
+
+.prevnext {
+  display: grid;
+  gap: 10px;
+  margin-top: 48px;
+}
+
+/* The desktop's post links. */
+.prevnext a {
+  display: grid;
+  gap: 2px;
+  padding: 16px 18px;
+  border-radius: 9px;
+  border: 1px solid rgb(var(--fg-rgb) / 0.1);
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.prevnext a:hover {
+  border-color: var(--accent);
+}
+
+/* Side by side once the window has room, the later links flush right. Stacked, they all line up on the left. */
+@container (min-width: 520px) {
+  .prevnext {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+  }
+
+  .prevnext a + a {
+    text-align: right;
+  }
+}
+
+.pn-label {
+  color: var(--muted);
+  font-size: 13.5px;
+}
+
+.pn-title {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+/* --------------------------------------------------------------- footer */
+
+/* The bar's glass, at the foot of the page. */
+.page-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 20px;
+  width: min(100% - 48px, 64rem + 84px);
+  margin: 16px auto 24px;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  background: rgb(var(--bg-rgb) / 0.82);
+  border: 1px solid rgb(var(--fg-rgb) / 0.08);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  color: rgb(var(--fg-rgb) / 0.8);
+  font-size: 13.5px;
+}
+
+.page-foot-links {
+  display: flex;
+  gap: 18px;
+}
+
+.page-foot a {
+  color: var(--fg);
+}
+
+/* Overpass's middle dot has no advance width: its ink, 0.04em to 0.19em, lands in the space after it. A box the
+   width of the ink plus even margins puts it back between the words. See Seps.astro. */
+.sep {
+  display: inline-block;
+  width: 0.23em;
+}
+
+/* Too narrow for the aside beside the title: it goes under the lede. */
+@media (max-width: 1000px) {
+  .ahead {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ahead > .ahead-aside {
+    grid-column: 1;
+    margin-top: 28px;
+  }
+}
+
+/* --------------------------------------------------------------- phones */
+/* The desktop's phone layout: a slimmer bar and windows as sheets 6px from the edges. */
+
+@media (max-width: 760px) {
+  html {
+    scroll-padding-top: 96px;
+  }
+
+  .bar {
+    left: 8px;
+    right: 8px;
+    top: 6px;
+  }
+
+  .bar-weather,
+  .bar-sun {
+    display: none;
+  }
+
+  .bar-clock {
+    font-size: 12.5px;
+  }
+
+  .page {
+    padding: 54px 6px 0;
+  }
+
+  .ahead {
+    padding: 22px 18px 22px;
+  }
+
+  .ahead-lede {
+    font-size: 17px;
+  }
+
+  .page-win .win-bar {
+    top: 52px;
+  }
+
+  .prose {
+    --gutter: 18px;
+    padding: 30px 0 32px;
+    font-size: 16.5px;
+  }
+
+  .prose .lead {
+    font-size: 19px;
+  }
+
+  .chapter {
+    margin-top: 56px;
+  }
+
+  .chapter-title {
+    font-size: 27px;
+  }
+
+  .keyrows > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Each row stacks: when and what on one line, why under them. */
+  .ledger,
+  .ledger tbody,
+  .ledger tr {
+    display: block;
+  }
+
+  .ledger tr {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 2px 14px;
+    padding: 11px 0;
+    border-bottom: 1px solid rgb(var(--fg-rgb) / 0.1);
+  }
+
+  .ledger td {
+    padding: 0;
+    border: 0;
+  }
+
+  .ledger td:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .ledger-key {
+    width: auto;
+  }
+
+  .page-foot {
+    width: calc(100% - 12px);
+    margin-bottom: 6px;
+  }
+}
+
+/* The time alone, so the page's chip keeps its whole name. */
+@media (max-width: 350px) {
+  #bar-day {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------- no JS */
+/* The live parts need scripts. The sky falls back to the day gradient above and the window reads as a dark column. */
+
+.no-js #land,
+.no-js .bar-sun,
+.no-js .bar-clock {
+  display: none !important;
+}
+
+/* Only article.ts can tell when the title bar is stuck and cover the strip above it, so without it the bar stays put. */
+.no-js .page-win .win-bar {
+  position: static;
+}
+
+html.no-js {
+  scroll-padding-top: 64px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #sky-base,
+  #sky,
+  #sky-sun,
+  #sky-moon,
+  #sky-stars,
+  #land,
+  .bar-right {
+    transition: none !important;
+  }
+}

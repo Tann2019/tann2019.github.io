@@ -1,0 +1,115 @@
+---
+// A page on the Big Sky desktop's terms: the live sky and the bar, a glass header, then the article in one tall window
+// that scrolls with the document. Case studies use it now; posts and /about/ can later. See REDESIGN.md.
+import type { ComponentProps } from 'astro/types';
+import Seo from '../components/Seo.astro';
+import TopBar from '../components/article/TopBar.astro';
+import Wallpaper from '../redesign/Wallpaper.astro';
+import RestoreTheme from '../redesign/RestoreTheme.astro';
+import '../redesign/css/article.css';
+
+type Props = ComponentProps<typeof Seo> & {
+  /** The page's name: its bar chip and the end of the breadcrumb. */
+  name: string;
+  /** The desktop window it belongs to. × goes back to /#<app>, which reopens that window. */
+  app: string;
+  /** FileIcon for the bar chip. */
+  icon: string;
+};
+
+const { name, app, icon, schema, ...seo } = Astro.props;
+
+// The breadcrumb in the title bar, and the BreadcrumbList made from it, so the two can't disagree.
+const page = new URL(Astro.url.pathname.replace(/\/?$/, '/'), Astro.site).href;
+const crumbs = [
+  { name: 'Tanner Steorts', href: '/' },
+  { name, href: Astro.url.pathname },
+];
+const breadcrumbs = {
+  '@type': 'BreadcrumbList',
+  '@id': `${page}#breadcrumb`,
+  itemListElement: crumbs.map((c, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: c.name,
+    item: i === crumbs.length - 1 ? page : new URL(c.href, Astro.site).href,
+  })),
+};
+const pageSchema = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
+---
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <script is:inline>document.documentElement.classList.remove('no-js');</script>
+    <Seo {...seo} schema={[...pageSchema, breadcrumbs]} />
+    <meta name="theme-color" content="#1f5fb6" />
+    <RestoreTheme />
+    {/* Held back until article.ts has painted, then faded in (see .scene-pending in article.css): the land and the
+        bar's live text, and the sky too when there was none to restore. Scripts only, so the no-JS page is untouched.
+        The timeout covers an article.ts that never runs. */}
+    <script is:inline>
+      document.documentElement.classList.add('scene-pending');
+      if (!document.documentElement.style.getPropertyValue('--sky')) document.documentElement.classList.add('sky-pending');
+      setTimeout(() => document.documentElement.classList.remove('scene-pending', 'sky-pending'), 3000);
+    </script>
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=National+Park:wght@400..800&family=Overpass:ital,wght@0,300..800;1,400&family=Overpass+Mono:wght@400..700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <a class="skip" href="#content">Skip to the article</a>
+
+    <Wallpaper weather={false} />
+    <TopBar name={name} icon={icon} />
+
+    <main class="page" id="content">
+      <article>
+        <slot name="head" />
+
+        <div class="win is-focused page-win">
+          <div class="win-bar">
+            <nav class="win-title crumbs" aria-label="Breadcrumb">
+              <ol>
+                {crumbs.map((c, i) => (
+                  <li>{i < crumbs.length - 1 ? <a href={c.href}>{c.name}</a> : <span aria-current="page">{c.name}</span>}</li>
+                ))}
+              </ol>
+            </nav>
+            <div class="win-ctl">
+              <a href={`/#${app}`} data-win="close" aria-label="Close, back to the desktop">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"></path></svg>
+              </a>
+            </div>
+          </div>
+          <div class="win-body">
+            <div class="prose">
+              <slot />
+            </div>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="page-foot">
+      <span>© {new Date().getFullYear()} Tanner Steorts</span>
+      <span class="page-foot-links">
+        <a href="https://github.com/Tann2019" target="_blank" rel="noopener">GitHub</a>
+        <a href="mailto:tanner.steorts@icloud.com">Email</a>
+      </span>
+    </footer>
+
+    <script>
+      import '../redesign/article.ts';
+    </script>
+  </body>
+</html>

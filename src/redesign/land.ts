@@ -109,12 +109,20 @@ let cabins: { x: number; y: number }[] = [];
 let width = 0;
 let height = 0;
 let snowLine = 0;
+let stable = false;
+
+/**
+ * The size to draw for: the window's, or with `stableHeight` the canvas's own box. On a page that scrolls, a
+ * classic scrollbar leaves that box narrower than the window.
+ */
+const boxWidth = () => (stable && canvas.clientWidth) || window.innerWidth;
+const boxHeight = () => (stable && canvas.clientHeight) || window.innerHeight;
 
 /** Rebuild ridge geometry for the current viewport. Positions are in CSS px. */
 function build() {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  width = window.innerWidth;
-  height = window.innerHeight;
+  width = boxWidth();
+  height = boxHeight();
   canvas.width = Math.round(width * dpr);
   canvas.height = Math.round(height * dpr);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -290,14 +298,25 @@ export function paintLand(light: LandLight) {
   }
 }
 
-export function setupLand(el: HTMLCanvasElement) {
+export interface LandOptions {
+  /**
+   * For a page that scrolls. A phone's URL bar resizes the window as it shows and hides, and rebuilding the
+   * ridges each time makes them jump. With this on, the ridges fit the canvas's own box and rebuild only when
+   * that box changes, so give the canvas a height that ignores the URL bar (100lvh).
+   */
+  stableHeight?: boolean;
+}
+
+export function setupLand(el: HTMLCanvasElement, { stableHeight = false }: LandOptions = {}) {
   canvas = el;
   ctx = el.getContext('2d')!;
+  stable = stableHeight;
   build();
   let raf = 0;
   window.addEventListener('resize', () => {
     cancelAnimationFrame(raf);
     raf = requestAnimationFrame(() => {
+      if (stable && boxWidth() === width && boxHeight() === height) return;
       build();
       if (last) paintLand(last);
     });

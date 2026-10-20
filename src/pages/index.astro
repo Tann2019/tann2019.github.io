@@ -2,21 +2,20 @@
 // The homepage: a Linux-style desktop themed live from the sky over Billings. See REDESIGN.md.
 // Every window's content is rendered here at build time, so it reads without JavaScript too.
 import { getCollection } from 'astro:content';
+import { Picture } from 'astro:assets';
 import Seo from '../components/Seo.astro';
 import '../redesign/styles.css';
+import { APPS, LOCK_KEY } from '../redesign/windows';
 import Win from '../redesign/Win.astro';
 import FileIcon from '../redesign/FileIcon.astro';
+import RestoreTheme from '../redesign/RestoreTheme.astro';
 import Wallpaper from '../redesign/Wallpaper.astro';
 import Synth from '../redesign/apps/Synth.astro';
 import Guestbook from '../redesign/apps/Guestbook.astro';
-import {
-  desktopIcons,
-  disdubsReel,
-  disdubsStats,
-  experience,
-  sideProjects,
-  toolkit,
-} from '../redesign/content';
+import { desktopIcons, experience, sideProjects, toolkit } from '../redesign/content';
+import { caseStudies } from '../data/case-studies';
+import { disdubs } from '../data/disdubs';
+import { gridiron } from '../data/gridiron';
 
 const posts = (await getCollection('blog')).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 const postDate = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
@@ -39,8 +38,7 @@ const artHtml = art.map((line) => line.map(([ink, text]) => `<span class="nf-${i
 
 const launcherEntries = [
   { id: 'terminal', name: 'Terminal', desc: 'neofetch and a shell', icon: 'terminal' },
-  { id: 'disdubs', name: 'DisDubs', desc: 'Dubbing in Discord', icon: 'slate' },
-  { id: 'gridiron', name: 'Gridiron Duels', desc: 'Live football drafts', icon: 'football' },
+  ...caseStudies.map((s) => ({ id: s.app, name: s.title, desc: s.launcher, icon: s.icon })),
   { id: 'mothership', name: 'DnD Mothership', desc: 'Screens for D&D', icon: 'd20' },
   { id: 'work', name: 'Work history', desc: 'Jobs and toolkit', icon: 'clipboard' },
   { id: 'side', name: 'Side projects', desc: 'Smaller builds', icon: 'tacklebox' },
@@ -86,14 +84,26 @@ const launcherEntries = [
           '@type': 'ItemList',
           '@id': 'https://tannersteorts.com/#case-studies',
           name: 'Case studies',
-          itemListElement: [
-            { '@type': 'ListItem', position: 1, name: 'DisDubs', url: 'https://tannersteorts.com/work/disdubs/' },
-            { '@type': 'ListItem', position: 2, name: 'Gridiron Duels', url: 'https://tannersteorts.com/work/gridiron-duels/' },
-          ],
+          itemListElement: caseStudies.map((s, i) => ({
+            '@type': 'ListItem',
+            position: i + 1,
+            name: s.title,
+            url: `https://tannersteorts.com${s.href}`,
+          })),
         },
       ]}
     />
     <meta name="theme-color" content="#1f5fb6" />
+    <RestoreTheme />
+    {/* A visitor wm.ts will let straight in (already unlocked this session, or linked to a window) never sees a frame of
+        the lock screen first. setupLock makes the same call, then takes over. See .skip-lock in styles.css. */}
+    <script is:inline define:vars={{ lockKey: LOCK_KEY, apps: Object.keys(APPS) }}>
+      let skip = apps.includes(location.hash.slice(1));
+      try {
+        skip = skip || sessionStorage.getItem(lockKey) === '1';
+      } catch {}
+      if (skip) document.documentElement.classList.add('skip-lock');
+    </script>
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -181,7 +191,7 @@ const launcherEntries = [
     <!-- ===================== WINDOWS, MOVED IN WHEN OPENED ===================== -->
     <div id="win-pool" hidden>
       <Win app="terminal" title="tanner@billings: ~" label="Terminal">
-        <div class="term">
+        <div class="term" data-studies={JSON.stringify(caseStudies.map((s) => [s.slug, s.app]))}>
           <div class="term-out" aria-live="polite">
             <div class="term-line"><span class="term-prompt">tanner@billings <b>~</b> $</span> neofetch</div>
             <div class="neofetch">
@@ -194,7 +204,7 @@ const launcherEntries = [
                 <div><dt>Uptime</dt><dd data-live="uptime">shipping since 2022</dd></div>
                 <div><dt>Role</dt><dd>Support engineer at Givebutter</dd></div>
                 <div><dt>Building</dt><dd>Gridiron Duels</dd></div>
-                <div><dt>Shipped</dt><dd>DisDubs, 6,131 servers in month one</dd></div>
+                <div><dt>Shipped</dt><dd>{disdubs.title}, {disdubs.stats[0].value} servers in month one</dd></div>
                 <div><dt>Stack</dt><dd>Laravel, React, Expo, TypeScript</dd></div>
                 <div><dt>School</dt><dd>B.S. Computer Science, Rocky Mountain College</dd></div>
                 <div><dt>Sky</dt><dd data-live="sky"></dd></div>
@@ -211,23 +221,24 @@ const launcherEntries = [
         </div>
       </Win>
 
-      <Win app="disdubs" title="DisDubs">
+      <Win app={disdubs.app} title={disdubs.title}>
         <article class="doc">
-          <h2 class="doc-title">DisDubs</h2>
-          <p class="doc-lede">A group dubbing game inside Discord. Pick a scene, hand out parts, and the voice channel performs it together.</p>
-          <p class="doc-meta">Discord Activity and Steam. Solo build, 2026.</p>
+          <h2 class="doc-title">{disdubs.title}</h2>
+          <p class="doc-lede">{disdubs.window.lede}</p>
+          <p class="doc-meta">{disdubs.window.meta}</p>
 
           <ul class="stats">
-            {disdubsStats.map((s) => (
+            {disdubs.window.stats.map((s) => (
               <li><strong>{s.value}</strong><span>{s.label}</span></li>
             ))}
           </ul>
 
           <h3>How a dub gets made</h3>
           <ol class="reel">
-            {disdubsReel.map((r) => (
+            {disdubs.reel.map((r) => (
               <li>
-                <img src={r.img} alt={r.alt} loading="lazy" width="320" height="180" />
+                {/* Thumbnails about 190px wide, or half a phone sheet. */}
+                <Picture src={r.img} alt={r.alt} formats={['avif', 'webp']} fallbackFormat="webp" width={320} widths={[320, 640]} sizes="(max-width: 760px) 45vw, 190px" loading="lazy" />
                 <span>{r.title}</span>
               </li>
             ))}
@@ -240,17 +251,17 @@ const launcherEntries = [
           </p>
 
           <div class="doc-actions">
-            <a class="btn btn-primary" href="/work/disdubs/">Read the case study</a>
-            <a class="btn" href="https://disdubs.com/" target="_blank" rel="noopener">disdubs.com</a>
+            <a class="btn btn-primary" href={disdubs.href}>Read the case study</a>
+            <a class="btn" href={disdubs.site.href} target="_blank" rel="noopener">{disdubs.site.name}</a>
           </div>
         </article>
       </Win>
 
-      <Win app="gridiron" title="Gridiron Duels">
+      <Win app={gridiron.app} title={gridiron.title}>
         <article class="doc">
-          <h2 class="doc-title">Gridiron Duels</h2>
-          <p class="doc-lede">Live fantasy football drafts against friends or the CPU, on web and mobile.</p>
-          <p class="doc-meta">Laravel, React, Expo, WebSockets, Stripe.</p>
+          <h2 class="doc-title">{gridiron.title}</h2>
+          <p class="doc-lede">{gridiron.window.lede}</p>
+          <p class="doc-meta">{gridiron.window.meta}</p>
           <dl class="facts">
             <div>
               <dt>Architecture</dt>
@@ -266,8 +277,8 @@ const launcherEntries = [
             </div>
           </dl>
           <div class="doc-actions">
-            <a class="btn btn-primary" href="/work/gridiron-duels/">Read the case study</a>
-            <a class="btn" href="https://gridiron-duels.com/" target="_blank" rel="noopener">gridiron-duels.com</a>
+            <a class="btn btn-primary" href={gridiron.href}>Read the case study</a>
+            <a class="btn" href={gridiron.site.href} target="_blank" rel="noopener">{gridiron.site.name}</a>
           </div>
         </article>
       </Win>
