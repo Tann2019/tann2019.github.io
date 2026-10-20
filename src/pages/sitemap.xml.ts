@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
+import { caseStudies } from '../data/case-studies';
 
 const SITE = 'https://tannersteorts.com';
 
@@ -12,16 +13,22 @@ const staticPages: { path: string; priority: string; changefreq: string }[] = [
   { path: '/work/gridiron-duels/', priority: '0.9', changefreq: 'monthly' },
 ];
 
+/** A case study's lastmod is the modified date in its data module. */
+const modified = new Map(caseStudies.map((s) => [s.href, s.modified ?? s.published]));
+
 export const GET: APIRoute = async () => {
   const posts = await getCollection('blog');
 
   const urls = [
-    ...staticPages.map((p) => ({
-      loc: `${SITE}${p.path}`,
-      lastmod: undefined as string | undefined,
-      priority: p.priority,
-      changefreq: p.changefreq,
-    })),
+    ...staticPages.map((p) => {
+      const date = modified.get(p.path);
+      return {
+        loc: `${SITE}${p.path}`,
+        lastmod: date && new Date(date).toISOString(),
+        priority: p.priority,
+        changefreq: p.changefreq,
+      };
+    }),
     ...posts.map((post) => ({
       loc: `${SITE}/blog/${post.id}/`,
       lastmod: (post.data.updatedDate ?? post.data.pubDate).toISOString(),

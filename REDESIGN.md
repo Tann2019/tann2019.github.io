@@ -50,8 +50,8 @@ Without it, the guestbook keeps notes in the visitor's browser and cursors stay 
 
 - `/` desktop. All window content is in the HTML. Without JS it reads as a plain column.
 - `/classic/` the old homepage, `noindex`, linked as "Skip to the plain site".
-- `/work/disdubs/` on `ArticleLayout`. Its screenshots are masters in `src/assets/work/disdubs/`; `pick`, `cast` and `premiere.png` also stay in `public/work/disdubs/` for the JSON-LD screenshot URLs.
-- `/about/`, `/blog/*`, `/work/gridiron-duels/` unchanged. SEO tags now come from `src/components/Seo.astro`.
+- `/work/disdubs/` and `/work/gridiron-duels/` on `ArticleLayout` (see Article kit). DisDubs' `pick`, `cast` and `premiere.png` also stay in `public/work/disdubs/` for the JSON-LD screenshot URLs.
+- `/about/`, `/blog/*` unchanged. SEO tags now come from `src/components/Seo.astro`.
 - Share cards in `public/og/` are frames of the desktop at a fixed time of day. `npm run og` rebuilds them from the dev-only `/og-card/` pages (Chrome or Edge required). Rerun after adding a post.
 
 ## Code
@@ -60,14 +60,27 @@ Without it, the guestbook keeps notes in the visitor's browser and cursors stay 
 
 `styles.css` is the desktop. It imports the parts other pages can share from `css/` (`tokens`, `base`, `scene`, `bar`, `window`, `doc`), plus the desktop-only partials that sit between them, in the original order. `css/article.css` imports the same shared parts for article pages.
 
-`src/layouts/ArticleLayout.astro` and `src/components/article/` are the article kit: the sky and a cut-down bar, a glass header (`ArticleHead`, `StatRow`), then one tall window that scrolls with the page, holding `Chapter`, `Figure` (AVIF and WebP, window or phone frame, or a muted loop), `KeyRows`, `Ledger`, `Note` and `PrevNext`. The layout makes the BreadcrumbList from the breadcrumb in the window's title bar, and a head script restores the last page's theme before first paint. Preview any time of day with `?at=18:50` (dev only).
+`src/data/`: case study facts (`disdubs`, `gridiron`, `caseStudies`), read by the homepage (windows, icons, launcher, neofetch), the share cards, the sitemap and the case studies.
 
-`npm run check:overflow` loads the built pages at 320, 375, 768 and 1280px and fails if any scrolls sideways.
+## Article kit
 
-`src/data/`: case study facts (`disdubs`, `gridiron`, `caseStudies`), read by the homepage (windows, icons, launcher, neofetch) and the share cards.
+`src/layouts/ArticleLayout.astro`, `src/components/article/`, `src/redesign/css/article.css` and `src/redesign/article.ts`. The sky and a cut-down bar, a glass header (`ArticleHead`, `StatRow`), then one tall window that scrolls with the page, holding `Chapter`, `Figure`, `KeyRows`, `Ledger`, `Note` and `PrevNext`. The layout makes the BreadcrumbList from the breadcrumb in the window's title bar, and a head script restores the last page's theme before first paint. Preview any time of day with `?at=18:50` (dev only).
+
+To add a case study:
+
+1. Its facts in `src/data/<slug>.ts`, added to `caseStudies`: title, lede, meta, stats, `published` and `modified` (JSON-LD, `article:*` tags, sitemap `lastmod`), plus the homepage window's and share card's copy.
+2. Its homepage window: `APPS` in `wm.ts`, plus its icon and `<Win>` in `index.astro`.
+3. `src/pages/work/<slug>.astro` on `ArticleLayout`, with `name`, `app` (× goes to `/#<app>`), `icon` and the Seo props. Copy `disdubs.astro`. Page-only pieces go in the page's `<style>`, colored with the theme tokens.
+4. `npm run og` for its share card.
+
+Figures: PNG masters in `src/assets/work/<slug>/`, passed as `src`, ship as lazy AVIF and WebP with their size set. Web screens get `frame="window"` (the default, out to 64rem, `title` names the screen); iOS screens `frame="phone"` (a 280px bezel). Number them with `n` in document order.
+
+A loop: `video={{ src, poster, width, height }}`, both files in `public/work/<slug>/`. It's muted and `preload="none"`, and `article.ts` plays it only while it's on screen. Under reduced motion it waits behind its controls; without JS the poster shows. Encode H.264 with no audio and `+faststart`, shown at its own width at most (Gridiron's: 540px, 4.2s, 42 KB).
+
+After a build, `npm run check:overflow` loads the built pages at 320, 375, 768 and 1280px and fails if any scrolls sideways.
 
 Credits: sky colors from [dynamic-sky](https://github.com/aakaashjois/dynamic-sky) (Apache-2.0). Weather from [Open-Meteo](https://open-meteo.com). Fonts: National Park, Overpass (Google Fonts, OFL).
 
 ## Not done
 
-- Gridiron Duels, the blog and /about/ keep their own styling.
+- The blog and /about/ keep their own styling.
