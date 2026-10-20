@@ -16,6 +16,7 @@ export const gridiron = {
   title: 'Gridiron Duels',
   launcher: 'Live football drafts',
   site: { href: 'https://gridiron-duels.com/', name: 'gridiron-duels.com' },
+  appStore: 'https://apps.apple.com/us/app/gridiron-duels/id6759739525',
   essay: '/blog/gridiron-duels-architecture/',
   // The case study's first commit, 85e7300, and the move to the article layout with its figures. The page doesn't
   // print either.

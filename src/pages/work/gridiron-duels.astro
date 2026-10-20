@@ -12,11 +12,12 @@ import { neighbours } from '../../data/case-studies';
 import { gridiron } from '../../data/gridiron';
 import draftRoom from '../../assets/work/gridiron/draft-room.png';
 import results from '../../assets/work/gridiron/results.png';
-import profile from '../../assets/work/gridiron/profile.png';
+import battlePass from '../../assets/work/gridiron/battle-pass.png';
+import shop from '../../assets/work/gridiron/shop.png';
 import iosDraft from '../../assets/work/gridiron/ios-draft.png';
 
 const services = [
-  { name: 'CoinService',         desc: 'Atomic balance transactions, wager escrow with house rake, and Stripe-powered coin purchases. Every line item logged for auditability.' },
+  { name: 'CoinService',         desc: 'Atomic balance transactions, escrow and house rake on coin wagers, and Stripe-powered coin purchases. Every line item logged for auditability.' },
   { name: 'BattlePassService',   desc: '50-tier seasonal progression with free and premium tracks. XP funnels in from wins, drafts, and missions; resets each season with new content.' },
   { name: 'CosmeticShopService', desc: 'Daily rotating shop selling name colors, titles, profile borders, and banners. Cosmetic only — no pay-to-win.' },
   { name: 'MissionService',      desc: 'Daily and weekly objectives that feed XP into the battle pass and coins into the wallet. Resets via the scheduler.' },
@@ -30,31 +31,48 @@ const schedule: [string, string, string][] = [
   ['Daily',      'Battle pass check',    'Process tier rewards and season transitions'],
   ['Every 5s',   'Matchmaking queue',    'Match ranked players, expanding window'],
   ['Every 30s',  'Timer safety net',     'Auto-pick for disconnected players'],
-  ['Every 30m',  'Stale game cleanup',   'Close abandoned games and refund wagers'],
+  ['Every 30m',  'Stale game cleanup',   'Close abandoned games and refund coin wagers'],
   ['Wednesdays', 'Weekly challenge',     'Generate new challenge with a random team pool'],
-  ['Week-end',   'Leaderboard snapshot', 'Lock results and distribute payouts'],
+  ['Week-end',   'Leaderboard snapshot', 'Lock results and pay out coins and XP'],
 ];
 
 // ------------------------------ SEO ------------------------------
 const pageURL = `https://tannersteorts.com${gridiron.href}`;
 
 // ArticleLayout adds the BreadcrumbList.
-const schema = {
-  '@type': 'TechArticle',
-  '@id': `${pageURL}#article`,
-  headline: 'Gridiron Duels — A Real-Time Fantasy Football Draft Platform',
-  description:
-    'A real-time fantasy football draft platform built end to end across web, mobile, and a service-oriented Laravel backend.',
-  articleSection: 'Case Study',
-  image: 'https://tannersteorts.com/og/gridiron-duels.png',
-  inLanguage: 'en-US',
-  datePublished: gridiron.published,
-  dateModified: gridiron.modified,
-  author: { '@id': 'https://tannersteorts.com/#person' },
-  publisher: { '@id': 'https://tannersteorts.com/#person' },
-  isPartOf: { '@id': 'https://tannersteorts.com/#website' },
-  mainEntityOfPage: pageURL,
-};
+const schema = [
+  {
+    '@type': 'TechArticle',
+    '@id': `${pageURL}#article`,
+    headline: 'Gridiron Duels — A Real-Time Fantasy Football Draft Platform',
+    description:
+      'A real-time fantasy football draft platform built end to end across web, mobile, and a service-oriented Laravel backend.',
+    articleSection: 'Case Study',
+    image: 'https://tannersteorts.com/og/gridiron-duels.png',
+    inLanguage: 'en-US',
+    datePublished: gridiron.published,
+    dateModified: gridiron.modified,
+    author: { '@id': 'https://tannersteorts.com/#person' },
+    publisher: { '@id': 'https://tannersteorts.com/#person' },
+    isPartOf: { '@id': 'https://tannersteorts.com/#website' },
+    mainEntityOfPage: pageURL,
+    about: { '@id': `${gridiron.site.href}#app` },
+  },
+  {
+    '@type': 'SoftwareApplication',
+    '@id': `${gridiron.site.href}#app`,
+    name: 'Gridiron Duels',
+    url: gridiron.site.href,
+    sameAs: [gridiron.appStore],
+    applicationCategory: 'GameApplication',
+    operatingSystem: 'iOS 15.1 or later, web',
+    // The App Store listing's subtitle.
+    description: 'Real-time fantasy draft duels.',
+    author: { '@id': 'https://tannersteorts.com/#person' },
+    publisher: { '@id': 'https://tannersteorts.com/#person' },
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  },
+];
 ---
 
 <ArticleLayout
@@ -79,7 +97,7 @@ const schema = {
   app={gridiron.app}
   icon={gridiron.icon}
 >
-  <ArticleHead slot="head" title={gridiron.title} lede={gridiron.lede} meta={gridiron.meta} site={gridiron.site}>
+  <ArticleHead slot="head" title={gridiron.title} lede={gridiron.lede} meta={gridiron.meta} site={gridiron.site} appStore={gridiron.appStore}>
     <StatRow stats={gridiron.stats} />
   </ArticleHead>
 
@@ -199,12 +217,22 @@ const schema = {
     </ol>
 
     <Figure
-      src={profile}
+      src={battlePass}
       n={4}
-      frame="phone"
-      alt="The iOS profile: level 20 with its XP bar, 47 wins and 46 losses, then match history, achievements, battle pass, missions and cosmetics"
+      title="Battle pass"
+      alt="The Season 1 battle pass at tier 8 of 50: the premium track claimed to tier 8 above the free track, coin and cosmetic rewards in the tiers ahead, and an 11,815 coin balance"
     >
-      Profile: level, XP, record. Battle pass, missions and cosmetics one tap in.
+      Season 1: 50 tiers across a free and a premium track.
+    </Figure>
+
+    <Figure
+      src={shop}
+      n={5}
+      title="Shop"
+      wide={false}
+      alt="The shop: Pro membership at $6.99/mo or $49.99/yr through Stripe, three featured cosmetics priced in coins, and an 11,815 coin balance"
+    >
+      Cosmetics for coins, a featured rotation, and Pro by subscription.
     </Figure>
   </Chapter>
 
@@ -234,7 +262,7 @@ const schema = {
 
     <Figure
       src={iosDraft}
-      n={5}
+      n={6}
       frame="phone"
       alt="The iOS draft room in round 8 of 10: the pick clock at 26s, the opponent on the clock, and a full nine-player roster"
     >

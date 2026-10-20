@@ -13,17 +13,20 @@ interface Props {
   meta?: { label: string; value: string; datetime?: string }[];
   /** The product's own site, as a button under the lede. */
   site?: { href: string; name: string };
+  /** An App Store listing, as a second button. */
+  appStore?: string;
 }
-const { title, lede, small = false, meta = [], site } = Astro.props;
+const { title, lede, small = false, meta = [], site, appStore } = Astro.props;
 ---
 
 <header class="ahead">
   <div class="ahead-main">
     <h1 class:list={['ahead-title', { 'is-small': small }]}><slot name="title">{title}</slot></h1>
     {lede && <p class="ahead-lede">{lede}</p>}
-    {site && (
+    {(site || appStore) && (
       <p class="ahead-actions">
-        <a class="btn" href={site.href} target="_blank" rel="noopener">{site.name}</a>
+        {site && <a class="btn" href={site.href} target="_blank" rel="noopener">{site.name}</a>}
+        {appStore && <a class="btn" href={appStore} target="_blank" rel="noopener">App Store</a>}
       </p>
     )}
   </div>
