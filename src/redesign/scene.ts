@@ -15,7 +15,9 @@ export function paintScene(svg: SVGSVGElement, date: Date, light?: (sky: LandLig
   applyTheme(snap.inks, sky);
   paintLand(sky);
   light?.(sky);
-  saveTheme();
+  // Only the live sky is worth carrying to the next page. A scrubber preview or ?at= would restore colours that page
+  // replaces with now as soon as it paints.
+  if (Math.abs(date.getTime() - Date.now()) < 60000) saveTheme();
   return snap;
 }
 

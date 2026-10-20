@@ -17,8 +17,6 @@ const { name, icon } = Astro.props;
     <a class="bar-icon bar-launch" href="/" aria-label="Desktop">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="16.5" cy="7.5" r="3"></circle><path d="M2 19l3.6-7h12.8l3.6 7z"></path></svg>
     </a>
-  </div>
-  <div class="taskbar">
     <span class="task is-current"><FileIcon name={icon} /><span>{name}</span></span>
   </div>
   <div class="bar-right">

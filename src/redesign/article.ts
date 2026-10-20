@@ -31,20 +31,33 @@ function showWeather() {
 
 /**
  * The title bar sticks under the top bar. Stuck, article.css squares it off and has it cover the strip above it, so
- * text doesn't scroll by in slivers around the top bar. The root's top edge sits just below the stuck position.
+ * text doesn't scroll by in slivers around the top bar. Checked on scroll, once a frame: an observer missed jumps to
+ * an anchor and slow scrolls into the phone layout's lower sticky top.
  */
 function setupStuckBar() {
   const win = document.querySelector<HTMLElement>('.page-win');
   const bar = win?.querySelector<HTMLElement>('.win-bar');
   if (!win || !bar) return;
-  const io = new IntersectionObserver(
-    ([e]) => {
-      const top = parseFloat(getComputedStyle(bar).top);
-      win.classList.toggle('is-stuck', e.intersectionRatio < 1 && e.boundingClientRect.top <= top + 1);
-    },
-    { rootMargin: '-57px 0px 0px 0px', threshold: 1 },
-  );
-  io.observe(bar);
+  let raf = 0;
+  const check = () => {
+    raf = 0;
+    win.classList.toggle('is-stuck', bar.getBoundingClientRect().top <= parseFloat(getComputedStyle(bar).top) + 0.5);
+  };
+  const queue = () => {
+    if (!raf) raf = requestAnimationFrame(check);
+  };
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('resize', queue);
+  check();
+}
+
+/** Sideways scrollers take a tab stop only while there's something to scroll. Without JS they always do. */
+function setupScrollers() {
+  const els = document.querySelectorAll<HTMLElement>('[data-scroller]');
+  const update = () => els.forEach((el) => (el.tabIndex = el.scrollWidth > el.clientWidth ? 0 : -1));
+  const ro = new ResizeObserver(update);
+  els.forEach((el) => ro.observe(el));
+  document.fonts.ready.then(update);
 }
 
 /** Figure loops play only while on screen. Under reduced motion they wait for the visitor to press play. */
@@ -71,11 +84,16 @@ fitWallpaper(wallpaper);
 refresh();
 showWeather();
 setupStuckBar();
+setupScrollers();
 setupLoops();
 
-window.setInterval(refresh, 30000);
+// Every 30s while the tab shows. A hidden tab stops, and catches up when it's back.
+let timer = window.setInterval(refresh, 30000);
 document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) refresh();
+  window.clearInterval(timer);
+  if (document.hidden) return;
+  refresh();
+  timer = window.setInterval(refresh, 30000);
 });
 matchMedia('(max-width: 760px)').addEventListener('change', () => fitWallpaper(wallpaper));
 // The sun's arc depends on how much sky shows. The scene is 100lvh tall, so a phone's URL bar showing and hiding

@@ -376,20 +376,6 @@ export function applyTheme(inks: Keyframe, sky: { top: string; mid: string; hori
 
 // ----------------------------------------------------------------- weather
 
-const WMO: [number[], string][] = [
-  [[0], 'Clear'],
-  [[1], 'Mostly clear'],
-  [[2], 'Partly cloudy'],
-  [[3], 'Overcast'],
-  [[45, 48], 'Fog'],
-  [[51, 53, 55, 56, 57], 'Drizzle'],
-  [[61, 63, 65, 66, 67], 'Rain'],
-  [[71, 73, 75, 77], 'Snow'],
-  [[80, 81, 82], 'Showers'],
-  [[85, 86], 'Snow showers'],
-  [[95, 96, 99], 'Thunderstorms'],
-];
-
 export interface Weather {
   temp: number;
   label: string;
@@ -400,7 +386,8 @@ export interface Weather {
   wind: number;
 }
 
-const CACHE_KEY = 'bigsky-weather-v2';
+/** fetchWeather (weather.ts) writes it; anything can read it. */
+export const CACHE_KEY = 'bigsky-weather-v2';
 
 /** What fetchWeather got in the last 15 minutes, if anything. Case studies show this and never fetch. */
 export function cachedWeather(): Weather | null {
@@ -411,36 +398,4 @@ export function cachedWeather(): Weather | null {
     // Storage can be blocked.
   }
   return null;
-}
-
-export async function fetchWeather(): Promise<Weather | null> {
-  const cached = cachedWeather();
-  if (cached) return cached;
-  try {
-    const url =
-      `https://api.open-meteo.com/v1/forecast?latitude=${BILLINGS.lat}&longitude=${BILLINGS.lon}` +
-      `&current=temperature_2m,weather_code,cloud_cover,rain,showers,snowfall,wind_speed_10m` +
-      `&temperature_unit=fahrenheit&timezone=America%2FDenver`;
-    const res = await fetch(url);
-    if (!res.ok) return null;
-    const { current } = await res.json();
-    const code = current.weather_code as number;
-    const weather: Weather = {
-      temp: Math.round(current.temperature_2m),
-      label: WMO.find(([codes]) => codes.includes(code))?.[1] ?? '',
-      code,
-      cloud: current.cloud_cover ?? 0,
-      rain: (current.rain ?? 0) + (current.showers ?? 0),
-      snow: current.snowfall ?? 0,
-      wind: current.wind_speed_10m ?? 0,
-    };
-    try {
-      sessionStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), weather }));
-    } catch {
-      // Fine without the cache.
-    }
-    return weather;
-  } catch {
-    return null;
-  }
 }

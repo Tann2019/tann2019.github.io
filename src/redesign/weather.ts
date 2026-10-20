@@ -1,5 +1,8 @@
 // Live weather over the scene: noise-generated clouds sized by real cloud cover and lit by the
 // current sky, plus rain or snow when it's falling in Billings. Preview any condition with ?weather=.
+// The desktop alone fetches the conditions: case studies only read the cache (sky.ts) and never load this module.
+
+import { BILLINGS, CACHE_KEY, cachedWeather, type Weather } from './sky';
 
 type RGB = [number, number, number];
 
@@ -378,4 +381,52 @@ export function setupWeather(clouds: HTMLCanvasElement, precip: HTMLCanvasElemen
   });
   document.addEventListener('visibilitychange', schedule);
   reducedMotion.addEventListener('change', redraw);
+}
+
+// ------------------------------------------------------------------ fetch
+
+const WMO: [number[], string][] = [
+  [[0], 'Clear'],
+  [[1], 'Mostly clear'],
+  [[2], 'Partly cloudy'],
+  [[3], 'Overcast'],
+  [[45, 48], 'Fog'],
+  [[51, 53, 55, 56, 57], 'Drizzle'],
+  [[61, 63, 65, 66, 67], 'Rain'],
+  [[71, 73, 75, 77], 'Snow'],
+  [[80, 81, 82], 'Showers'],
+  [[85, 86], 'Snow showers'],
+  [[95, 96, 99], 'Thunderstorms'],
+];
+
+export async function fetchWeather(): Promise<Weather | null> {
+  const cached = cachedWeather();
+  if (cached) return cached;
+  try {
+    const url =
+      `https://api.open-meteo.com/v1/forecast?latitude=${BILLINGS.lat}&longitude=${BILLINGS.lon}` +
+      `&current=temperature_2m,weather_code,cloud_cover,rain,showers,snowfall,wind_speed_10m` +
+      `&temperature_unit=fahrenheit&timezone=America%2FDenver`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const { current } = await res.json();
+    const code = current.weather_code as number;
+    const weather: Weather = {
+      temp: Math.round(current.temperature_2m),
+      label: WMO.find(([codes]) => codes.includes(code))?.[1] ?? '',
+      code,
+      cloud: current.cloud_cover ?? 0,
+      rain: (current.rain ?? 0) + (current.showers ?? 0),
+      snow: current.snowfall ?? 0,
+      wind: current.wind_speed_10m ?? 0,
+    };
+    try {
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), weather }));
+    } catch {
+      // Fine without the cache.
+    }
+    return weather;
+  } catch {
+    return null;
+  }
 }

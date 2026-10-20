@@ -83,7 +83,13 @@ try {
     for (const width of WIDTHS) {
       const phone = width < 768;
       await page.setViewport({ width, height: phone ? 844 : 900, isMobile: phone, hasTouch: phone });
-      await page.goto(origin + path, { waitUntil: 'load', timeout: 60000 });
+      const res = await page.goto(origin + path, { waitUntil: 'load', timeout: 60000 });
+      // A mistyped path would otherwise pass as a short "not found" page.
+      if (!res?.ok()) {
+        failed++;
+        console.log(`FAIL ${path}: ${res ? `HTTP ${res.status()}` : 'no response'}`);
+        break;
+      }
       await page.evaluate(() => document.fonts.ready);
       await new Promise((r) => setTimeout(r, 300));
       const result = await page.evaluate(() => {
@@ -122,6 +128,6 @@ try {
   await rm(profile, { recursive: true, force: true }).catch(() => {});
 }
 if (failed) {
-  console.error(`${failed} page width${failed === 1 ? '' : 's'} overflow.`);
+  console.error(`${failed} check${failed === 1 ? '' : 's'} failed.`);
   process.exit(1);
 }

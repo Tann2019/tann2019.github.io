@@ -1,4 +1,4 @@
-// The theme sky.ts writes onto :root, kept for the session. scene.ts saves it after every paint, and ArticleLayout's
+// The theme sky.ts writes onto :root, kept for the session. scene.ts saves it after every live paint, and ArticleLayout's
 // head script puts it back before first paint, so a page opened from the desktop starts in the desktop's colours
 // instead of flashing the day defaults. No DOM work at import time: ArticleLayout reads the key on the server.
 

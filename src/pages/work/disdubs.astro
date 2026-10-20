@@ -145,7 +145,7 @@ const schema = [
   >
     <div class="strip wide">
       <div class="strip-perf" aria-hidden="true"></div>
-      <ol class="strip-frames" tabindex="0" aria-label="Six screens of DisDubs, in order">
+      <ol class="strip-frames" tabindex="0" aria-label="Six screens of DisDubs, in order" data-scroller>
         {disdubs.reel.map((r, i) => (
           <li class="frame">
             <div class="frame-window">
@@ -172,7 +172,7 @@ const schema = [
       room state machine and the recorder share memory instead of a queue.
     </p>
 
-    <pre class="wire" tabindex="0" aria-label="How the pieces fit together"><code>Discord client
+    <pre tabindex="0" role="region" aria-label="How the pieces fit together" data-scroller><code>Discord client
   ├── Activity iframe ─── the game: casting, playback, prompter, review
   │        │ websocket    (the UI, and nothing else)
   └── voice channel
@@ -225,7 +225,7 @@ const schema = [
     </p>
 
     <!-- The centrepiece: what the aligned writer actually does. -->
-    <div class="diagram wide" tabindex="0">
+    <div class="diagram wide" tabindex="0" role="region" aria-label="Naive versus timeline-aligned recording" data-scroller>
       <svg viewBox="0 0 720 362" role="img" aria-labelledby="dgm-t dgm-d" class="dgm">
         <title id="dgm-t">Naive versus timeline-aligned recording</title>
         <desc id="dgm-d">
@@ -684,7 +684,7 @@ const schema = [
   /* ---------- The alignment diagram ------------------------------------ */
   /* Out of the prose column: the lanes need the width to be read. Phones scroll it sideways. */
   .diagram {
-    margin: 8px 0 36px;
+    margin-block: 8px 36px;
     padding: 28px 28px 18px;
     overflow-x: auto;
     border-radius: 8px;

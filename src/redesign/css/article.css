@@ -45,6 +45,15 @@ html {
 
 /* ------------------------------------------------------------------ bar */
 
+/* No workspaces or taskbar: the page's one chip sits after the mesa, so the clock filling in can't move it. */
+.bar {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.bar-left {
+  min-width: 0;
+}
+
 /* Here the sun line is a label, not the desktop's button that opens the time scrubber. */
 .bar-sun:hover {
   background: none;
@@ -211,6 +220,12 @@ html {
   background: inherit;
 }
 
+/* Not .win-title's overflow: hidden, which clipped the focus ring. The last crumb carries the ellipsis instead. */
+.crumbs {
+  min-width: 0;
+  overflow: visible;
+}
+
 .crumbs ol {
   display: flex;
   min-width: 0;
@@ -361,7 +376,7 @@ html {
 
 /* Overpass, not National Park: National Park draws a capital I like an l, so "II" would read "ll". */
 .chapter-n {
-  margin-right: 0.45em;
+  margin-right: 0.2em;
   font-family: var(--font-ui);
   font-weight: 600;
   color: var(--muted);
@@ -376,8 +391,9 @@ html {
 
 /* --------------------------------------------------------------- figure */
 
+/* Block margins only: the inline ones are .wide's. */
 .fig {
-  margin: 36px 0;
+  margin-block: 36px;
 }
 
 .fig-frame {
@@ -517,7 +533,6 @@ html {
 
 .prevnext {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
   gap: 10px;
   margin-top: 48px;
 }
@@ -537,8 +552,16 @@ html {
   border-color: var(--accent);
 }
 
-.prevnext a + a {
-  text-align: right;
+/* Side by side once the window has room, the later links flush right. Stacked, they all line up on the left. */
+@container (min-width: 520px) {
+  .prevnext {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+  }
+
+  .prevnext a + a {
+    text-align: right;
+  }
 }
 
 .pn-label {
@@ -712,6 +735,15 @@ html {
 .no-js .bar-sun,
 .no-js .bar-clock {
   display: none !important;
+}
+
+/* Only article.ts can tell when the title bar is stuck and cover the strip above it, so without it the bar stays put. */
+.no-js .page-win .win-bar {
+  position: static;
+}
+
+html.no-js {
+  scroll-padding-top: 64px;
 }
 
 @media (prefers-reduced-motion: reduce) {

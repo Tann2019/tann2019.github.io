@@ -21,8 +21,8 @@ const { src, alt, n, frame = 'window', title, video, wide = frame === 'window' }
 const phone = frame === 'phone';
 
 // Widths for 1x to 2x screens: a wide figure shows at up to 64rem (1024px), a column one 44rem, a phone 264px.
-const steps = phone ? [280, 560, 840] : [480, 800, 1200, 1600, 2048];
-const widths = [...steps.filter((w) => w < src.width), Math.min(src.width, steps[steps.length - 1])];
+// Astro caps these at the source's width. Reading src.width here would also ship the PNG master, unused.
+const widths = phone ? [280, 560, 840] : [480, 800, 1200, 1600, 2048];
 // The page's 24px gutters, the window's border and its 40px padding; on phones 6px, 2px and 18px.
 const sizes = phone
   ? '264px'

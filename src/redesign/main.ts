@@ -1,7 +1,6 @@
 import {
   billingsDateAt,
   billingsMinutes,
-  fetchWeather,
   formatDay,
   formatShortDay,
   formatTime,
@@ -15,7 +14,7 @@ import { setupWindowManager } from './wm';
 import { setupDesktop } from './desktop';
 import { setupLand } from './land';
 import { fitWallpaper, paintScene } from './scene';
-import { forcedWeather, lightWeather, setWeather, setupWeather } from './weather';
+import { fetchWeather, forcedWeather, lightWeather, setWeather, setupWeather } from './weather';
 import { mountTerminal } from './terminal';
 import { mountChess } from './chess/board';
 import { mountRadio } from './radio';
