@@ -399,7 +399,7 @@ export interface Weather {
 /** fetchWeather (weather.ts) writes it; anything can read it. */
 export const CACHE_KEY = 'bigsky-weather-v2';
 
-/** What fetchWeather got in the last 15 minutes, if anything. Case studies show this and never fetch. */
+/** What fetchWeather got in the last 15 minutes, if anything. Article pages show this and never fetch. */
 export function cachedWeather(): Weather | null {
   try {
     const cached = JSON.parse(sessionStorage.getItem(CACHE_KEY) ?? 'null');

@@ -8,7 +8,7 @@ import Win from '../../redesign/Win.astro';
 import FileIcon from '../../redesign/FileIcon.astro';
 import Wallpaper from '../../redesign/Wallpaper.astro';
 import { caseStudies, type CardScene as Scene, type Stat } from '../../data/case-studies';
-import { postDate } from '../../data/posts';
+import { fixGridIron, postDate } from '../../data/posts';
 
 type Card = { slug: string; scene: Scene } & (
   | { kind: 'home' }
@@ -48,9 +48,8 @@ export async function getStaticPaths() {
       stats: study.card.stats,
     })),
     ...posts.map((post): Card => {
-      // "Name — Subtitle" titles break at the dash instead of printing it. National Park draws a capital I
-      // like an l, so "GridIron" would read "Gridlron".
-      const [title, subtitle] = post.data.title.replace(/\bGridIron\b/g, 'Gridiron').split(/\s+[—–-]\s+(.*)/s);
+      // "Name — Subtitle" titles break at the dash instead of printing it.
+      const [title, subtitle] = fixGridIron(post.data.title).split(/\s+[—–-]\s+(.*)/s);
       return {
         slug: `blog/${post.id}`,
         kind: 'post',

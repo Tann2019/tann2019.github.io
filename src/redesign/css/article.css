@@ -415,13 +415,9 @@ html {
 /* A post's Markdown, and the plain pages: headings, quotes, rules, images, tables, code and footnotes straight in the
    column. Headings are direct children only, so a component's own h3 keeps its style. */
 
+/* Set like a chapter title (see .chapter-title). */
 .prose > h2 {
   margin: 60px 0 18px;
-  font-family: var(--font-display);
-  font-size: 32px;
-  font-weight: 700;
-  line-height: 1.15;
-  text-wrap: balance;
 }
 
 .prose > h3 {
@@ -436,11 +432,9 @@ html {
   margin-top: 0;
 }
 
+/* Ruled like a Note (see .note). */
 .prose blockquote {
   margin: 0 0 1.2em;
-  padding: 2px 0 2px 18px;
-  border-left: 2px solid rgb(var(--accent-rgb) / 0.6);
-  color: var(--muted);
 }
 
 .prose blockquote > :last-child {
@@ -602,13 +596,18 @@ html {
   margin-top: 72px;
 }
 
-.chapter-title {
-  margin-bottom: 20px;
+/* A Markdown h2 too. */
+.chapter-title,
+.prose > h2 {
   font-family: var(--font-display);
   font-size: 32px;
   font-weight: 700;
   line-height: 1.15;
   text-wrap: balance;
+}
+
+.chapter-title {
+  margin-bottom: 20px;
 }
 
 /* Overpass, not National Park: National Park draws a capital I like an l, so "II" would read "ll". */
@@ -770,13 +769,18 @@ html {
 
 /* ------------------------------------------------------------------ note */
 
-.note {
-  margin: 30px 0;
+/* A Markdown quote too. */
+.note,
+.prose blockquote {
   padding: 2px 0 2px 18px;
   border-left: 2px solid rgb(var(--accent-rgb) / 0.6);
+  color: var(--muted);
+}
+
+.note {
+  margin: 30px 0;
   font-size: 15.5px;
   line-height: 1.65;
-  color: var(--muted);
 }
 
 .note :is(em, strong) {
@@ -1003,13 +1007,13 @@ html {
     margin-top: 56px;
   }
 
-  .chapter-title {
+  .chapter-title,
+  .prose > h2 {
     font-size: 27px;
   }
 
   .prose > h2 {
     margin-top: 48px;
-    font-size: 27px;
   }
 
   .keyrows > div {

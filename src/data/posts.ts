@@ -19,7 +19,11 @@ export const isoDay = (d: Date) => d.toISOString().slice(0, 10);
 /** The post's own name for crumbs and the bar chip: its `short` frontmatter, else its title up to the first dash. */
 export const shortTitle = (post: Post) => post.data.short ?? post.data.title.split(/ [—–-] /)[0];
 
-/** The title as set in National Park, which draws a capital I like an l ("GridIron" would read "Gridlron"), and
- *  whose balanced wrap could start a line with the dash. Display only: <title>, og and JSON-LD keep the real title. */
+/** Text set in National Park, which draws a capital I like an l: "GridIron" would read "Gridlron". Display only
+ *  (the page and the share cards): <title>, og and JSON-LD keep the real name. */
+export const fixGridIron = (s: string) => s.replace(/\bGridIron\b/g, 'Gridiron');
+
+/** The title as set in National Park (see fixGridIron), with the space before a dash made unbreakable, since its
+ *  balanced wrap could otherwise start a line with the dash. */
 export const displayTitle = (post: Post) =>
-  post.data.title.replace(/\bGridIron\b/g, 'Gridiron').replace(/ ([—–-]) /, ' $1 ');
+  fixGridIron(post.data.title).replace(/ ([—–-]) /, ' $1 ');

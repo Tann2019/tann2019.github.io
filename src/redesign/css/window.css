@@ -76,7 +76,7 @@
   gap: 2px;
 }
 
-/* Links too: a case study's × is a link back to the desktop. */
+/* Links too: an article page's × is a link back to the desktop. */
 .win-ctl :is(button, a) {
   display: grid;
   place-items: center;

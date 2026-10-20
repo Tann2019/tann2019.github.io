@@ -1,6 +1,6 @@
 // Live weather over the scene: noise-generated clouds sized by real cloud cover and lit by the
 // current sky, plus rain or snow when it's falling in Billings. Preview any condition with ?weather=.
-// The desktop alone fetches the conditions: case studies only read the cache (sky.ts) and never load this module.
+// The desktop alone fetches the conditions: article pages only read the cache (sky.ts) and never load this module.
 
 import { BILLINGS, CACHE_KEY, cachedWeather, type Weather } from './sky';
 

@@ -60,7 +60,7 @@ Without it, the guestbook keeps notes in the visitor's browser and cursors stay 
 
 `styles.css` is the desktop. It imports the parts other pages can share from `css/` (`tokens`, `base`, `scene`, `bar`, `window`, `doc`), plus the desktop-only partials that sit between them, in the original order. `css/article.css` imports the same shared parts for article pages.
 
-`src/data/`: case study facts (`disdubs`, `gridiron`, `caseStudies`), read by the homepage (windows, icons, launcher, terminal, neofetch), the share cards, the sitemap and the case studies. `posts` sorts the blog, formats its dates and makes display titles (National Park reads "GridIron" as "Gridlron"), for the writing window, `/blog/` and the posts.
+`src/data/`: case study facts (`disdubs`, `gridiron`, `caseStudies`), read by the homepage (windows, icons, launcher, terminal, neofetch), the share cards, the sitemap and the case studies. `posts` sorts the blog (RSS too), formats its dates and makes display titles (`fixGridIron`: National Park reads "GridIron" as "Gridlron"), for the writing window, `/blog/`, the posts and the share cards. `src/redesign/content.ts` has the rest of the desktop's copy: jobs and toolkit (the work-history window and `/about/`; the current job also in the neofetch and the terminal), side projects and the icons.
 
 ## Article kit
 
@@ -77,7 +77,7 @@ Figures: PNG masters in `src/assets/work/<slug>/`, passed as `src`, ship as lazy
 
 A loop: `video={{ src, poster, width, height }}`, both files in `public/work/<slug>/`. It's muted and `preload="none"`, and `article.ts` plays it only while it's on screen, with a pause button (WCAG 2.2.2). Under reduced motion it waits on its poster until played, and turning reduced motion on mid-visit pauses it; without JS the poster shows. Encode H.264 with no audio and `+faststart`, shown at its own width at most (Gridiron's: 540px, 4.2s, 42 KB).
 
-Posts: `src/pages/blog/[id].astro` renders each Markdown file in the window, with crumbs `Tanner Steorts / Writing / <title up to its first dash>` (ArticleLayout's `parent`; a `short` frontmatter field overrides the last one), date and read time in the header, and `PrevNext kind="writing"` for older and newer. `.prose` in `article.css` styles plain Markdown: headings, lists, quotes, rules, images, tables and footnotes. Code uses Shiki's `css-variables` theme, colored from the sky theme in `article.css`, and a fence's language becomes a label over the block (the `codeLabel` transformer in `astro.config.mjs`). A dev server started before that config needs a restart.
+Posts: `src/pages/blog/[id].astro` renders each Markdown file in the window, with crumbs `Tanner Steorts / Writing / <title up to its first dash>` (ArticleLayout's `parent`; a `short` frontmatter field overrides the last one), date and read time in the header, and `PrevNext kind="writing"` for older and newer. `.prose` in `article.css` styles plain Markdown: headings, lists, quotes, rules, images, tables and footnotes. Code uses Shiki's `css-variables` theme, colored from the sky theme in `article.css`, and a fence's language becomes a label over the block and the name of its region, which takes a tab stop only while it scrolls, like the case studies' scrollers (the `codeLabel` transformer in `astro.config.mjs`). After changing that config, restart the dev server and build with `astro build --force`: the content cache keeps the old HTML.
 
 After a build, `npm run check:overflow` loads the built pages at 320, 375, 768 and 1280px and fails if any scrolls sideways.
 

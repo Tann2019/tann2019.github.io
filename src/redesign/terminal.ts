@@ -29,10 +29,11 @@ const OPENABLE: Record<string, string> = {
 
 const LS = ['mothership/', 'side-projects/', 'writing/', 'chess', 'synth', 'sticky-notes', 'lofi-radio', 'say-hi', 'about.txt', 'work-history.txt'];
 
-const ABOUT = [
+/** about.txt. The job comes from the work history by way of index.astro (data-job), like the neofetch's Role. */
+const about = (job: string) => [
   'Full-stack developer in Billings, Montana. Laravel and React, with',
   'real-time features wherever they earn their keep. B.S. in Computer',
-  'Science from Rocky Mountain College. Support engineer at Givebutter.',
+  `Science from Rocky Mountain College. ${job}.`,
 ];
 
 export function mountTerminal(root: HTMLElement) {
@@ -81,7 +82,7 @@ export function mountTerminal(root: HTMLElement) {
     },
     cat(args) {
       const file = args[0];
-      if (file === 'about.txt') return print(ABOUT.map(escape).join('<br>'));
+      if (file === 'about.txt') return print(about(root.dataset.job ?? '').map(escape).join('<br>'));
       if (file === 'work-history.txt') {
         open('work');
         return print('Opened work history.');
