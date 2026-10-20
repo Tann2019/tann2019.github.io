@@ -50,7 +50,8 @@ Without it, the guestbook keeps notes in the visitor's browser and cursors stay 
 
 - `/` desktop. All window content is in the HTML. Without JS it reads as a plain column.
 - `/classic/` the old homepage, `noindex`, linked as "Skip to the plain site".
-- `/about/`, `/blog/*`, `/work/*` unchanged. SEO tags now come from `src/components/Seo.astro`.
+- `/work/disdubs/` on `ArticleLayout`. Its screenshots are masters in `src/assets/work/disdubs/`; `pick`, `cast` and `premiere.png` also stay in `public/work/disdubs/` for the JSON-LD screenshot URLs.
+- `/about/`, `/blog/*`, `/work/gridiron-duels/` unchanged. SEO tags now come from `src/components/Seo.astro`.
 - Share cards in `public/og/` are frames of the desktop at a fixed time of day. `npm run og` rebuilds them from the dev-only `/og-card/` pages (Chrome or Edge required). Rerun after adding a post.
 
 ## Code
@@ -69,4 +70,4 @@ Credits: sky colors from [dynamic-sky](https://github.com/aakaashjois/dynamic-sk
 
 ## Not done
 
-- Case-study pages keep their own styling.
+- Gridiron Duels, the blog and /about/ keep their own styling.

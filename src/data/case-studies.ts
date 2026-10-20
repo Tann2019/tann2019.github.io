@@ -1,5 +1,6 @@
 // The case studies under /work/, in the order the homepage lists them. Each one's facts live in its own file
 // and feed the homepage window, the share card and the page itself, so a number changes in one place.
+import type { ImageMetadata } from 'astro';
 import { disdubs } from './disdubs';
 import { gridiron } from './gridiron';
 
@@ -30,8 +31,8 @@ export interface CaseStudy {
   lede: string;
   meta: { label: string; value: string }[];
   stats: (Stat & { note?: string; short?: string })[];
-  /** DisDubs: how a dub gets made, one screen per step. */
-  reel?: { title: string; img: string; alt: string; line: string }[];
+  /** DisDubs: how a dub gets made, one screen per step. The images are masters under src/assets/. */
+  reel?: { title: string; img: ImageMetadata; alt: string; line: string }[];
   /** The stack, one row per position. */
   stack?: { pos: string; item: string }[];
   /** The homepage window's shorter copy. */

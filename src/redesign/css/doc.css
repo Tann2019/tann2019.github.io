@@ -91,7 +91,9 @@
   font-weight: 600;
 }
 
+/* Block, since <picture> wraps it: inline, it would sit on a text baseline with a gap under it. */
 .reel img {
+  display: block;
   width: 100%;
   height: auto;
   aspect-ratio: 16 / 9;

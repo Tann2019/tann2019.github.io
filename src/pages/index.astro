@@ -2,6 +2,7 @@
 // The homepage: a Linux-style desktop themed live from the sky over Billings. See REDESIGN.md.
 // Every window's content is rendered here at build time, so it reads without JavaScript too.
 import { getCollection } from 'astro:content';
+import { Picture } from 'astro:assets';
 import Seo from '../components/Seo.astro';
 import '../redesign/styles.css';
 import Win from '../redesign/Win.astro';
@@ -225,7 +226,8 @@ const launcherEntries = [
           <ol class="reel">
             {disdubs.reel.map((r) => (
               <li>
-                <img src={r.img} alt={r.alt} loading="lazy" width="320" height="180" />
+                {/* Thumbnails about 190px wide, or half a phone sheet. */}
+                <Picture src={r.img} alt={r.alt} formats={['avif', 'webp']} fallbackFormat="webp" width={320} widths={[320, 640]} sizes="(max-width: 760px) 45vw, 190px" loading="lazy" />
                 <span>{r.title}</span>
               </li>
             ))}

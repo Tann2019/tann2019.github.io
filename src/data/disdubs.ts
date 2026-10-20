@@ -1,5 +1,13 @@
 // DisDubs: the facts its homepage window, share card and case study share.
 import type { CaseStudy } from './case-studies';
+// Masters for astro:assets. pick, cast and premiere also stay in public/work/disdubs/, where the page's
+// SoftwareApplication screenshots point.
+import pick from '../assets/work/disdubs/pick.png';
+import cast from '../assets/work/disdubs/cast.png';
+import slate from '../assets/work/disdubs/slate.png';
+import rolling from '../assets/work/disdubs/rolling.png';
+import booth from '../assets/work/disdubs/booth.png';
+import premiere from '../assets/work/disdubs/premiere.png';
 
 /** Where it stood one month after launch. */
 const stats = [
@@ -28,12 +36,12 @@ export const disdubs = {
   stats,
   /** How a dub gets made: six screens, in the order a room moves through them. */
   reel: [
-    { title: 'Pick a scene', img: '/work/disdubs/pick.png', alt: 'The scene picker, showing cover art for the public catalogue', line: 'The public shelf, plus whatever the server has uploaded itself.' },
-    { title: 'Hand out parts', img: '/work/disdubs/cast.png', alt: 'The casting screen, assigning characters to people in the room', line: 'Every character goes to somebody, or to nobody and stays original.' },
-    { title: 'Slate', img: '/work/disdubs/slate.png', alt: 'A clapperboard countdown over the scene, showing take 01', line: 'A clapper, a count of three, and the take number everyone is on.' },
-    { title: 'Roll', img: '/work/disdubs/rolling.png', alt: 'The take running, with the script scrolling over the clip', line: 'The clip plays, the script scrolls, each line lights up in turn.' },
-    { title: 'Fix a line', img: '/work/disdubs/booth.png', alt: 'The booth, showing one line’s waveform against the original', line: 'One flubbed line costs one line. Redo it against the original.' },
-    { title: 'Premiere', img: '/work/disdubs/premiere.png', alt: 'The screening view, playing the finished dub back to the room', line: 'Mix down, then watch it back together before anyone leaves.' },
+    { title: 'Pick a scene', img: pick, alt: 'The scene picker, showing cover art for the public catalogue', line: 'The public shelf, plus whatever the server has uploaded itself.' },
+    { title: 'Hand out parts', img: cast, alt: 'The casting screen, assigning characters to people in the room', line: 'Every character goes to somebody, or to nobody and stays original.' },
+    { title: 'Slate', img: slate, alt: 'A clapperboard countdown over the scene, showing take 01', line: 'A clapper, a count of three, and the take number everyone is on.' },
+    { title: 'Roll', img: rolling, alt: 'The take running, with the script scrolling over the clip', line: 'The clip plays, the script scrolls, each line lights up in turn.' },
+    { title: 'Fix a line', img: booth, alt: 'The booth, showing one line’s waveform against the original', line: 'One flubbed line costs one line. Redo it against the original.' },
+    { title: 'Premiere', img: premiere, alt: 'The screening view, playing the finished dub back to the room', line: 'Mix down, then watch it back together before anyone leaves.' },
   ],
   /** What it runs on, one row per layer. */
   stack: [
