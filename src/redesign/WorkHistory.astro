@@ -1,0 +1,25 @@
+---
+// Jobs, then the toolkit: the desktop's work-history.txt window and /about/. Styled by .jobs and .toolkit in css/doc.css.
+import { experience, toolkit } from './content';
+---
+
+<ol class="jobs">
+  {experience.map((job) => (
+    <li>
+      <h3>{job.role}, {job.company}</h3>
+      <p class="doc-meta">{job.period}. {job.location}.</p>
+      <ul class="job-points">
+        {job.bullets.map((b) => <li>{b}</li>)}
+      </ul>
+    </li>
+  ))}
+</ol>
+<h3>Toolkit</h3>
+<dl class="toolkit">
+  {toolkit.map((t) => (
+    <div>
+      <dt>{t.group}</dt>
+      <dd>{t.items.join(', ')}</dd>
+    </div>
+  ))}
+</dl>
