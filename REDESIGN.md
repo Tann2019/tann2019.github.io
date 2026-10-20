@@ -60,7 +60,7 @@ Without it, the guestbook keeps notes in the visitor's browser and cursors stay 
 
 `styles.css` is the desktop. It imports the parts other pages can share from `css/` (`tokens`, `base`, `scene`, `bar`, `window`, `doc`), plus the desktop-only partials that sit between them, in the original order. `css/article.css` imports the same shared parts for article pages.
 
-`src/data/`: case study facts (`disdubs`, `gridiron`, `caseStudies`), read by the homepage (windows, icons, launcher, terminal, neofetch), the share cards, the sitemap and the case studies. `posts` sorts the blog (RSS too), formats its dates and makes display titles (`fixGridIron`: National Park reads "GridIron" as "Gridlron"), for the writing window, `/blog/`, the posts and the share cards. `src/redesign/content.ts` has the rest of the desktop's copy: jobs and toolkit (the work-history window and `/about/`; the current job also in the neofetch and the terminal), side projects and the icons.
+`src/data/`: case study facts (`disdubs`, `gridiron`, `caseStudies`), read by the homepage (windows, icons, launcher, terminal, neofetch), the share cards, the sitemap and the case studies. `posts` sorts the blog (RSS too), formats its dates and makes display titles (`fixGridIron`: National Park reads "GridIron" as "Gridlron"), for the writing window, `/blog/`, the posts and the share cards. `src/redesign/content.ts` has the rest of the desktop's copy: jobs and toolkit (the work-history window and `/about/`; the current job also in the neofetch, the terminal and `/about/`'s header; the toolkit also in every page's Person JSON-LD), side projects and the icons.
 
 ## Article kit
 
