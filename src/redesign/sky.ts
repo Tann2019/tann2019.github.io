@@ -1,6 +1,7 @@
 // The live sky over Billings, and the desktop theme generated from it.
 // Sky colors come from dynamic-sky's single-scattering model (Apache-2.0, github.com/aakaashjois/dynamic-sky).
 import 'dynamic-sky';
+import { THEME_VARS, type ThemeVar } from './theme';
 
 export const BILLINGS = { lat: 45.7833, lon: -108.5007, tz: 'America/Denver' };
 
@@ -356,20 +357,29 @@ export function paintSky(svg: SVGSVGElement, date: Date): SkySnapshot {
 
 /** Write the generated theme onto :root, the way pywal writes a palette for every app. */
 export function applyTheme(inks: Keyframe, sky: { top: string; mid: string; horizon: string }) {
-  const root = document.documentElement.style;
   const rgb = (hex: string) => hexToRgb(hex).join(' ');
-  root.setProperty('--bg', inks.bg);
-  root.setProperty('--bg-rgb', rgb(inks.bg));
-  root.setProperty('--fg', inks.fg);
-  root.setProperty('--fg-rgb', rgb(inks.fg));
-  root.setProperty('--muted', inks.muted);
-  root.setProperty('--accent', inks.accent);
-  root.setProperty('--accent-rgb', rgb(inks.accent));
-  root.setProperty('--line', inks.line);
-  // Eight swatches sampled from the sky and the theme, shown in neofetch.
-  [sky.top, sky.mid, sky.horizon, inks.sun, inks.moon, inks.accent, inks.muted, inks.line].forEach((color, i) => {
-    root.setProperty(`--c${i}`, color);
-  });
+  // Typed against THEME_VARS, so the list theme.ts saves and restores can't miss one.
+  const theme: Record<ThemeVar, string> = {
+    '--bg': inks.bg,
+    '--bg-rgb': rgb(inks.bg),
+    '--fg': inks.fg,
+    '--fg-rgb': rgb(inks.fg),
+    '--muted': inks.muted,
+    '--accent': inks.accent,
+    '--accent-rgb': rgb(inks.accent),
+    '--line': inks.line,
+    // Eight swatches sampled from the sky and the theme, shown in neofetch.
+    '--c0': sky.top,
+    '--c1': sky.mid,
+    '--c2': sky.horizon,
+    '--c3': inks.sun,
+    '--c4': inks.moon,
+    '--c5': inks.accent,
+    '--c6': inks.muted,
+    '--c7': inks.line,
+  };
+  const root = document.documentElement.style;
+  for (const name of THEME_VARS) root.setProperty(name, theme[name]);
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute('content', sky.top);
 }

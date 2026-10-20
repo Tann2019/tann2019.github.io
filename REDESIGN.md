@@ -56,7 +56,7 @@ Without it, the guestbook keeps notes in the visitor's browser and cursors stay 
 
 ## Code
 
-`src/redesign/`: `sky` (sun math, scattering colors, theme), `land` (ridges), `weather` (clouds, rain and snow, and the desktop's Open-Meteo fetch), `scene` (paints all three for one moment, and saves the theme), `theme` (the theme kept in sessionStorage between pages), `wm` (windows, workspaces, launcher, lock), `desktop` (icons), `terminal`, `radio`, `chess/*`, `apps/*` (synth, guestbook, cursors), `article` (an article page's scene, sun line and clock).
+`src/redesign/`: `sky` (sun math, scattering colors, theme), `land` (ridges), `weather` (clouds, rain and snow, and the desktop's Open-Meteo fetch), `scene` (paints all three for one moment, and saves the theme), `theme` (the theme kept in sessionStorage between pages; `RestoreTheme.astro` puts it back before first paint), `wm` (windows, workspaces, launcher, lock), `desktop` (icons), `terminal`, `radio`, `chess/*`, `apps/*` (synth, guestbook, cursors), `article` (an article page's scene, sun line and clock).
 
 `styles.css` is the desktop. It imports the parts other pages can share from `css/` (`tokens`, `base`, `scene`, `bar`, `window`, `doc`), plus the desktop-only partials that sit between them, in the original order. `css/article.css` imports the same shared parts for article pages.
 
@@ -64,7 +64,7 @@ Without it, the guestbook keeps notes in the visitor's browser and cursors stay 
 
 ## Article kit
 
-`src/layouts/ArticleLayout.astro`, `src/components/article/`, `src/redesign/css/article.css` and `src/redesign/article.ts`. The sky and a cut-down bar, a glass header (`ArticleHead`, `StatRow`), then one tall window that scrolls with the page, holding `Chapter`, `Figure`, `KeyRows`, `Ledger`, `Note` and `PrevNext`. The layout makes the BreadcrumbList from the breadcrumb in the window's title bar, and a head script restores the last page's theme before first paint. Preview any time of day with `?at=18:50` (dev only).
+`src/layouts/ArticleLayout.astro`, `src/components/article/`, `src/redesign/css/article.css` and `src/redesign/article.ts`. The sky and a cut-down bar, a glass header (`ArticleHead`, `StatRow`), then one tall window that scrolls with the page, holding `Chapter`, `Figure`, `KeyRows`, `Ledger`, `Note` and `PrevNext`. The layout makes the BreadcrumbList from the breadcrumb in the window's title bar. Before first paint it restores the last page's theme and holds back the land and the bar's sun line and clock (and the sky, with no theme to restore) until `article.ts` paints, then fades them in. Preview any time of day with `?at=18:50` (dev only).
 
 To add a case study:
 

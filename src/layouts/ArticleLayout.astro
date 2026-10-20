@@ -5,7 +5,7 @@ import type { ComponentProps } from 'astro/types';
 import Seo from '../components/Seo.astro';
 import TopBar from '../components/article/TopBar.astro';
 import Wallpaper from '../redesign/Wallpaper.astro';
-import { THEME_KEY } from '../redesign/theme';
+import RestoreTheme from '../redesign/RestoreTheme.astro';
 import '../redesign/css/article.css';
 
 type Props = ComponentProps<typeof Seo> & {
@@ -47,13 +47,14 @@ const pageSchema = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
     <script is:inline>document.documentElement.classList.remove('no-js');</script>
     <Seo {...seo} schema={[...pageSchema, breadcrumbs]} />
     <meta name="theme-color" content="#1f5fb6" />
-    {/* The last page's theme, before first paint. article.ts repaints for now right after. See src/redesign/theme.ts. */}
-    <script is:inline define:vars={{ key: THEME_KEY }}>
-      try {
-        const theme = JSON.parse(sessionStorage.getItem(key));
-        for (const k in theme) if (k.startsWith('--') && theme[k]) document.documentElement.style.setProperty(k, theme[k]);
-        if (theme.color) document.querySelector('meta[name="theme-color"]').setAttribute('content', theme.color);
-      } catch {}
+    <RestoreTheme />
+    {/* Held back until article.ts has painted, then faded in (see .scene-pending in article.css): the land and the
+        bar's live text, and the sky too when there was none to restore. Scripts only, so the no-JS page is untouched.
+        The timeout covers an article.ts that never runs. */}
+    <script is:inline>
+      document.documentElement.classList.add('scene-pending');
+      if (!document.documentElement.style.getPropertyValue('--sky')) document.documentElement.classList.add('sky-pending');
+      setTimeout(() => document.documentElement.classList.remove('scene-pending', 'sky-pending'), 3000);
     </script>
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

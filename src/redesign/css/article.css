@@ -36,6 +36,26 @@ html {
   opacity: var(--sky-night, 0);
 }
 
+/* The head script holds these back until article.ts has painted, so the land and the bar's sun line and clock fade in
+   instead of popping in a frame after the sky. With no theme to restore, the day sky would be a wrong guess half the
+   time, so the night base stands in for it. */
+.scene-pending #land,
+.scene-pending .bar-right,
+.sky-pending #sky {
+  opacity: 0;
+}
+
+.sky-pending #sky-base {
+  opacity: 1 !important;
+}
+
+#sky-base,
+#sky,
+#land,
+.bar-right {
+  transition: opacity 0.3s ease;
+}
+
 /* paintSky places these and sets their opacity inline. */
 #sky-sun,
 #sky-moon,
@@ -835,9 +855,13 @@ html.no-js {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  #sky-base,
+  #sky,
   #sky-sun,
   #sky-moon,
-  #sky-stars {
+  #sky-stars,
+  #land,
+  .bar-right {
     transition: none !important;
   }
 }

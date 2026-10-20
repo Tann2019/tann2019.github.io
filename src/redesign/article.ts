@@ -104,10 +104,15 @@ function setupLoops() {
 }
 
 const land = document.querySelector<HTMLCanvasElement>('#land')!;
-setupLand(land, { stableHeight: true });
-fitWallpaper(wallpaper);
-refresh();
-showWeather();
+try {
+  setupLand(land, { stableHeight: true });
+  fitWallpaper(wallpaper);
+  refresh();
+  showWeather();
+} finally {
+  // The first paint is in: let the head script's held-back land, sky and bar text fade in, even if painting threw.
+  document.documentElement.classList.remove('scene-pending', 'sky-pending');
+}
 setupStuckBar();
 setupScrollers();
 setupLoops();
