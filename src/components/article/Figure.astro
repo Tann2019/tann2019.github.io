@@ -1,6 +1,7 @@
 ---
 // A numbered figure. Web screens sit in a small window titled with what they show; iOS screens in a phone bezel.
-// Images go out as AVIF and WebP at a few widths; a video is a muted loop that article.ts plays only on screen.
+// Images go out as AVIF and WebP at a few widths; a video is a muted loop that article.ts plays only on screen, with
+// a pause button it shows once it runs.
 import { Picture } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 
@@ -22,7 +23,7 @@ interface Props {
   frame?: 'window' | 'phone';
   /** The window frame's title. */
   title?: string;
-  /** A muted loop instead of a screenshot. Without JS, and under reduced motion until pressed, its poster shows. */
+  /** A muted loop instead of a screenshot. Without JS, and under reduced motion until played, its poster shows. */
   video?: Loop;
   /** Out of the text column to 64rem. Window screenshots do by default. */
   wide?: boolean;
@@ -46,7 +47,12 @@ const label = n === undefined ? null : `Fig. ${String(n).padStart(2, '0')}`;
     {frame === 'window' && title && <div class="fig-bar">{title}</div>}
     {
       video ? (
-        <video src={video.src} poster={video.poster} width={video.width} height={video.height} muted loop playsinline preload="none" data-loop aria-label={alt}></video>
+        <>
+          <video src={video.src} poster={video.poster} width={video.width} height={video.height} muted loop playsinline preload="none" data-loop aria-label={alt}></video>
+          <button type="button" class="fig-play" aria-label="Pause the clip" hidden>
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path class="i-pause" d="M5.5 4v8M10.5 4v8"></path><path class="i-play" d="M5 3.5v9l7.5-4.5z"></path></svg>
+          </button>
+        </>
       ) : (
         <Picture src={src!} alt={alt} formats={['avif', 'webp']} fallbackFormat="webp" widths={widths} sizes={sizes} loading="lazy" decoding="async" />
       )

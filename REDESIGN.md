@@ -68,14 +68,14 @@ Without it, the guestbook keeps notes in the visitor's browser and cursors stay 
 
 To add a case study:
 
-1. Its facts in `src/data/<slug>.ts`, added to `caseStudies`: title, lede, meta, stats, `published` and `modified` (JSON-LD, `article:*` tags, sitemap `lastmod`), plus the homepage window's and share card's copy.
+1. Its facts in `src/data/<slug>.ts`, added to `caseStudies` (which also lists it in the sitemap): title, lede, meta, stats, `published` and `modified` (JSON-LD, `article:*` tags, sitemap `lastmod`), plus the homepage window's and share card's copy.
 2. Its homepage window: `APPS` in `wm.ts`, plus its icon and `<Win>` in `index.astro`.
 3. `src/pages/work/<slug>.astro` on `ArticleLayout`, with `name`, `app` (× goes to `/#<app>`), `icon` and the Seo props. Copy `disdubs.astro`. Page-only pieces go in the page's `<style>`, colored with the theme tokens.
 4. `npm run og` for its share card.
 
 Figures: PNG masters in `src/assets/work/<slug>/`, passed as `src`, ship as lazy AVIF and WebP with their size set. Web screens get `frame="window"` (the default, out to 64rem, `title` names the screen); iOS screens `frame="phone"` (a 280px bezel). Number them with `n` in document order.
 
-A loop: `video={{ src, poster, width, height }}`, both files in `public/work/<slug>/`. It's muted and `preload="none"`, and `article.ts` plays it only while it's on screen. Under reduced motion it waits behind its controls; without JS the poster shows. Encode H.264 with no audio and `+faststart`, shown at its own width at most (Gridiron's: 540px, 4.2s, 42 KB).
+A loop: `video={{ src, poster, width, height }}`, both files in `public/work/<slug>/`. It's muted and `preload="none"`, and `article.ts` plays it only while it's on screen, with a pause button (WCAG 2.2.2). Under reduced motion, even when it's turned on mid-visit, it stops on its poster until played; without JS the poster shows. Encode H.264 with no audio and `+faststart`, shown at its own width at most (Gridiron's: 540px, 4.2s, 42 KB).
 
 After a build, `npm run check:overflow` loads the built pages at 320, 375, 768 and 1280px and fails if any scrolls sideways.
 

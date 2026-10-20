@@ -95,7 +95,7 @@ const schema = {
     src={draftRoom}
     n={1}
     title="Draft room"
-    alt="The web draft room: two nine-player rosters side by side, the team on the clock between them"
+    alt="The web draft room: two nine-player rosters side by side, this round's NFL team (SF) between them"
   >
     The live draft room. Same state, every device.
   </Figure>
@@ -238,7 +238,7 @@ const schema = {
       frame="phone"
       alt="The iOS draft room in round 8 of 10: the pick clock at 26s, the opponent on the clock, and a full nine-player roster"
     >
-      Expo on iOS, mid-draft. The pick clock reads 26s.
+      Expo on iOS, <span class="nowrap">mid-draft.</span> The pick clock reads 26s.
     </Figure>
   </Chapter>
 
@@ -254,6 +254,11 @@ const schema = {
 
 <style>
   /* Gridiron's own pieces, colored from the sky theme. */
+
+  /* The centred phone caption would split "mid-draft" at its hyphen. */
+  .nowrap {
+    white-space: nowrap;
+  }
 
   /* ---------- Format × modifiers --------------------------------------- */
   .formula {

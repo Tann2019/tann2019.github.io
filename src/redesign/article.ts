@@ -18,7 +18,8 @@ function refresh() {
   const now = new Date();
   paintScene(wallpaper, at ? billingsDateAt(Number(at[1]) * 60 + Number(at[2]), now) : now);
   setText('bar-sun-text', nextSunLine(now));
-  setText('bar-clock', `${formatShortDay(now)}  ${formatTime(now)}`);
+  setText('bar-day', formatShortDay(now));
+  setText('bar-time', formatTime(now));
 }
 
 function showWeather() {
@@ -60,22 +61,46 @@ function setupScrollers() {
   document.fonts.ready.then(update);
 }
 
-/** Figure loops play only while on screen. Under reduced motion they wait for the visitor to press play. */
+/**
+ * Figure loops play only while on screen, and each has a pause button (WCAG 2.2.2). One the visitor stopped stays
+ * stopped. Under reduced motion, turned on before or during the visit, they stop and wait for the visitor to press play.
+ */
 function setupLoops() {
-  const loops = document.querySelectorAll<HTMLVideoElement>('video[data-loop]');
+  const loops = [...document.querySelectorAll<HTMLVideoElement>('video[data-loop]')];
   if (!loops.length) return;
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    loops.forEach((v) => (v.controls = true));
-    return;
-  }
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const onScreen = new Set<HTMLVideoElement>();
+  const stopped = new Set<HTMLVideoElement>(reduce.matches ? loops : []);
+  const set = (v: HTMLVideoElement, stop: boolean) => {
+    if (stop) stopped.add(v);
+    else stopped.delete(v);
+    const fig = v.closest('.fig')!;
+    fig.classList.toggle('is-stopped', stop);
+    fig.querySelector('.fig-play')!.setAttribute('aria-label', stop ? 'Play the clip' : 'Pause the clip');
+    if (stop || !onScreen.has(v)) v.pause();
+    // Refused, as in Low Power Mode: show play, since a press is a gesture and will be let through. AbortError is
+    // only a pause() landing before the play started.
+    else v.play().catch((e: DOMException) => e.name !== 'AbortError' && set(v, true));
+  };
   const io = new IntersectionObserver((entries) => {
     for (const e of entries) {
       const v = e.target as HTMLVideoElement;
-      if (e.isIntersecting) v.play().catch(() => {});
-      else v.pause();
+      if (e.isIntersecting) onScreen.add(v);
+      else onScreen.delete(v);
+      set(v, stopped.has(v));
     }
   });
-  loops.forEach((v) => io.observe(v));
+  for (const v of loops) {
+    const btn = v.closest('.fig')!.querySelector<HTMLButtonElement>('.fig-play')!;
+    const toggle = () => set(v, !stopped.has(v));
+    btn.addEventListener('click', toggle);
+    v.addEventListener('click', toggle);
+    btn.hidden = false;
+    set(v, stopped.has(v));
+    io.observe(v);
+  }
+  // A changed setting is a fresh answer for every loop, over any one the visitor paused or played.
+  reduce.addEventListener('change', () => loops.forEach((v) => set(v, reduce.matches)));
 }
 
 const land = document.querySelector<HTMLCanvasElement>('#land')!;

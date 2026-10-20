@@ -397,6 +397,7 @@ html {
 }
 
 .fig-frame {
+  position: relative;
   overflow: hidden;
   border-radius: 8px;
   border: 1px solid rgb(var(--fg-rgb) / 0.12);
@@ -450,6 +451,70 @@ html {
 .fig-video.fig-window :is(.fig-frame, figcaption) {
   max-width: calc(var(--fig-w) + 2px);
   margin-inline: auto;
+}
+
+.fig-video video {
+  cursor: pointer;
+}
+
+/* A loop's pause button, which article.ts shows: one of the window's controls, or on a phone's screen. */
+.fig-play {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(var(--bg-rgb) / 0.85);
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.fig-bar ~ .fig-play {
+  top: 2px;
+  right: 4px;
+  bottom: auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: none;
+  color: var(--muted);
+}
+
+.fig-bar ~ .fig-play:hover {
+  background: rgb(var(--fg-rgb) / 0.1);
+  color: var(--fg);
+}
+
+.fig-video .fig-bar {
+  padding-right: 36px;
+}
+
+/* Inside, since the frame clips. */
+.fig-play:focus-visible {
+  outline-offset: -2px;
+}
+
+.fig-play svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.fig-play .i-play {
+  fill: currentColor;
+}
+
+.fig.is-stopped .i-pause,
+.fig:not(.is-stopped) .i-play {
+  display: none;
 }
 
 .fig figcaption {
@@ -737,6 +802,13 @@ html {
   .page-foot {
     width: calc(100% - 12px);
     margin-bottom: 6px;
+  }
+}
+
+/* The time alone, so the page's chip keeps its whole name. */
+@media (max-width: 350px) {
+  #bar-day {
+    display: none;
   }
 }
 
