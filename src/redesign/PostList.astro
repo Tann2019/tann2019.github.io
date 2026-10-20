@@ -1,6 +1,6 @@
 ---
 // Every post, newest first: the desktop's writing window and /blog/. Styled by .posts in css/doc.css.
-import { postDate, type Post } from '../data/posts';
+import { displayTitle, isoDay, postDate, type Post } from '../data/posts';
 
 interface Props {
   posts: Post[];
@@ -12,9 +12,9 @@ const { posts } = Astro.props;
   {posts.map((post) => (
     <li>
       <a href={`/blog/${post.id}/`}>
-        <span class="post-title">{post.data.title}</span>
+        <span class="post-title">{displayTitle(post)}</span>
         <span class="post-desc">{post.data.description}</span>
-        <time class="doc-meta" datetime={post.data.pubDate.toISOString().slice(0, 10)}>{postDate.format(post.data.pubDate)}</time>
+        <time class="doc-meta" datetime={isoDay(post.data.pubDate)}>{postDate.format(post.data.pubDate)}</time>
       </a>
     </li>
   ))}

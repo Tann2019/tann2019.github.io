@@ -3,8 +3,6 @@ import type { ComponentProps } from 'astro/types';
 import Seo from '../components/Seo.astro';
 
 type Props = ComponentProps<typeof Seo>;
-
-const currentPath = Astro.url.pathname;
 ---
 
 <!doctype html>
@@ -32,9 +30,9 @@ const currentPath = Astro.url.pathname;
           <span class="logo-accent">T</span>S
         </a>
         <div class="nav-links">
-          <a href="/" class:list={[{ active: currentPath === '/' }]}>Home</a>
-          <a href="/about/" class:list={[{ active: currentPath.startsWith('/about') }]}>About</a>
-          <a href="/blog/" class:list={[{ active: currentPath.startsWith('/blog') }]}>Blog</a>
+          <a href="/">Home</a>
+          <a href="/about/">About</a>
+          <a href="/blog/">Blog</a>
         </div>
       </div>
     </nav>
@@ -204,13 +202,11 @@ const currentPath = Astro.url.pathname;
     transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .nav-links a:hover,
-  .nav-links a.active {
+  .nav-links a:hover {
     color: var(--text);
   }
 
-  .nav-links a:hover::after,
-  .nav-links a.active::after {
+  .nav-links a:hover::after {
     width: 100%;
   }
 
