@@ -1,0 +1,25 @@
+---
+// A schedule: when, what, why. A real table, with column names for screen readers only, since the rows read clearly
+// without them. On phones each row stacks. The roles are explicit because Safari drops a table's semantics once
+// its rows are restyled as grids.
+interface Props {
+  head: [string, string, string];
+  rows: [string, string, string][];
+}
+const { head, rows } = Astro.props;
+---
+
+<table class="ledger" role="table">
+  <thead class="sr-only" role="rowgroup">
+    <tr role="row">{head.map((h) => <th scope="col" role="columnheader">{h}</th>)}</tr>
+  </thead>
+  <tbody role="rowgroup">
+    {rows.map(([key, what, why]) => (
+      <tr role="row">
+        <td class="ledger-key" role="cell">{key}</td>
+        <td class="ledger-what" role="cell">{what}</td>
+        <td role="cell">{why}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>

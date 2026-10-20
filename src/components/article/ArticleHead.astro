@@ -1,0 +1,43 @@
+---
+// The page's header: a glass panel over the sky, like the desktop's name panel. Put it in ArticleLayout's head slot.
+// An optional aside sits right of the title on wide screens; anything else (a StatRow) follows the meta.
+import Seps from './Seps.astro';
+
+interface Props {
+  title: string;
+  lede: string;
+  /** Year, role, platform, status and the like. */
+  meta?: { label: string; value: string }[];
+  /** The product's own site, as a button under the lede. */
+  site?: { href: string; name: string };
+}
+const { title, lede, meta = [], site } = Astro.props;
+---
+
+<header class="ahead">
+  <div class="ahead-main">
+    <h1 class="ahead-title">{title}</h1>
+    <p class="ahead-lede">{lede}</p>
+    {site && (
+      <p class="ahead-actions">
+        <a class="btn" href={site.href} target="_blank" rel="noopener">{site.name}</a>
+      </p>
+    )}
+  </div>
+  {Astro.slots.has('aside') && (
+    <div class="ahead-aside">
+      <slot name="aside" />
+    </div>
+  )}
+  {meta.length > 0 && (
+    <dl class="ahead-meta">
+      {meta.map((m) => (
+        <div>
+          <dt>{m.label}</dt>
+          <dd><Seps text={m.value} /></dd>
+        </div>
+      ))}
+    </dl>
+  )}
+  <slot />
+</header>

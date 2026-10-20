@@ -55,9 +55,13 @@ Without it, the guestbook keeps notes in the visitor's browser and cursors stay 
 
 ## Code
 
-`src/redesign/`: `sky` (sun math, scattering colors, theme), `land` (ridges), `weather`, `scene` (paints all three for one moment), `wm` (windows, workspaces, launcher, lock), `desktop` (icons), `terminal`, `radio`, `chess/*`, `apps/*` (synth, guestbook, cursors).
+`src/redesign/`: `sky` (sun math, scattering colors, theme), `land` (ridges), `weather`, `scene` (paints all three for one moment, and saves the theme), `theme` (the theme kept in sessionStorage between pages), `wm` (windows, workspaces, launcher, lock), `desktop` (icons), `terminal`, `radio`, `chess/*`, `apps/*` (synth, guestbook, cursors), `article` (an article page's scene, sun line and clock).
 
-`styles.css` is the desktop. It imports the parts other pages can share from `css/` (`tokens`, `base`, `scene`, `bar`, `window`, `doc`), plus the desktop-only partials that sit between them, in the original order.
+`styles.css` is the desktop. It imports the parts other pages can share from `css/` (`tokens`, `base`, `scene`, `bar`, `window`, `doc`), plus the desktop-only partials that sit between them, in the original order. `css/article.css` imports the same shared parts for article pages.
+
+`src/layouts/ArticleLayout.astro` and `src/components/article/` are the article kit: the sky and a cut-down bar, a glass header (`ArticleHead`, `StatRow`), then one tall window that scrolls with the page, holding `Chapter`, `Figure` (AVIF and WebP, window or phone frame, or a muted loop), `KeyRows`, `Ledger`, `Note` and `PrevNext`. The layout makes the BreadcrumbList from the breadcrumb in the window's title bar, and a head script restores the last page's theme before first paint. Preview any time of day with `?at=18:50` (dev only).
+
+`npm run check:overflow` loads the built pages at 320, 375, 768 and 1280px and fails if any scrolls sideways.
 
 `src/data/`: case study facts (`disdubs`, `gridiron`, `caseStudies`), read by the homepage (windows, icons, launcher, neofetch) and the share cards.
 

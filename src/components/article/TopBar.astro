@@ -1,0 +1,32 @@
+---
+// The desktop's bar, cut down for a page: the mesa goes back to the desktop, one chip names this page, and
+// article.ts fills in the sun line and clock. Phones keep the mesa, the chip and the clock.
+import FileIcon from '../../redesign/FileIcon.astro';
+
+interface Props {
+  /** The page's name on its chip. */
+  name: string;
+  /** The chip's FileIcon, the same one its desktop icon uses. */
+  icon: string;
+}
+const { name, icon } = Astro.props;
+---
+
+<header class="bar" id="bar">
+  <div class="bar-left">
+    <a class="bar-icon bar-launch" href="/" aria-label="Desktop">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="16.5" cy="7.5" r="3"></circle><path d="M2 19l3.6-7h12.8l3.6 7z"></path></svg>
+    </a>
+  </div>
+  <div class="taskbar">
+    <span class="task is-current"><FileIcon name={icon} /><span>{name}</span></span>
+  </div>
+  <div class="bar-right">
+    <span class="bar-weather" id="bar-weather" hidden></span>
+    <span class="bar-sun" data-live>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="4.5"></circle><path d="M3 20h18"></path></svg>
+      <span id="bar-sun-text"></span>
+    </span>
+    <span class="bar-clock" id="bar-clock" data-live></span>
+  </div>
+</header>

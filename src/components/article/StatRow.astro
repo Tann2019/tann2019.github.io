@@ -1,0 +1,29 @@
+---
+// Headline numbers, in the same markup as the desktop window's .stats so the two read alike. A note goes under its
+// label; a caption above the row and a footnote (the default slot) under it are optional.
+import type { Stat } from '../../data/case-studies';
+
+interface Props {
+  stats: (Stat & { note?: string })[];
+  caption?: string;
+}
+const { stats, caption } = Astro.props;
+---
+
+<div class="statrow">
+  {caption && <p class="statrow-cap">{caption}</p>}
+  <ul class="stats">
+    {stats.map((s) => (
+      <li>
+        <strong>{s.value}</strong>
+        <span>{s.label}</span>
+        {s.note && <span class="stats-note">{s.note}</span>}
+      </li>
+    ))}
+  </ul>
+  {Astro.slots.has('default') && (
+    <p class="statrow-foot">
+      <slot />
+    </p>
+  )}
+</div>

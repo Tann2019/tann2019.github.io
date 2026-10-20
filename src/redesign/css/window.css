@@ -76,7 +76,8 @@
   gap: 2px;
 }
 
-.win-ctl button {
+/* Links too: a case study's × is a link back to the desktop. */
+.win-ctl :is(button, a) {
   display: grid;
   place-items: center;
   width: 26px;
@@ -84,6 +85,7 @@
   border: 0;
   border-radius: 7px;
   background: none;
+  color: inherit;
   cursor: pointer;
 }
 
@@ -96,7 +98,7 @@
   stroke-linecap: round;
 }
 
-.win-ctl button:hover {
+.win-ctl :is(button, a):hover {
   background: rgb(var(--fg-rgb) / 0.1);
   color: var(--fg);
 }

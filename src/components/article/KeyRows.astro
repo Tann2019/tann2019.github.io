@@ -1,0 +1,18 @@
+---
+// Key and value rows, like a stack list. Two columns, one on phones.
+import Seps from './Seps.astro';
+
+interface Props {
+  rows: { key: string; value: string }[];
+}
+const { rows } = Astro.props;
+---
+
+<dl class="keyrows">
+  {rows.map((r) => (
+    <div>
+      <dt>{r.key}</dt>
+      <dd><Seps text={r.value} /></dd>
+    </div>
+  ))}
+</dl>

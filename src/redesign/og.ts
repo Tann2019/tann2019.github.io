@@ -4,7 +4,7 @@
 import { billingsDateAt, formatTime, paintSky } from './sky';
 import { setupLand } from './land';
 import { paintScene } from './scene';
-import { setWeather, setupWeather } from './weather';
+import { lightWeather, setWeather, setupWeather } from './weather';
 
 declare global {
   interface Window {
@@ -59,7 +59,7 @@ function paint() {
   setWeather({ code: Number(cloud) > 0 ? 2 : 0, cloud: Number(cloud), rain: 0, snow: 0, wind: 6 });
 
   panSky(svg, date, Number(focus));
-  paintScene(svg, date);
+  paintScene(svg, date, lightWeather);
 
   // Time only: a weekday here would compete with a post's own date.
   document.querySelectorAll('[data-og="clock"]').forEach((el) => (el.textContent = formatTime(date)));

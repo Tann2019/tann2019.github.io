@@ -1,0 +1,51 @@
+---
+// A numbered figure. Web screens sit in a small window titled with what they show; iOS screens in a phone bezel.
+// Images go out as AVIF and WebP at a few widths; a video is a muted loop that article.ts plays only on screen.
+import { Picture, getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  /** Printed as "Fig. 01". */
+  n?: number;
+  frame?: 'window' | 'phone';
+  /** The window frame's title. */
+  title?: string;
+  /** A path under public/ to a muted loop. `src` is its poster. */
+  video?: string;
+  /** Out of the text column to 64rem. Window figures do by default. */
+  wide?: boolean;
+}
+const { src, alt, n, frame = 'window', title, video, wide = frame === 'window' } = Astro.props;
+const phone = frame === 'phone';
+
+// Widths for 1x to 2x screens: a wide figure shows at up to 64rem (1024px), a column one 44rem, a phone 264px.
+const steps = phone ? [280, 560, 840] : [480, 800, 1200, 1600, 2048];
+const widths = [...steps.filter((w) => w < src.width), Math.min(src.width, steps[steps.length - 1])];
+// The page's 24px gutters, the window's border and its 40px padding; on phones 6px, 2px and 18px.
+const sizes = phone
+  ? '264px'
+  : `(max-width: 760px) calc(100vw - 52px), ${wide ? 'min(64rem, 100vw - 132px)' : 'min(44rem, 100vw - 132px)'}`;
+const poster = video ? await getImage({ src, format: 'webp', width: Math.min(src.width, phone ? 560 : 1600) }) : null;
+const label = n === undefined ? null : `Fig. ${String(n).padStart(2, '0')}`;
+---
+
+<figure class:list={['fig', `fig-${frame}`, { wide }]}>
+  <div class="fig-frame">
+    {frame === 'window' && title && <div class="fig-bar">{title}</div>}
+    {
+      video ? (
+        <video src={video} poster={poster!.src} width={src.width} height={src.height} muted loop playsinline preload="none" data-loop aria-label={alt}></video>
+      ) : (
+        <Picture src={src} alt={alt} formats={['avif', 'webp']} fallbackFormat="webp" widths={widths} sizes={sizes} loading="lazy" decoding="async" />
+      )
+    }
+  </div>
+  {(label || Astro.slots.has('default')) && (
+    <figcaption>
+      {label && <span class="fig-n">{label}</span>}
+      <slot />
+    </figcaption>
+  )}
+</figure>

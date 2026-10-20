@@ -400,14 +400,22 @@ export interface Weather {
   wind: number;
 }
 
-export async function fetchWeather(): Promise<Weather | null> {
-  const CACHE_KEY = 'bigsky-weather-v2';
+const CACHE_KEY = 'bigsky-weather-v2';
+
+/** What fetchWeather got in the last 15 minutes, if anything. Case studies show this and never fetch. */
+export function cachedWeather(): Weather | null {
   try {
     const cached = JSON.parse(sessionStorage.getItem(CACHE_KEY) ?? 'null');
     if (cached && Date.now() - cached.at < 15 * 60000) return cached.weather;
   } catch {
-    // Storage can be blocked; fetch instead.
+    // Storage can be blocked.
   }
+  return null;
+}
+
+export async function fetchWeather(): Promise<Weather | null> {
+  const cached = cachedWeather();
+  if (cached) return cached;
   try {
     const url =
       `https://api.open-meteo.com/v1/forecast?latitude=${BILLINGS.lat}&longitude=${BILLINGS.lon}` +

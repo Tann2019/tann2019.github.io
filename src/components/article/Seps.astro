@@ -1,0 +1,20 @@
+---
+// Text with " · " separators. Overpass's middle dot has no width, so it reads as stuck to the next word; the dot
+// gets a span that article.css sizes. The text itself is unchanged.
+interface Props {
+  text: string;
+}
+const parts = Astro.props.text.split(' · ');
+---
+
+{parts.map((part, i) => (
+  <>
+    {i > 0 && (
+      <>
+        {' '}
+        <span class="sep">·</span>{' '}
+      </>
+    )}
+    {part}
+  </>
+))}
