@@ -1,0 +1,169 @@
+/* The top bar: launcher, workspaces, taskbar, sun line and clock. */
+
+.bar {
+  position: fixed;
+  top: 8px;
+  left: 12px;
+  right: 12px;
+  z-index: 50;
+  height: 40px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 0 5px;
+  font-size: 13.5px;
+  border-radius: var(--radius);
+  background: rgb(var(--bg-rgb) / 0.82);
+  border: 1px solid rgb(var(--fg-rgb) / 0.08);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+}
+
+.bar-left,
+.bar-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bar-right {
+  gap: 12px;
+  padding-right: 2px;
+}
+
+.bar button {
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.bar-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+}
+
+.bar-icon svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.8;
+}
+
+.bar-launch svg {
+  width: 20px;
+  height: 20px;
+  fill: var(--accent);
+  stroke: none;
+}
+
+.bar-icon:hover,
+.bar-sun:hover,
+.bar-ws button:hover,
+.task:hover {
+  background: rgb(var(--fg-rgb) / 0.08);
+}
+
+.bar-ws {
+  display: flex;
+  gap: 2px;
+}
+
+.bar-ws button {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.bar-ws button.has-windows::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 3px;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.bar-ws button[aria-current='true'] {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.taskbar {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.task {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  max-width: 190px;
+  height: 30px;
+  padding: 0 10px 0 6px;
+  border-radius: 7px;
+  color: var(--muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.task svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+}
+
+.task span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task[aria-pressed='true'] {
+  color: var(--fg);
+  background: rgb(var(--fg-rgb) / 0.1);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.task.is-min {
+  opacity: 0.6;
+}
+
+.bar-weather,
+.bar-clock {
+  white-space: nowrap;
+  color: var(--fg);
+}
+
+.bar-sun {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 7px;
+  white-space: nowrap;
+  color: var(--muted);
+}
+
+.bar-sun svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+}

@@ -1,0 +1,36 @@
+/* Desktop only: the four workspaces and the float layer above them. */
+
+#workspaces {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ws {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.42s var(--ease), visibility 0s linear 0s;
+}
+
+.ws[data-pos='left'],
+.ws[data-pos='right'] {
+  visibility: hidden;
+  transition: transform 0.42s var(--ease), visibility 0s linear 0.42s;
+}
+
+.ws[data-pos='left'] {
+  transform: translateX(-100%);
+}
+
+.ws[data-pos='right'] {
+  transform: translateX(100%);
+}
+
+#float-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}

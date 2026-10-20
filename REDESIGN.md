@@ -55,7 +55,11 @@ Without it, the guestbook keeps notes in the visitor's browser and cursors stay 
 
 ## Code
 
-`src/redesign/`: `sky` (sun math, scattering colors, theme), `land` (ridges), `weather`, `wm` (windows, workspaces, launcher, lock), `desktop` (icons), `terminal`, `radio`, `chess/*`, `apps/*` (synth, guestbook, cursors).
+`src/redesign/`: `sky` (sun math, scattering colors, theme), `land` (ridges), `weather`, `scene` (paints all three for one moment), `wm` (windows, workspaces, launcher, lock), `desktop` (icons), `terminal`, `radio`, `chess/*`, `apps/*` (synth, guestbook, cursors).
+
+`styles.css` is the desktop. It imports the parts other pages can share from `css/` (`tokens`, `base`, `scene`, `bar`, `window`, `doc`), plus the desktop-only partials that sit between them, in the original order.
+
+`src/data/`: case study facts (`disdubs`, `gridiron`, `caseStudies`), read by the homepage windows and the share cards.
 
 Credits: sky colors from [dynamic-sky](https://github.com/aakaashjois/dynamic-sky) (Apache-2.0). Weather from [Open-Meteo](https://open-meteo.com). Fonts: National Park, Overpass (Google Fonts, OFL).
 

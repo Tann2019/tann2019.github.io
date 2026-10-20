@@ -1,5 +1,4 @@
 import {
-  applyTheme,
   billingsDateAt,
   billingsMinutes,
   fetchWeather,
@@ -7,7 +6,6 @@ import {
   formatShortDay,
   formatTime,
   nextSunLine,
-  paintSky,
   phaseName,
   skyColorsAt,
   sunPosition,
@@ -15,8 +13,9 @@ import {
 } from './sky';
 import { setupWindowManager } from './wm';
 import { setupDesktop } from './desktop';
-import { paintLand, setupLand } from './land';
-import { forcedWeather, lightWeather, setWeather, setupWeather } from './weather';
+import { setupLand } from './land';
+import { paintScene } from './scene';
+import { forcedWeather, setWeather, setupWeather } from './weather';
 import { mountTerminal } from './terminal';
 import { mountChess } from './chess/board';
 import { mountRadio } from './radio';
@@ -55,11 +54,7 @@ function setText(sel: string, text: string) {
 function refresh() {
   const now = new Date();
   const shown = preview === null ? now : billingsDateAt(preview, now);
-  const snap = paintSky(wallpaper, shown);
-  const sky = { alt: snap.alt, ...skyColorsAt(snap.alt) };
-  applyTheme(snap.inks, sky);
-  paintLand(sky);
-  lightWeather(sky);
+  const snap = paintScene(wallpaper, shown);
 
   // Home: the conky block on the wallpaper follows whatever sky is showing.
   const t = splitTime(shown);

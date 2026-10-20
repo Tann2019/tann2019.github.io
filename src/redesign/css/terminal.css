@@ -1,0 +1,134 @@
+/* Desktop only: the terminal. */
+
+.win[data-app='terminal'] .win-body {
+  overflow: hidden;
+}
+
+.term {
+  height: 100%;
+  overflow: auto;
+  padding: 12px 18px 14px;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.55;
+  cursor: text;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--fg-rgb) / 0.2) transparent;
+}
+
+.term-line {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.term-line b,
+.term-help .t-cmd {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.term-prompt {
+  color: color-mix(in srgb, var(--c3) 55%, var(--fg));
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.term-prompt b {
+  color: var(--accent);
+}
+
+.term-help {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0 3ch;
+  white-space: normal;
+}
+
+.t-dim {
+  color: var(--muted);
+}
+
+.t-dir {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.term-form {
+  display: flex;
+  align-items: baseline;
+  gap: 1ch;
+}
+
+.term-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  caret-color: var(--accent);
+}
+
+.term-input::placeholder {
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+.neofetch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 3ch;
+  margin: 6px 0 14px;
+}
+
+/* Wallpaper inks are too dark to read at night, so the art mixes each one toward the text color. */
+.nf-art {
+  font: inherit;
+  line-height: 1.32;
+  color: color-mix(in srgb, var(--c1) 55%, var(--fg));
+}
+
+/* Swatch slots (sky.ts): c0 sky top, c1 mid sky, c2 horizon, c3 sun, c4 moon, c5 accent, c6 muted, c7 line. */
+.nf-s { color: var(--accent); }
+.nf-m { color: color-mix(in srgb, var(--c1) 45%, var(--fg)); }
+.nf-w { color: var(--fg); }
+.nf-r { color: color-mix(in srgb, var(--c3) 65%, var(--accent)); }
+.nf-g { color: color-mix(in srgb, var(--c6) 55%, var(--fg)); }
+.nf-v { color: color-mix(in srgb, var(--c1) 60%, var(--fg)); }
+
+.nf-info > div {
+  display: flex;
+  gap: 1ch;
+}
+
+.nf-info dt {
+  flex: none;
+  width: 9ch;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.nf-head {
+  font-weight: 700;
+}
+
+.nf-head span {
+  color: var(--accent);
+}
+
+.nf-rule {
+  color: var(--muted);
+}
+
+.nf-info > .nf-swatches {
+  gap: 0;
+  margin-top: 10px;
+}
+
+.nf-swatches span {
+  width: 3ch;
+  height: 1.35em;
+  transition: background-color 0.6s ease;
+}

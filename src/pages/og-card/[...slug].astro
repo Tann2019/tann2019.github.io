@@ -7,17 +7,13 @@ import { getCollection } from 'astro:content';
 import Win from '../../redesign/Win.astro';
 import FileIcon from '../../redesign/FileIcon.astro';
 import Wallpaper from '../../redesign/Wallpaper.astro';
+import { caseStudies, type Stat } from '../../data/case-studies';
 
 interface Scene {
   /** Minutes past midnight, Billings time, on the reference day in og.ts. */
   minutes: number;
   /** Cloud cover, 0-100, the way Open-Meteo reports it. */
   cloud: number;
-}
-
-interface Stat {
-  value: string;
-  label: string;
 }
 
 type Card = { slug: string; scene: Scene } & (
@@ -30,6 +26,11 @@ export async function getStaticPaths() {
   if (!import.meta.env.DEV) return [];
 
   const at = (h: number, m = 0) => h * 60 + m;
+  // Each case study's card has its own time of day. The text comes from src/data/.
+  const projectScenes: Record<string, Scene> = {
+    disdubs: { minutes: at(18, 50), cloud: 20 },
+    'gridiron-duels': { minutes: at(14, 30), cloud: 35 },
+  };
   // Posts get a time of day from their id, so a card never changes unless the post does.
   const postScenes: Scene[] = [
     { minutes: at(9, 40), cloud: 25 },
@@ -47,34 +48,16 @@ export async function getStaticPaths() {
 
   const cards: Card[] = [
     { slug: 'default', kind: 'home', scene: { minutes: at(18, 2), cloud: 55 } },
-    {
-      slug: 'disdubs',
+    ...caseStudies.map((study): Card => ({
+      slug: study.slug,
       kind: 'project',
-      scene: { minutes: at(18, 50), cloud: 20 },
-      app: 'disdubs',
-      icon: 'slate',
-      title: 'DisDubs',
-      lede: 'A group dubbing game inside Discord',
-      stats: [
-        { value: '6,000+', label: 'servers' },
-        { value: '240,000+', label: 'members reached' },
-        { value: '70%', label: 'finished a dub' },
-      ],
-    },
-    {
-      slug: 'gridiron-duels',
-      kind: 'project',
-      scene: { minutes: at(14, 30), cloud: 35 },
-      app: 'gridiron',
-      icon: 'football',
-      title: 'Gridiron Duels',
-      lede: 'Real-time fantasy football drafts',
-      // From the stats block on /work/gridiron-duels/.
-      stats: [
-        { value: '3,400+', label: 'players' },
-        { value: '1,041,000+', label: 'picks made' },
-      ],
-    },
+      scene: projectScenes[study.slug],
+      app: study.app,
+      icon: study.icon,
+      title: study.title,
+      lede: study.card.lede,
+      stats: study.card.stats,
+    })),
     ...posts.map((post): Card => {
       // "Name — Subtitle" titles break at the dash instead of printing it. National Park draws a capital I
       // like an l, so "GridIron" would read "Gridlron".

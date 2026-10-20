@@ -9,14 +9,10 @@ import FileIcon from '../redesign/FileIcon.astro';
 import Wallpaper from '../redesign/Wallpaper.astro';
 import Synth from '../redesign/apps/Synth.astro';
 import Guestbook from '../redesign/apps/Guestbook.astro';
-import {
-  desktopIcons,
-  disdubsReel,
-  disdubsStats,
-  experience,
-  sideProjects,
-  toolkit,
-} from '../redesign/content';
+import { desktopIcons, experience, sideProjects, toolkit } from '../redesign/content';
+import { caseStudies } from '../data/case-studies';
+import { disdubs } from '../data/disdubs';
+import { gridiron } from '../data/gridiron';
 
 const posts = (await getCollection('blog')).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 const postDate = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
@@ -86,10 +82,12 @@ const launcherEntries = [
           '@type': 'ItemList',
           '@id': 'https://tannersteorts.com/#case-studies',
           name: 'Case studies',
-          itemListElement: [
-            { '@type': 'ListItem', position: 1, name: 'DisDubs', url: 'https://tannersteorts.com/work/disdubs/' },
-            { '@type': 'ListItem', position: 2, name: 'Gridiron Duels', url: 'https://tannersteorts.com/work/gridiron-duels/' },
-          ],
+          itemListElement: caseStudies.map((s, i) => ({
+            '@type': 'ListItem',
+            position: i + 1,
+            name: s.title,
+            url: `https://tannersteorts.com${s.href}`,
+          })),
         },
       ]}
     />
@@ -213,19 +211,19 @@ const launcherEntries = [
 
       <Win app="disdubs" title="DisDubs">
         <article class="doc">
-          <h2 class="doc-title">DisDubs</h2>
-          <p class="doc-lede">A group dubbing game inside Discord. Pick a scene, hand out parts, and the voice channel performs it together.</p>
-          <p class="doc-meta">Discord Activity and Steam. Solo build, 2026.</p>
+          <h2 class="doc-title">{disdubs.title}</h2>
+          <p class="doc-lede">{disdubs.window.lede}</p>
+          <p class="doc-meta">{disdubs.window.meta}</p>
 
           <ul class="stats">
-            {disdubsStats.map((s) => (
+            {disdubs.window.stats.map((s) => (
               <li><strong>{s.value}</strong><span>{s.label}</span></li>
             ))}
           </ul>
 
           <h3>How a dub gets made</h3>
           <ol class="reel">
-            {disdubsReel.map((r) => (
+            {disdubs.reel.map((r) => (
               <li>
                 <img src={r.img} alt={r.alt} loading="lazy" width="320" height="180" />
                 <span>{r.title}</span>
@@ -240,17 +238,17 @@ const launcherEntries = [
           </p>
 
           <div class="doc-actions">
-            <a class="btn btn-primary" href="/work/disdubs/">Read the case study</a>
-            <a class="btn" href="https://disdubs.com/" target="_blank" rel="noopener">disdubs.com</a>
+            <a class="btn btn-primary" href={disdubs.href}>Read the case study</a>
+            <a class="btn" href={disdubs.site.href} target="_blank" rel="noopener">{disdubs.site.name}</a>
           </div>
         </article>
       </Win>
 
       <Win app="gridiron" title="Gridiron Duels">
         <article class="doc">
-          <h2 class="doc-title">Gridiron Duels</h2>
-          <p class="doc-lede">Live fantasy football drafts against friends or the CPU, on web and mobile.</p>
-          <p class="doc-meta">Laravel, React, Expo, WebSockets, Stripe.</p>
+          <h2 class="doc-title">{gridiron.title}</h2>
+          <p class="doc-lede">{gridiron.window.lede}</p>
+          <p class="doc-meta">{gridiron.window.meta}</p>
           <dl class="facts">
             <div>
               <dt>Architecture</dt>
@@ -266,8 +264,8 @@ const launcherEntries = [
             </div>
           </dl>
           <div class="doc-actions">
-            <a class="btn btn-primary" href="/work/gridiron-duels/">Read the case study</a>
-            <a class="btn" href="https://gridiron-duels.com/" target="_blank" rel="noopener">gridiron-duels.com</a>
+            <a class="btn btn-primary" href={gridiron.href}>Read the case study</a>
+            <a class="btn" href={gridiron.site.href} target="_blank" rel="noopener">{gridiron.site.name}</a>
           </div>
         </article>
       </Win>

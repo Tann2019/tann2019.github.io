@@ -1,0 +1,49 @@
+/* The scene behind the page: sky, wallpaper art, and the land, cloud and precipitation canvases. */
+
+/* Night base under the scattering sky. sky.ts fades it in as the sun goes down; the scattering
+   layer screens over it, so a black scattering result shows navy instead of black. */
+#sky-base,
+#sky {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+#sky-base {
+  background: linear-gradient(to bottom, rgb(10 20 48), rgb(38 56 98));
+}
+
+#sky {
+  mix-blend-mode: screen;
+}
+
+/* Its own compositing layer, so moving a window doesn't re-rasterize a thousand SVG shapes.
+   Measured on a 2514px screen: 971ms per frame without this, 5ms with it. */
+#wallpaper {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 0;
+  will-change: transform;
+  contain: strict;
+}
+
+#clouds,
+#land,
+#precip {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  will-change: transform;
+}
+
+#sky-sun,
+#sky-moon,
+#sky-stars {
+  transition: opacity 0.6s ease;
+}

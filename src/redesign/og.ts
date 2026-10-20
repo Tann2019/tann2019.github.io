@@ -1,9 +1,10 @@
 // One social share card: the homepage's own sky, land and clouds frozen at a set moment, with site UI on top.
 // Loaded by src/pages/og-card/[...slug].astro (dev only). scripts/generate-og.mjs waits for window.__ogReady,
 // then screenshots. Clouds hold still only under prefers-reduced-motion, which the generator emulates.
-import { applyTheme, billingsDateAt, formatTime, paintSky, skyColorsAt } from './sky';
-import { paintLand, setupLand } from './land';
-import { lightWeather, setWeather, setupWeather } from './weather';
+import { billingsDateAt, formatTime, paintSky } from './sky';
+import { setupLand } from './land';
+import { paintScene } from './scene';
+import { setWeather, setupWeather } from './weather';
 
 declare global {
   interface Window {
@@ -58,11 +59,7 @@ function paint() {
   setWeather({ code: Number(cloud) > 0 ? 2 : 0, cloud: Number(cloud), rain: 0, snow: 0, wind: 6 });
 
   panSky(svg, date, Number(focus));
-  const snap = paintSky(svg, date);
-  const sky = { alt: snap.alt, ...skyColorsAt(snap.alt) };
-  applyTheme(snap.inks, sky);
-  paintLand(sky);
-  lightWeather(sky);
+  paintScene(svg, date);
 
   // Time only: a weekday here would compete with a post's own date.
   document.querySelectorAll('[data-og="clock"]').forEach((el) => (el.textContent = formatTime(date)));

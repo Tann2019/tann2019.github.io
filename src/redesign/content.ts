@@ -42,22 +42,6 @@ export const toolkit = [
   { group: 'Tooling', items: ['Vite', 'Azure DevOps', 'GitHub Actions', 'PHPStan', 'Laravel Pint'] },
 ];
 
-export const disdubsStats = [
-  { value: '6,131', label: 'servers opened it in the first month' },
-  { value: '241,502', label: 'members reached' },
-  { value: '4,322', label: 'servers finished a dub' },
-  { value: '100+', label: 'paying subscriptions' },
-];
-
-export const disdubsReel = [
-  { title: 'Pick a scene', img: '/work/disdubs/pick.png', alt: 'The scene picker, showing cover art for the public catalogue' },
-  { title: 'Hand out parts', img: '/work/disdubs/cast.png', alt: 'The casting screen, assigning characters to people in the room' },
-  { title: 'Slate', img: '/work/disdubs/slate.png', alt: 'A clapperboard countdown over the scene, showing take 01' },
-  { title: 'Roll', img: '/work/disdubs/rolling.png', alt: 'The take running, with the script scrolling over the clip' },
-  { title: 'Fix a line', img: '/work/disdubs/booth.png', alt: 'The booth, showing one line’s waveform against the original' },
-  { title: 'Premiere', img: '/work/disdubs/premiere.png', alt: 'The screening view, playing the finished dub back to the room' },
-];
-
 export const sideProjects = [
   { name: 'HourCrew', what: 'Take a photo every hour with your crew. Expo app and Next.js backend in one Turborepo.', stack: 'Expo, Next.js, PostgreSQL, S3' },
   { name: 'Mort', what: 'A local-first AI assistant over Telegram that can spawn Claude Code to open PRs across repos.', stack: 'Telegram, Groq, Claude, Raspberry Pi' },
