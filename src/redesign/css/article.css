@@ -150,7 +150,11 @@ html {
   margin-top: 30px;
 }
 
+/* Columns about as wide as the longest number: StatRow's --widest, in figures, which average 0.6em (16.8px) in
+   National Park bold at 28px. A long one like 1,041,000+ takes fewer columns instead of running into the next, and
+   the 20px gap absorbs the estimate's error. */
 .statrow .stats {
+  grid-template-columns: repeat(auto-fit, minmax(max(130px, var(--widest) * 16.8px), 1fr));
   margin-top: 0;
 }
 

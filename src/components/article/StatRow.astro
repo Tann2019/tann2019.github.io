@@ -8,11 +8,14 @@ interface Props {
   caption?: string;
 }
 const { stats, caption } = Astro.props;
+
+// The longest number in figures, a comma or point counting half: article.css keeps every column at least that wide.
+const widest = Math.max(...stats.map((s) => [...s.value].reduce((n, c) => n + (c === ',' || c === '.' ? 0.5 : 1), 0)));
 ---
 
 <div class="statrow">
   {caption && <p class="statrow-cap">{caption}</p>}
-  <ul class="stats">
+  <ul class="stats" style={`--widest: ${widest}`}>
     {stats.map((s) => (
       <li>
         <strong>{s.value}</strong>
