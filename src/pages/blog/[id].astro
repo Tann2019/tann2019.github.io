@@ -3,7 +3,7 @@ import { render } from 'astro:content';
 import ArticleLayout from '../../layouts/ArticleLayout.astro';
 import ArticleHead from '../../components/article/ArticleHead.astro';
 import PrevNext from '../../components/article/PrevNext.astro';
-import { getPosts, postDate, shortTitle, type Post } from '../../data/posts';
+import { displayTitle, getPosts, isoDay, postDate, shortTitle, type Post } from '../../data/posts';
 import ogCards from '../../redesign/og-cards.json';
 
 export async function getStaticPaths() {
@@ -41,13 +41,12 @@ const cardProps = card in ogCards
     }
   : {};
 
-const day = (d: Date) => d.toISOString().slice(0, 10);
 const meta = [
-  { label: 'Published', value: postDate.format(pubDate), datetime: day(pubDate) },
-  ...(updatedDate ? [{ label: 'Updated', value: postDate.format(updatedDate), datetime: day(updatedDate) }] : []),
+  { label: 'Published', value: postDate.format(pubDate), datetime: isoDay(pubDate) },
+  ...(updatedDate ? [{ label: 'Updated', value: postDate.format(updatedDate), datetime: isoDay(updatedDate) }] : []),
   { label: 'Length', value: `${readTime} min read` },
 ];
-const link = (p?: Post) => p && { href: `/blog/${p.id}/`, title: p.data.title };
+const link = (p?: Post) => p && { href: `/blog/${p.id}/`, title: displayTitle(p) };
 ---
 
 <ArticleLayout
@@ -79,7 +78,7 @@ const link = (p?: Post) => p && { href: `/blog/${p.id}/`, title: p.data.title };
   app="writing"
   icon="notebook"
 >
-  <ArticleHead slot="head" title={title} lede={description} meta={meta} small>
+  <ArticleHead slot="head" title={displayTitle(post)} lede={description} meta={meta} small>
     {tags.length > 0 && (
       <ul class="tags" aria-label="Tags">
         {tags.map((tag) => <li>{tag}</li>)}

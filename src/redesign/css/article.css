@@ -477,6 +477,10 @@ html {
   color: var(--muted);
   font-size: 13.5px;
   font-weight: 700;
+}
+
+/* Left, unlike a th's default, except where the Markdown aligned the column: GFM writes that as an align attribute. */
+.prose table:not([class]) th:not([align]) {
   text-align: left;
 }
 
@@ -527,7 +531,7 @@ html {
   border: 1px solid rgb(var(--fg-rgb) / 0.1);
 }
 
-.code-lang {
+.prose .code-lang {
   display: block;
   padding: 5px 20px 4px;
   border-bottom: 1px solid rgb(var(--fg-rgb) / 0.08);
@@ -577,7 +581,7 @@ html {
 /* --------------------------------------------------- desktop windows */
 /* The writing and work-history windows' lists (css/doc.css), on /blog/ and /about/ with the window's own spacing. */
 
-.prose :is(.posts, .jobs) :is(p, ul) {
+.prose .jobs :is(p, ul) {
   margin-bottom: 0;
 }
 
@@ -872,6 +876,17 @@ html {
 
   .prevnext a + a {
     text-align: right;
+  }
+
+  /* Both neighbours and the way back: three across left a long title a third of the column, so the neighbours
+     split the row and the way back takes the next one. */
+  .prevnext.has-both {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .prevnext.has-both a:last-child {
+    grid-column: 1 / -1;
   }
 }
 

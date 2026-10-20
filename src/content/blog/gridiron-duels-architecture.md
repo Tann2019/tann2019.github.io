@@ -1,5 +1,6 @@
 ---
 title: "GridIron Duels - Architecture Overview"
+short: "Gridiron architecture"
 description: "A deep dive into the tech stack, real-time draft engine, game modes, and service-oriented economy powering GridIron Duels."
 pubDate: 2026-04-01
 tags: ["laravel", "react", "architecture", "websockets", "react-native"]

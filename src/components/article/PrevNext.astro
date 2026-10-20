@@ -17,7 +17,7 @@ const words = {
 }[kind];
 ---
 
-<nav class="prevnext" aria-label={words.nav}>
+<nav class:list={['prevnext', { 'has-both': prev && next }]} aria-label={words.nav}>
   {prev && (
     <a href={prev.href} rel="prev">
       <span class="pn-label">{words.prev}</span>

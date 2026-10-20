@@ -2,6 +2,10 @@
 import ArticleLayout from '../layouts/ArticleLayout.astro';
 import ArticleHead from '../components/article/ArticleHead.astro';
 import WorkHistory from '../redesign/WorkHistory.astro';
+import { experience } from '../redesign/content';
+
+// The job at the top of the work history below, so the two can't disagree.
+const [current] = experience;
 ---
 
 <ArticleLayout
@@ -24,7 +28,7 @@ import WorkHistory from '../redesign/WorkHistory.astro';
       </div>
       <div>
         <dt>Currently</dt>
-        <dd>Support Engineer<span>Givebutter</span></dd>
+        <dd>{current.role}<span>{current.company}</span></dd>
       </div>
       <div>
         <dt>Links</dt>
