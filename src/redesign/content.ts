@@ -1,6 +1,6 @@
 // The desktop's other copy: jobs and toolkit (WorkHistory.astro, in the work-history window and on /about/; the
-// current job also in the neofetch and the terminal), side projects and the desktop icons. Case study facts live in
-// src/data/.
+// current job also in the neofetch, the terminal and /about/'s header; the toolkit also in every page's Person
+// JSON-LD via Seo.astro), side projects and the desktop icons. Case study facts live in src/data/.
 import { caseStudies } from '../data/case-studies';
 
 export const experience = [
