@@ -21,10 +21,10 @@ const { name, icon } = Astro.props;
   </div>
   <div class="bar-right">
     <span class="bar-weather" id="bar-weather" hidden></span>
-    <span class="bar-sun" data-live>
+    <span class="bar-sun" title="In Billings, Montana" data-live>
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="4.5"></circle><path d="M3 20h18"></path></svg>
       <span id="bar-sun-text"></span>
     </span>
-    <span class="bar-clock" id="bar-clock" data-live><span id="bar-day"></span> <span id="bar-time"></span></span>
+    <span class="bar-clock" id="bar-clock" title="Billings, Montana time" data-live><span id="bar-day"></span> <span id="bar-time"></span></span>
   </div>
 </header>
