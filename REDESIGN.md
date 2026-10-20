@@ -49,9 +49,9 @@ Without it, the guestbook keeps notes in the visitor's browser and cursors stay 
 ## Pages
 
 - `/` desktop. All window content is in the HTML. Without JS it reads as a plain column.
-- `/classic/` the old homepage, `noindex`, linked as "Skip to the plain site".
+- `/classic/` the old homepage, `noindex`, linked as "Skip to the plain site". The only page left on `BaseLayout`.
 - `/work/disdubs/` and `/work/gridiron-duels/` on `ArticleLayout` (see Article kit). DisDubs' `pick`, `cast` and `premiere.png` also stay in `public/work/disdubs/` for the JSON-LD screenshot URLs.
-- `/about/`, `/blog/*` unchanged. SEO tags now come from `src/components/Seo.astro`.
+- `/blog/`, the posts and `/about/` on `ArticleLayout` too. `/blog/` lists posts with the writing window's `PostList`; `/about/` adds the work-history window's `WorkHistory` (both in `src/redesign/`). × goes to `/#writing` and `/#work`.
 - Share cards in `public/og/` are frames of the desktop at a fixed time of day. `npm run og` rebuilds them from the dev-only `/og-card/` pages (Chrome or Edge required). Rerun after adding a post.
 
 ## Code
@@ -60,7 +60,7 @@ Without it, the guestbook keeps notes in the visitor's browser and cursors stay 
 
 `styles.css` is the desktop. It imports the parts other pages can share from `css/` (`tokens`, `base`, `scene`, `bar`, `window`, `doc`), plus the desktop-only partials that sit between them, in the original order. `css/article.css` imports the same shared parts for article pages.
 
-`src/data/`: case study facts (`disdubs`, `gridiron`, `caseStudies`), read by the homepage (windows, icons, launcher, terminal, neofetch), the share cards, the sitemap and the case studies.
+`src/data/`: case study facts (`disdubs`, `gridiron`, `caseStudies`), read by the homepage (windows, icons, launcher, terminal, neofetch), the share cards, the sitemap and the case studies. `posts` sorts the blog and formats its dates, for the writing window, `/blog/` and the posts.
 
 ## Article kit
 
@@ -77,10 +77,12 @@ Figures: PNG masters in `src/assets/work/<slug>/`, passed as `src`, ship as lazy
 
 A loop: `video={{ src, poster, width, height }}`, both files in `public/work/<slug>/`. It's muted and `preload="none"`, and `article.ts` plays it only while it's on screen, with a pause button (WCAG 2.2.2). Under reduced motion it waits on its poster until played, and turning reduced motion on mid-visit pauses it; without JS the poster shows. Encode H.264 with no audio and `+faststart`, shown at its own width at most (Gridiron's: 540px, 4.2s, 42 KB).
 
+Posts: `src/pages/blog/[id].astro` renders each Markdown file in the window, with crumbs `Tanner Steorts / Writing / <title up to its first dash>` (ArticleLayout's `parent`), date and read time in the header, and `PrevNext kind="writing"` for older and newer. `.prose` in `article.css` styles plain Markdown: headings, lists, quotes, rules, images, tables and footnotes. Code uses Shiki's `css-variables` theme, colored from the sky theme in `article.css`, and a fence's language becomes a label over the block (the `codeLabel` transformer in `astro.config.mjs`). A dev server started before that config needs a restart.
+
 After a build, `npm run check:overflow` loads the built pages at 320, 375, 768 and 1280px and fails if any scrolls sideways.
 
 Credits: sky colors from [dynamic-sky](https://github.com/aakaashjois/dynamic-sky) (Apache-2.0). Weather from [Open-Meteo](https://open-meteo.com). Fonts: National Park, Overpass (Google Fonts, OFL).
 
 ## Not done
 
-- The blog and /about/ keep their own styling.
+- Whether to delete `BaseLayout` and `/classic/` and point "Skip to the plain site" at `/about/`.

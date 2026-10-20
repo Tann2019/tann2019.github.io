@@ -1,6 +1,6 @@
-/* Case studies: the desktop's sky, bar and window chrome around a page that scrolls like a document. The shared parts
-   are the desktop's own partials; everything after the imports is the article's. Page-only pieces (DisDubs' slate,
-   reel and funnel) stay in their page. */
+/* Article pages (case studies, posts, /blog/, /about/): the desktop's sky, bar and window chrome around a page that
+   scrolls like a document. The shared parts are the desktop's own partials; everything after the imports is the
+   article's. Page-only pieces (DisDubs' slate, reel and funnel) stay in their page. */
 
 @import './tokens.css';
 @import './base.css';
@@ -130,6 +130,19 @@ html {
   font-size: clamp(48px, 5.2vw, 76px);
   font-weight: 700;
   line-height: 0.95;
+}
+
+/* A post's title runs to a few lines at the full size. */
+.ahead-title.is-small {
+  font-size: clamp(34px, 3.6vw, 52px);
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+/* National Park has no italic, so emphasis in a title is the accent. */
+.ahead-title em {
+  font-style: normal;
+  color: var(--accent);
 }
 
 .ahead-lede {
@@ -344,17 +357,17 @@ html {
   font-size: inherit;
 }
 
-/* The desktop's work-history bullet. */
-.prose ul > li {
+/* The desktop's work-history bullet. Lists with a class of their own (.posts, .funnel) opt out. */
+.prose ul:not([class]) > li {
   position: relative;
   padding-left: 18px;
 }
 
-.prose ul > li + li {
+.prose :is(ul, ol):not([class]) > li + li {
   margin-top: 10px;
 }
 
-.prose ul > li::before {
+.prose ul:not([class]) > li::before {
   content: '';
   position: absolute;
   left: 0;
@@ -362,6 +375,21 @@ html {
   width: 7px;
   height: 2px;
   background: var(--accent);
+}
+
+/* The numbers base.css resets, hung in the same 18px as the bullets. */
+.prose ol:not([class]) {
+  padding-left: 18px;
+  list-style: decimal;
+}
+
+.prose ol:not([class]) > li::marker {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.prose li > :is(ul, ol) {
+  margin: 10px 0 0;
 }
 
 /* The opening paragraph, a step up from the rest. */
@@ -381,6 +409,187 @@ html {
   font-weight: 600;
   line-height: 1.4;
   color: var(--fg);
+}
+
+/* ------------------------------------------------------------ markdown */
+/* A post's Markdown, and the plain pages: headings, quotes, rules, images, tables, code and footnotes straight in the
+   column. Headings are direct children only, so a component's own h3 keeps its style. */
+
+.prose > h2 {
+  margin: 60px 0 18px;
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+.prose > h3 {
+  margin: 36px 0 12px;
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.prose > :is(h2, h3):first-child {
+  margin-top: 0;
+}
+
+.prose blockquote {
+  margin: 0 0 1.2em;
+  padding: 2px 0 2px 18px;
+  border-left: 2px solid rgb(var(--accent-rgb) / 0.6);
+  color: var(--muted);
+}
+
+.prose blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+.prose hr {
+  margin: 48px 0;
+  border: 0;
+  border-top: 1px solid rgb(var(--fg-rgb) / 0.12);
+}
+
+/* Markdown puts an image in a paragraph. Figures size their own. */
+.prose p > img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* A Markdown table, ruled like the Ledger. Cells wrap between words, and break a word only if it alone is wider than
+   its column: anywhere would split words like "Matchmaking" that fit. A narrow window sets it smaller, below. */
+.prose table:not([class]) {
+  width: 100%;
+  margin: 32px 0;
+  border-collapse: collapse;
+  font-size: 15.5px;
+  line-height: 1.5;
+}
+
+.prose table:not([class]) th {
+  padding: 0 20px 10px 0;
+  border-bottom: 1px solid rgb(var(--fg-rgb) / 0.18);
+  color: var(--muted);
+  font-size: 13.5px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.prose table:not([class]) td {
+  padding: 11px 20px 11px 0;
+  border-bottom: 1px solid rgb(var(--fg-rgb) / 0.1);
+  vertical-align: baseline;
+  overflow-wrap: break-word;
+}
+
+.prose table:not([class]) :is(th, td):last-child {
+  padding-right: 0;
+}
+
+.prose table:not([class]) td:first-child {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+/* Sized by the window body, the size container, like the column itself. */
+@container (max-width: 600px) {
+  .prose table:not([class]) {
+    font-size: 14.5px;
+  }
+
+  .prose table:not([class]) :is(th, td):not(:last-child) {
+    padding-right: 12px;
+  }
+}
+
+/* A 320px phone: the architecture post's three columns, longest words whole, still fit the column. */
+@container (max-width: 340px) {
+  .prose table:not([class]) {
+    font-size: 13.5px;
+  }
+
+  .prose table:not([class]) :is(th, td):not(:last-child) {
+    padding-right: 8px;
+  }
+}
+
+/* A code block that names its language: a small window titled with it, like a figure's. The label is outside the
+   block, which scrolls sideways (see astro.config.mjs). */
+.prose .code {
+  margin-bottom: 1.2em;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid rgb(var(--fg-rgb) / 0.1);
+}
+
+.code-lang {
+  display: block;
+  padding: 5px 20px 4px;
+  border-bottom: 1px solid rgb(var(--fg-rgb) / 0.08);
+  background: rgb(var(--fg-rgb) / 0.04);
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.prose .code pre {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+/* The frame clips, so the ring goes inside. */
+.prose .code pre:focus-visible {
+  outline-offset: -2px;
+}
+
+/* Shiki's css-variables theme, in the sky's inks: keywords in the accent, comments and punctuation muted. The accent
+   has no second hue to pair with, so strings are a sage tinted by the text color. The window is dark at every hour,
+   so all of them stay readable on it. */
+.prose .astro-code {
+  --astro-code-background: rgb(var(--fg-rgb) / 0.04);
+  --astro-code-foreground: var(--fg);
+  --astro-code-token-keyword: var(--accent);
+  --astro-code-token-constant: var(--accent);
+  --astro-code-token-link: var(--accent);
+  --astro-code-token-string: color-mix(in oklab, #a8dba8 65%, var(--fg));
+  --astro-code-token-string-expression: color-mix(in oklab, #a8dba8 65%, var(--fg));
+  --astro-code-token-function: var(--fg);
+  --astro-code-token-parameter: var(--fg);
+  --astro-code-token-comment: var(--muted);
+  --astro-code-token-punctuation: var(--muted);
+}
+
+/* GFM footnotes, under a rule at the end. Their heading is .sr-only. */
+.prose .footnotes {
+  margin-top: 56px;
+  padding-top: 20px;
+  border-top: 1px solid rgb(var(--fg-rgb) / 0.12);
+  color: var(--muted);
+  font-size: 14.5px;
+}
+
+/* --------------------------------------------------- desktop windows */
+/* The writing and work-history windows' lists (css/doc.css), on /blog/ and /about/ with the window's own spacing. */
+
+.prose :is(.posts, .jobs) :is(p, ul) {
+  margin-bottom: 0;
+}
+
+.prose .posts {
+  margin-top: 0;
+}
+
+.prose .jobs h3 {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.2;
 }
 
 /* -------------------------------------------------------------- chapter */
@@ -638,9 +847,10 @@ html {
   margin-top: 48px;
 }
 
-/* The desktop's post links. */
+/* The desktop's post links. Top-aligned, so a short title beside a long one stays under its label. */
 .prevnext a {
   display: grid;
+  align-content: start;
   gap: 2px;
   padding: 16px 18px;
   border-radius: 9px;
@@ -779,6 +989,11 @@ html {
   }
 
   .chapter-title {
+    font-size: 27px;
+  }
+
+  .prose > h2 {
+    margin-top: 48px;
     font-size: 27px;
   }
 
