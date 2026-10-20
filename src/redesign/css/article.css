@@ -152,7 +152,11 @@ html {
   line-height: 1.55;
 }
 
+/* The desktop window's .doc-actions: buttons in a row that wraps on a narrow screen. */
 .ahead-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   margin-top: 24px;
 }
 

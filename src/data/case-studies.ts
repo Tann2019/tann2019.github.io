@@ -29,6 +29,8 @@ export interface CaseStudy {
   launcher: string;
   /** The product's own site. */
   site: { href: string; name: string };
+  /** Its App Store listing, when there is one. */
+  appStore?: string;
   /** A companion post, when there is one. */
   essay?: string;
   /** ISO 8601 with the Billings offset. */
