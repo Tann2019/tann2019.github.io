@@ -16,8 +16,10 @@ export const gridiron = {
   title: 'Gridiron Duels',
   site: { href: 'https://gridiron-duels.com/', name: 'gridiron-duels.com' },
   essay: '/blog/gridiron-duels-architecture/',
-  // The case study's first commit, 85e7300. The page doesn't print a date yet.
+  // The case study's first commit, 85e7300, and the move to the article layout with its figures. The page doesn't
+  // print either.
   published: '2026-09-09T13:09:40-06:00',
+  modified: '2026-10-20T00:00:00-06:00',
   lede: 'A real-time fantasy football draft platform — built end-to-end across web, mobile, and a service-oriented backend that runs the league.',
   meta: [
     { label: 'Year', value: '2025—2026' },

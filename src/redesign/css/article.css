@@ -440,6 +440,18 @@ html {
   border-radius: 26px;
 }
 
+/* Centred under the bezel, which is narrower than the column. */
+.fig-phone figcaption {
+  text-align: center;
+  text-wrap: balance;
+}
+
+/* A loop shows no wider than the clip, so it isn't upscaled, with its caption under it. --fig-w is set by Figure. */
+.fig-video.fig-window :is(.fig-frame, figcaption) {
+  max-width: calc(var(--fig-w) + 2px);
+  margin-inline: auto;
+}
+
 .fig figcaption {
   max-width: 44rem;
   margin: 12px auto 0;
