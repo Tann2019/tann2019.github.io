@@ -5,8 +5,10 @@ import { getCollection } from 'astro:content';
 import { Picture } from 'astro:assets';
 import Seo from '../components/Seo.astro';
 import '../redesign/styles.css';
+import { APPS, LOCK_KEY } from '../redesign/windows';
 import Win from '../redesign/Win.astro';
 import FileIcon from '../redesign/FileIcon.astro';
+import RestoreTheme from '../redesign/RestoreTheme.astro';
 import Wallpaper from '../redesign/Wallpaper.astro';
 import Synth from '../redesign/apps/Synth.astro';
 import Guestbook from '../redesign/apps/Guestbook.astro';
@@ -93,6 +95,16 @@ const launcherEntries = [
       ]}
     />
     <meta name="theme-color" content="#1f5fb6" />
+    <RestoreTheme />
+    {/* A visitor wm.ts will let straight in (already unlocked this session, or linked to a window) never sees a frame of
+        the lock screen first. setupLock makes the same call, then takes over. See .skip-lock in styles.css. */}
+    <script is:inline define:vars={{ lockKey: LOCK_KEY, apps: Object.keys(APPS) }}>
+      let skip = apps.includes(location.hash.slice(1));
+      try {
+        skip = skip || sessionStorage.getItem(lockKey) === '1';
+      } catch {}
+      if (skip) document.documentElement.classList.add('skip-lock');
+    </script>
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

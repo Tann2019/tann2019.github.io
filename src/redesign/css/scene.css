@@ -9,12 +9,16 @@
   z-index: 0;
 }
 
+/* Until sky.ts paints: the sky RestoreTheme.astro put back from the last page, if any. article.css has its own
+   fallbacks. */
 #sky-base {
   background: linear-gradient(to bottom, rgb(10 20 48), rgb(38 56 98));
+  opacity: var(--sky-night, 1);
 }
 
 #sky {
   mix-blend-mode: screen;
+  background-image: var(--sky, none);
 }
 
 /* Its own compositing layer, so moving a window doesn't re-rasterize a thousand SVG shapes.
@@ -46,4 +50,9 @@
 #sky-moon,
 #sky-stars {
   transition: opacity 0.6s ease;
+}
+
+/* Until sky.ts sets it: as many stars as the restored sky has night, or all of them with nothing restored. */
+#sky-stars {
+  opacity: var(--sky-night, 1);
 }

@@ -591,6 +591,16 @@ kbd {
   transition: opacity 0.5s ease, visibility 0s linear 0.5s;
 }
 
+/* index.astro's head script, for a visitor wm.ts will let straight in. wm.ts clears it once the lock has its state.
+   Until then the desktop hides too, as the lock used to cover it: the icons aren't placed and the clock is blank. */
+.skip-lock #lock {
+  display: none;
+}
+
+.skip-lock #desktop {
+  visibility: hidden;
+}
+
 .lock-ring-wrap {
   position: relative;
   width: 250px;
