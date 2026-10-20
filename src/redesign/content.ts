@@ -1,5 +1,6 @@
-// Mockup copy of the data that lives inline in src/pages/index.astro today.
-// Phase 1 moves these into src/data/ so the desktop and the plain pages share one source.
+// The desktop's other copy: jobs and toolkit (WorkHistory.astro, in the work-history window and on /about/; the
+// current job also in the neofetch and the terminal), side projects and the desktop icons. Case study facts live in
+// src/data/.
 import { caseStudies } from '../data/case-studies';
 
 export const experience = [
@@ -35,6 +36,10 @@ export const experience = [
     ],
   },
 ];
+
+const [current] = experience;
+/** The current job in a sentence, for the neofetch and the terminal: "Support engineer at Givebutter". */
+export const currentJob = `${current.role[0]}${current.role.slice(1).toLowerCase()} at ${current.company}`;
 
 export const toolkit = [
   { group: 'Backend', items: ['Laravel', 'PHP', 'PostgreSQL', 'MySQL', 'Redis', 'WebSockets', 'Stripe'] },

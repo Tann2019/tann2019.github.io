@@ -1,4 +1,4 @@
-// The scene under every Big Sky page, painted for one moment. Shared by the desktop (main.ts), the case studies
+// The scene under every Big Sky page, painted for one moment. Shared by the desktop (main.ts), the article pages
 // (article.ts) and the share cards (og.ts), so they can't drift apart.
 import { applyTheme, paintSky, skyColorsAt, type SkySnapshot } from './sky';
 import { paintLand, type LandLight } from './land';

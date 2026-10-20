@@ -13,7 +13,7 @@ import PostList from '../redesign/PostList.astro';
 import WorkHistory from '../redesign/WorkHistory.astro';
 import Synth from '../redesign/apps/Synth.astro';
 import Guestbook from '../redesign/apps/Guestbook.astro';
-import { desktopIcons, sideProjects } from '../redesign/content';
+import { currentJob, desktopIcons, sideProjects } from '../redesign/content';
 import { caseStudies } from '../data/case-studies';
 import { disdubs } from '../data/disdubs';
 import { gridiron } from '../data/gridiron';
@@ -192,7 +192,7 @@ const launcherEntries = [
     <!-- ===================== WINDOWS, MOVED IN WHEN OPENED ===================== -->
     <div id="win-pool" hidden>
       <Win app="terminal" title="tanner@billings: ~" label="Terminal">
-        <div class="term" data-studies={JSON.stringify(caseStudies.map((s) => [s.slug, s.app]))}>
+        <div class="term" data-studies={JSON.stringify(caseStudies.map((s) => [s.slug, s.app]))} data-job={currentJob}>
           <div class="term-out" aria-live="polite">
             <div class="term-line"><span class="term-prompt">tanner@billings <b>~</b> $</span> neofetch</div>
             <div class="neofetch">
@@ -203,7 +203,7 @@ const launcherEntries = [
                 <div><dt>OS</dt><dd>Big Sky Linux</dd></div>
                 <div><dt>Host</dt><dd>Billings, Montana</dd></div>
                 <div><dt>Uptime</dt><dd data-live="uptime">shipping since 2022</dd></div>
-                <div><dt>Role</dt><dd>Support engineer at Givebutter</dd></div>
+                <div><dt>Role</dt><dd>{currentJob}</dd></div>
                 <div><dt>Building</dt><dd>Gridiron Duels</dd></div>
                 <div><dt>Shipped</dt><dd>{disdubs.title}, {disdubs.stats[0].value} servers in month one</dd></div>
                 <div><dt>Stack</dt><dd>Laravel, React, Expo, TypeScript</dd></div>
@@ -299,6 +299,9 @@ const launcherEntries = [
         <article class="doc">
           <h2 class="doc-title">Work history</h2>
           <WorkHistory />
+          <div class="doc-actions">
+            <a class="btn btn-primary" href="/about/">More about me</a>
+          </div>
         </article>
       </Win>
 
@@ -321,6 +324,9 @@ const launcherEntries = [
         <article class="doc">
           <h2 class="doc-title">Writing</h2>
           <PostList posts={posts} />
+          <div class="doc-actions">
+            <a class="btn btn-primary" href="/blog/">All writing</a>
+          </div>
         </article>
       </Win>
 
@@ -406,7 +412,7 @@ const launcherEntries = [
         <dl class="nf-info">
           <div class="nf-head"><span>tanner</span>@<span>billings</span></div>
           <div><dt>Host</dt><dd>Billings, Montana</dd></div>
-          <div><dt>Role</dt><dd>Support engineer at Givebutter</dd></div>
+          <div><dt>Role</dt><dd>{currentJob}</dd></div>
           <div><dt>Building</dt><dd>Gridiron Duels</dd></div>
           <div><dt>Sky</dt><dd data-live="sky"></dd></div>
           <div class="nf-swatches" role="img" aria-label="Theme palette, sampled from the wallpaper right now">

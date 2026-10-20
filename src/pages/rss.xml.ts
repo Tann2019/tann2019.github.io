@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getCollection } from 'astro:content';
+import { getPosts } from '../data/posts';
 
 const SITE = 'https://tannersteorts.com';
 
@@ -11,9 +11,7 @@ const esc = (s: string) =>
     .replace(/"/g, '&quot;');
 
 export const GET: APIRoute = async () => {
-  const posts = (await getCollection('blog')).sort(
-    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-  );
+  const posts = await getPosts();
 
   const items = posts
     .map(

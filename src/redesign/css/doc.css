@@ -1,4 +1,5 @@
-/* Document windows: case study summaries, work history, side projects, writing and say hi. */
+/* Document windows: case study summaries, work history, side projects, writing and say hi. Article pages use the
+   work history, post list and stats too. */
 
 .doc {
   max-width: 72ch;

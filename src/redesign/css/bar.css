@@ -132,7 +132,7 @@
   text-overflow: ellipsis;
 }
 
-/* .is-current: a case study's one chip, which names the page instead of toggling a window. */
+/* .is-current: an article page's one chip, which names the page instead of toggling a window. */
 .task[aria-pressed='true'],
 .task.is-current {
   color: var(--fg);
