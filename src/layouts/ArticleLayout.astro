@@ -1,6 +1,6 @@
 ---
 // A page on the Big Sky desktop's terms: the live sky and the bar, a glass header, then the article in one tall window
-// that scrolls with the document. Case studies use it now; posts and /about/ can later. See REDESIGN.md.
+// that scrolls with the document. The case studies, the blog and /about/ use it. See REDESIGN.md.
 import type { ComponentProps } from 'astro/types';
 import Seo from '../components/Seo.astro';
 import TopBar from '../components/article/TopBar.astro';
@@ -15,14 +15,17 @@ type Props = ComponentProps<typeof Seo> & {
   app: string;
   /** FileIcon for the bar chip. */
   icon: string;
+  /** A crumb between home and the page, as a post's "Writing". */
+  parent?: { name: string; href: string };
 };
 
-const { name, app, icon, schema, ...seo } = Astro.props;
+const { name, app, icon, parent, schema, ...seo } = Astro.props;
 
 // The breadcrumb in the title bar, and the BreadcrumbList made from it, so the two can't disagree.
 const page = new URL(Astro.url.pathname.replace(/\/?$/, '/'), Astro.site).href;
 const crumbs = [
   { name: 'Tanner Steorts', href: '/' },
+  ...(parent ? [parent] : []),
   { name, href: Astro.url.pathname },
 ];
 const breadcrumbs = {

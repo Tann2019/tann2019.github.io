@@ -1,268 +1,114 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import ArticleHead from '../../components/article/ArticleHead.astro';
+import PrevNext from '../../components/article/PrevNext.astro';
+import { getPosts, postDate, shortTitle, type Post } from '../../data/posts';
 import ogCards from '../../redesign/og-cards.json';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog');
-  return posts.map((post) => ({
+  const posts = await getPosts();
+  return posts.map((post, i) => ({
     params: { id: post.id },
-    props: { post },
+    props: { post, newer: posts[i - 1], older: posts[i + 1] },
   }));
 }
 
-const { post } = Astro.props;
-const { Content, remarkPluginFrontmatter } = await render(post);
+interface Props {
+  post: Post;
+  newer?: Post;
+  older?: Post;
+}
+const { post, newer, older } = Astro.props;
+const { Content } = await render(post);
+const { title, description, pubDate, updatedDate, tags = [] } = post.data;
 
-// Calculate read time (~225 words per minute)
+// Read time at ~225 words a minute, the rate the posts have always shown. wordCount also goes in the JSON-LD.
 const body = post.body ?? '';
 const wordCount = body.split(/\s+/).filter(Boolean).length;
 const readTime = Math.max(1, Math.ceil(wordCount / 225));
 
 // Results cut titles off around 60 characters; og:site_name already carries the name.
-const withName = `${post.data.title} — Tanner Steorts`;
-const title = withName.length > 60 ? post.data.title : withName;
+const withName = `${title} — Tanner Steorts`;
+const pageTitle = withName.length > 60 ? title : withName;
 
 // The post's share card from `npm run og`, once generated. Until then Seo falls back to the site card.
 const card = `blog/${post.id}`;
-const cardDate = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
 const cardProps = card in ogCards
   ? {
       image: `/og/${card}.png`,
-      imageAlt: `${post.data.title}, a blog post from ${cardDate.format(post.data.pubDate)}, in a window on a desktop under a mountain sky.`,
+      imageAlt: `${title}, a blog post from ${postDate.format(pubDate)}, in a window on a desktop under a mountain sky.`,
     }
   : {};
+
+const day = (d: Date) => d.toISOString().slice(0, 10);
+const meta = [
+  { label: 'Published', value: postDate.format(pubDate), datetime: day(pubDate) },
+  ...(updatedDate ? [{ label: 'Updated', value: postDate.format(updatedDate), datetime: day(updatedDate) }] : []),
+  { label: 'Length', value: `${readTime} min read` },
+];
+const link = (p?: Post) => p && { href: `/blog/${p.id}/`, title: p.data.title };
 ---
 
-<BaseLayout
-  title={title}
-  description={post.data.description}
+<ArticleLayout
+  title={pageTitle}
+  description={description}
   {...cardProps}
   type="article"
-  publishedTime={post.data.pubDate.toISOString()}
-  modifiedTime={(post.data.updatedDate ?? post.data.pubDate).toISOString()}
-  keywords={post.data.tags ?? []}
+  publishedTime={pubDate.toISOString()}
+  modifiedTime={(updatedDate ?? pubDate).toISOString()}
+  keywords={tags}
   schema={{
     '@type': 'BlogPosting',
     '@id': `https://tannersteorts.com/blog/${post.id}/#post`,
-    headline: post.data.title,
-    description: post.data.description,
-    datePublished: post.data.pubDate.toISOString(),
-    dateModified: (post.data.updatedDate ?? post.data.pubDate).toISOString(),
+    headline: title,
+    description,
+    datePublished: pubDate.toISOString(),
+    dateModified: (updatedDate ?? pubDate).toISOString(),
     image: new URL(cardProps.image ?? '/og/default.png', 'https://tannersteorts.com').href,
     wordCount,
-    keywords: (post.data.tags ?? []).join(', '),
+    keywords: tags.join(', '),
     inLanguage: 'en-US',
     author: { '@id': 'https://tannersteorts.com/#person' },
     publisher: { '@id': 'https://tannersteorts.com/#person' },
     isPartOf: { '@id': 'https://tannersteorts.com/#website' },
     mainEntityOfPage: `https://tannersteorts.com/blog/${post.id}/`,
   }}
+  name={shortTitle(post)}
+  parent={{ name: 'Writing', href: '/blog/' }}
+  app="writing"
+  icon="notebook"
 >
-  <article>
-    <header class="post-header">
-      <a href="/blog/" class="back-link animate-in">&larr; Back to blog</a>
-      <div class="post-meta animate-in" style="animation-delay: 0.05s">
-        <time datetime={post.data.pubDate.toISOString()}>
-          {post.data.pubDate.toLocaleDateString('en-us', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </time>
-        <span class="meta-sep">&middot;</span>
-        <span class="read-time">{readTime} min read</span>
-      </div>
-      <h1 class="animate-in" style="animation-delay: 0.1s">{post.data.title}</h1>
-      {post.data.tags && (
-        <div class="tags animate-in" style="animation-delay: 0.15s">
-          {post.data.tags.map((tag: string) => (
-            <span class="tag">{tag}</span>
-          ))}
-        </div>
-      )}
-    </header>
-    <div class="prose animate-in" style="animation-delay: 0.2s">
-      <Content />
-    </div>
-  </article>
-</BaseLayout>
+  <ArticleHead slot="head" title={title} lede={description} meta={meta} small>
+    {tags.length > 0 && (
+      <ul class="tags" aria-label="Tags">
+        {tags.map((tag) => <li>{tag}</li>)}
+      </ul>
+    )}
+  </ArticleHead>
+
+  <Content />
+
+  <PrevNext kind="writing" prev={link(older)} next={link(newer)} />
+</ArticleLayout>
 
 <style>
-  .post-header {
-    padding: 4rem 0 3rem;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 3rem;
-    max-width: 42rem;
-  }
-
-  .back-link {
-    display: inline-block;
-    font-size: 0.85rem;
-    color: var(--text-dim);
-    margin-bottom: 2rem;
-    letter-spacing: 0.03em;
-    transition: color 0.2s ease;
-  }
-
-  .back-link:hover {
-    color: var(--accent);
-  }
-
-  .post-meta {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    margin-bottom: 1rem;
-  }
-
-  time {
-    font-size: 0.8rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--accent);
-    font-weight: 500;
-  }
-
-  .meta-sep {
-    color: var(--text-dim);
-    font-size: 0.7rem;
-  }
-
-  .read-time {
-    font-size: 0.8rem;
-    letter-spacing: 0.05em;
-    color: var(--text-dim);
-    font-weight: 400;
-  }
-
-  h1 {
-    font-family: var(--font-display);
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 900;
-    line-height: 1.1;
-    letter-spacing: -0.03em;
-    margin-bottom: 1rem;
-  }
-
+  /* The post's tags, as chips under the meta. A chip doesn't break, so "react-native" stays whole. Darker than the
+     panel, not lighter: a light fill took the text under 4.5:1 on the midday sky. */
   .tags {
     display: flex;
-    gap: 0.5rem;
     flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 22px;
   }
 
-  .tag {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    padding: 0.3rem 0.75rem;
-    border-radius: 100px;
-    letter-spacing: 0.03em;
-  }
-
-  /* Prose styles for markdown content */
-  .prose {
-    max-width: 42rem;
-    padding-bottom: 4rem;
-  }
-
-  .prose :global(p) {
-    font-size: 1.05rem;
-    line-height: 1.85;
-    color: var(--text-muted);
-    margin-bottom: 1.5rem;
-  }
-
-  .prose :global(h2) {
-    font-family: var(--font-display);
-    font-size: 1.6rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    margin-top: 3rem;
-    margin-bottom: 1rem;
-    color: var(--text);
-  }
-
-  .prose :global(h3) {
-    font-family: var(--font-display);
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-top: 2.5rem;
-    margin-bottom: 0.75rem;
-    color: var(--text);
-  }
-
-  .prose :global(a) {
-    color: var(--accent);
-    text-decoration: underline;
-    text-decoration-color: rgba(200, 149, 108, 0.3);
-    text-underline-offset: 3px;
-    transition: text-decoration-color 0.2s ease;
-  }
-
-  .prose :global(a:hover) {
-    text-decoration-color: var(--accent);
-  }
-
-  .prose :global(strong) {
-    color: var(--text);
+  .tags li {
+    padding: 3px 11px 2px;
+    border-radius: 999px;
+    background: rgb(var(--bg-rgb) / 0.3);
+    border: 1px solid rgb(var(--fg-rgb) / 0.16);
+    font-size: 13.5px;
     font-weight: 600;
-  }
-
-  .prose :global(pre) {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    padding: 1.5rem;
-    border-radius: 8px;
-    overflow-x: auto;
-    margin-bottom: 1.5rem;
-    font-size: 0.9rem;
-    line-height: 1.6;
-  }
-
-  .prose :global(code) {
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
-    font-size: 0.85em;
-  }
-
-  .prose :global(:not(pre) > code) {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    padding: 0.15em 0.4em;
-    border-radius: 4px;
-    color: var(--accent);
-  }
-
-  .prose :global(blockquote) {
-    border-left: 2px solid var(--accent);
-    padding-left: 1.5rem;
-    margin: 1.5rem 0;
-    color: var(--text-muted);
-    font-style: italic;
-  }
-
-  .prose :global(ul),
-  .prose :global(ol) {
-    padding-left: 1.5rem;
-    margin-bottom: 1.5rem;
-    color: var(--text-muted);
-  }
-
-  .prose :global(li) {
-    margin-bottom: 0.5rem;
-    line-height: 1.7;
-  }
-
-  .prose :global(hr) {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 3rem 0;
-  }
-
-  .prose :global(img) {
-    max-width: 100%;
-    border-radius: 8px;
-    margin: 2rem 0;
+    white-space: nowrap;
   }
 </style>

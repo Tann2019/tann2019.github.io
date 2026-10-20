@@ -1,5 +1,6 @@
 ---
-// The end of an article: the neighbouring case study, and the way back to the desktop.
+// The end of an article: its neighbours, and the way back to the desktop. A case study's are the other case studies;
+// a post's are the older and newer posts, and the way back opens the desktop's writing window.
 interface Link {
   href: string;
   title: string;
@@ -7,25 +8,30 @@ interface Link {
 interface Props {
   prev?: Link;
   next?: Link;
+  kind?: 'work' | 'writing';
 }
-const { prev, next } = Astro.props;
+const { prev, next, kind = 'work' } = Astro.props;
+const words = {
+  work: { nav: 'More work', prev: 'Previous', next: 'Next', back: { href: '/', title: 'All work →' } },
+  writing: { nav: 'More writing', prev: 'Older', next: 'Newer', back: { href: '/#writing', title: 'All writing →' } },
+}[kind];
 ---
 
-<nav class="prevnext" aria-label="More work">
+<nav class="prevnext" aria-label={words.nav}>
   {prev && (
     <a href={prev.href} rel="prev">
-      <span class="pn-label">Previous</span>
+      <span class="pn-label">{words.prev}</span>
       <span class="pn-title">{prev.title}</span>
     </a>
   )}
   {next && (
     <a href={next.href} rel="next">
-      <span class="pn-label">Next</span>
+      <span class="pn-label">{words.next}</span>
       <span class="pn-title">{next.title}</span>
     </a>
   )}
-  <a href="/">
+  <a href={words.back.href}>
     <span class="pn-label">Back to</span>
-    <span class="pn-title">All work →</span>
+    <span class="pn-title">{words.back.title}</span>
   </a>
 </nav>

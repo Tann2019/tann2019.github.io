@@ -1,4 +1,4 @@
-// A case study's live scene: the desktop's sky, theme and land for now in Billings, plus the bar's sun line and clock.
+// An article page's live scene: the desktop's sky, theme and land for now in Billings, plus the bar's sun line and clock.
 // Paint only. No weather request, no window manager, no cursors socket; the desktop's cached weather shows if it has one.
 import { billingsDateAt, cachedWeather, formatShortDay, formatTime, nextSunLine } from './sky';
 import { setupLand } from './land';
